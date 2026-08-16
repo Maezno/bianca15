@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getGroupByToken } from "@/lib/guests/get-group-by-token";
+import { getConfirmationByToken } from "@/lib/confirmations/get-confirmation";
+import { ConfirmationForm } from "@/components/confirmation/ConfirmationForm";
 
 export const dynamic = "force-dynamic";
 
@@ -39,23 +41,19 @@ export default async function EventInvitationPage({
     notFound();
   }
 
-  const confirmationLabel =
-    group.confirmation?.status === "confirmed"
-      ? "Confirmada ✓"
-      : group.confirmation?.status === "declined"
-        ? "No asistirá"
-        : "Pendiente";
+  // Obtener confirmación existente (si la hay) mediante token
+  const existingConfirmation = await getConfirmationByToken(token);
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto", fontFamily: "sans-serif" }}>
+    <main style={{ padding: "2rem 1rem", maxWidth: "600px", margin: "0 auto", fontFamily: "sans-serif" }}>
       {/* Encabezado del evento dinámico */}
       <header style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-        <p style={{ textTransform: "uppercase", letterSpacing: "2px", color: "#666" }}>
+        <p style={{ textTransform: "uppercase", letterSpacing: "2px", color: "#666", fontSize: "0.85rem" }}>
           {group.event.title}
         </p>
-        <h1 style={{ fontSize: "2.5rem", margin: "0.5rem 0" }}>{group.event.name}</h1>
+        <h1 style={{ fontSize: "2.2rem", margin: "0.5rem 0", color: "#1a1a2e" }}>{group.event.name}</h1>
         {group.event.date && (
-          <p style={{ color: "#555" }}>
+          <p style={{ color: "#555", fontSize: "0.95rem" }}>
             📅 {group.event.date} {group.event.startTime && `| ⏰ ${group.event.startTime} hs`}
           </p>
         )}
@@ -66,46 +64,34 @@ export default async function EventInvitationPage({
         )}
       </header>
 
-      <hr style={{ borderColor: "#eee", margin: "1.5rem 0" }} />
+      <hr style={{ borderColor: "#f1f5f9", margin: "1.5rem 0" }} />
 
       {/* Invitación personalizada */}
-      <section aria-label="Invitación personalizada" style={{ textAlign: "center", margin: "2rem 0" }}>
-        <p style={{ color: "#666", fontSize: "1.1rem" }}>Invitación para:</p>
-        <h2 style={{ fontSize: "1.8rem", margin: "0.5rem 0", color: "#111" }}>
+      <section aria-label="Invitación personalizada" style={{ textAlign: "center", margin: "1.5rem 0" }}>
+        <p style={{ color: "#666", fontSize: "1rem" }}>Invitación especial para:</p>
+        <h2 style={{ fontSize: "1.8rem", margin: "0.4rem 0", color: "#9333ea" }}>
           {group.name}
         </h2>
 
-        <p style={{ fontSize: "1.2rem", marginTop: "1rem" }}>
-          Tenemos reservado lugar para:{" "}
+        <p style={{ fontSize: "1.05rem", marginTop: "0.75rem", color: "#374151" }}>
+          Lugar reservado para:{" "}
           <strong>
             {group.maxGuests} {group.maxGuests === 1 ? "persona" : "personas"}
           </strong>
         </p>
       </section>
 
-      {/* Lista de invitados asociados al grupo */}
-      {group.guests.length > 0 && (
-        <section aria-label="Invitados">
-          <hr style={{ borderColor: "#eee", margin: "1.5rem 0" }} />
-          <h3>Invitados:</h3>
-          <ul style={{ lineHeight: "1.8" }}>
-            {group.guests.map((guest) => (
-              <li key={guest.id}>{guest.name}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Estado de confirmación (solo lectura en esta fase) */}
-      <section aria-label="Estado de confirmación" style={{ marginTop: "1.5rem" }}>
-        <hr style={{ borderColor: "#eee", margin: "1.5rem 0" }} />
-        <p>
-          Estado actual: <strong>{confirmationLabel}</strong>
-        </p>
-        <p style={{ color: "#888", fontSize: "0.9rem" }}>
-          <em>Próximamente podrás confirmar tu asistencia desde aquí.</em>
-        </p>
+      {/* Formulario de confirmación de asistencia interactivo */}
+      <section aria-label="Confirmación de asistencia">
+        <ConfirmationForm
+          token={group.token}
+          maxGuests={group.maxGuests}
+          groupName={group.name}
+          eventTitle={group.event.name}
+          existingConfirmation={existingConfirmation}
+        />
       </section>
     </main>
   );
 }
+

@@ -275,6 +275,22 @@ export type Database = {
         };
         Returns: Json;
       };
+      get_confirmation_by_token: {
+        Args: {
+          p_token: string;
+        };
+        Returns: Json;
+      };
+      save_confirmation: {
+        Args: {
+          p_token: string;
+          p_status: string;
+          p_guests_count: number;
+          p_comment: string;
+          p_attendees: Json;
+        };
+        Returns: Json;
+      };
     };
     Enums: Record<string, string>;
     CompositeTypes: Record<string, unknown>;
