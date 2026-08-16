@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
+import { getGroupByToken } from "@/lib/guests/get-group-by-token";
 
-export const metadata: Metadata = {
-  title: "Invitación — Bianca 15 años",
-  description: "Tu invitación personalizada a los 15 años de Bianca.",
-};
+export const dynamic = "force-dynamic";
 
-interface InvitationPageProps {
+interface DirectInvitationPageProps {
   params: Promise<{ token: string }>;
 }
 
-export default async function InvitationPage({ params }: InvitationPageProps) {
+export default async function DirectInvitationPage({
+  params,
+}: DirectInvitationPageProps) {
   const { token } = await params;
 
-  return (
-    <main>
-      <h1>Invitación personalizada</h1>
-      <p>
-        Token recibido: <code>{token}</code>
-      </p>
-      <p>Esta será la invitación personalizada.</p>
-    </main>
-  );
+  // Buscar el grupo de forma global por su token único
+  const group = await getGroupByToken(token);
+
+  if (!group || !group.event?.slug) {
+    notFound();
+  }
+
+  // Redirigir a la URL canónica del evento
+  redirect(`/e/${group.event.slug}/i/${group.token}`);
 }

@@ -1,128 +1,289 @@
 /**
- * Tipos de base de datos para Supabase.
- * Representan las tablas de PostgreSQL definidas en supabase/migrations/
- *
- * Para generar tipos automáticamente desde Supabase en hitos futuros:
- * npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts
+ * Tipos oficiales de base de datos para Supabase.
+ * Formato compatible con GenericSchema de @supabase/supabase-js.
  */
 
-// ─── Enums ───────────────────────────────────────────────────────────────────
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
 
-export type ConfirmationStatus = "pending" | "confirmed" | "declined";
+export type GenericRelationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne?: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
 
-// ─── Tablas ───────────────────────────────────────────────────────────────────
+export type GenericTable = {
+  Row: Record<string, unknown>;
+  Insert: Record<string, unknown>;
+  Update: Record<string, unknown>;
+  Relationships: GenericRelationship[];
+};
 
-/**
- * Representa a una persona, familia o grupo de invitados.
- * Tabla: guest_groups
- */
-export interface GuestGroup {
-  id: string; // UUID
-  name: string;
-  token: string; // Identificador único aleatorio, sin información personal
-  max_guests: number;
-  phone: string | null;
-  notes: string | null;
-  created_at: string; // ISO 8601 con timezone
-  updated_at: string; // ISO 8601 con timezone
-}
+export type GenericFunction = {
+  Args: Record<string, unknown> | never;
+  Returns: unknown;
+  SetofOptions?: {
+    isSetofReturn?: boolean;
+    isOneToOne?: boolean;
+    isNotNullable?: boolean;
+    to: string;
+    from: string;
+  };
+};
 
-/**
- * Representa a una persona individual dentro de un grupo de invitados.
- * Tabla: guests
- */
-export interface Guest {
-  id: string; // UUID
-  group_id: string; // FK → guest_groups.id
-  name: string;
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * Representa la confirmación de asistencia de un grupo.
- * Tabla: confirmations
- */
-export interface Confirmation {
-  id: string; // UUID
-  group_id: string; // FK → guest_groups.id (UNIQUE: un grupo, una confirmación)
-  status: ConfirmationStatus;
-  guests_count: number | null;
-  comment: string | null;
-  confirmed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * Representa a una persona individual que efectivamente asistirá.
- * Tabla: attendees
- */
-export interface Attendee {
-  id: string; // UUID
-  confirmation_id: string; // FK → confirmations.id
-  name: string;
-  dietary_restriction: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-// ─── Tipos compuestos ─────────────────────────────────────────────────────────
-
-/** GuestGroup con sus Guests incluidos (para consultas JOIN) */
-export interface GuestGroupWithGuests extends GuestGroup {
-  guests: Guest[];
-}
-
-/** Confirmation con sus Attendees incluidos (para consultas JOIN) */
-export interface ConfirmationWithAttendees extends Confirmation {
-  attendees: Attendee[];
-}
-
-// ─── Tipos de base para Supabase generics ────────────────────────────────────
-
-/**
- * Definición de tipos de la base de datos para el cliente de Supabase.
- * Se usa como parámetro genérico: createClient<Database>()
- */
-export interface Database {
+export type Database = {
   public: {
-    Tables: {
-      guest_groups: {
-        Row: GuestGroup;
-        Insert: Omit<GuestGroup, "id" | "created_at" | "updated_at"> & {
-          id?: string;
+    Tables: Record<string, GenericTable> & {
+      events: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          title: string;
+          type: string;
+          template_id: string;
+          status: string;
+          date: string | null;
+          start_time: string | null;
+          location: string | null;
+          address: string | null;
+          maps_url: string | null;
+          waze_url: string | null;
+          dress_code: string | null;
+          gifts_text: string | null;
+          memoroo_url: string | null;
+          memoroo_qr_url: string | null;
+          created_at: string;
+          updated_at: string;
         };
-        Update: Partial<Omit<GuestGroup, "id" | "created_at" | "updated_at">>;
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          title: string;
+          type?: string;
+          template_id?: string;
+          status?: string;
+          date?: string | null;
+          start_time?: string | null;
+          location?: string | null;
+          address?: string | null;
+          maps_url?: string | null;
+          waze_url?: string | null;
+          dress_code?: string | null;
+          gifts_text?: string | null;
+          memoroo_url?: string | null;
+          memoroo_qr_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          title?: string;
+          type?: string;
+          template_id?: string;
+          status?: string;
+          date?: string | null;
+          start_time?: string | null;
+          location?: string | null;
+          address?: string | null;
+          maps_url?: string | null;
+          waze_url?: string | null;
+          dress_code?: string | null;
+          gifts_text?: string | null;
+          memoroo_url?: string | null;
+          memoroo_qr_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      guest_groups: {
+        Row: {
+          id: string;
+          event_id: string;
+          name: string;
+          token: string;
+          max_guests: number;
+          phone: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          name: string;
+          token: string;
+          max_guests?: number;
+          phone?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          name?: string;
+          token?: string;
+          max_guests?: number;
+          phone?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "guest_groups_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       guests: {
-        Row: Guest;
-        Insert: Omit<Guest, "id" | "created_at" | "updated_at"> & {
-          id?: string;
+        Row: {
+          id: string;
+          group_id: string;
+          name: string;
+          created_at: string;
+          updated_at: string;
         };
-        Update: Partial<Omit<Guest, "id" | "created_at" | "updated_at">>;
+        Insert: {
+          id?: string;
+          group_id: string;
+          name: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          name?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "guests_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
+            referencedRelation: "guest_groups";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       confirmations: {
-        Row: Confirmation;
-        Insert: Omit<Confirmation, "id" | "created_at" | "updated_at"> & {
-          id?: string;
+        Row: {
+          id: string;
+          group_id: string;
+          status: string;
+          guests_count: number | null;
+          comment: string | null;
+          confirmed_at: string | null;
+          created_at: string;
+          updated_at: string;
         };
-        Update: Partial<
-          Omit<Confirmation, "id" | "created_at" | "updated_at">
-        >;
+        Insert: {
+          id?: string;
+          group_id: string;
+          status?: string;
+          guests_count?: number | null;
+          comment?: string | null;
+          confirmed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          status?: string;
+          guests_count?: number | null;
+          comment?: string | null;
+          confirmed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "confirmations_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: true;
+            referencedRelation: "guest_groups";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       attendees: {
-        Row: Attendee;
-        Insert: Omit<Attendee, "id" | "created_at" | "updated_at"> & {
-          id?: string;
+        Row: {
+          id: string;
+          confirmation_id: string;
+          name: string;
+          dietary_restriction: string | null;
+          created_at: string;
+          updated_at: string;
         };
-        Update: Partial<Omit<Attendee, "id" | "created_at" | "updated_at">>;
+        Insert: {
+          id?: string;
+          confirmation_id: string;
+          name: string;
+          dietary_restriction?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          confirmation_id?: string;
+          name?: string;
+          dietary_restriction?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attendees_confirmation_id_fkey";
+            columns: ["confirmation_id"];
+            isOneToOne: false;
+            referencedRelation: "confirmations";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: {
-      confirmation_status: ConfirmationStatus;
+    Views: Record<string, { Row: Record<string, unknown>; Relationships: GenericRelationship[] }>;
+    Functions: Record<string, GenericFunction> & {
+      get_event_by_slug: {
+        Args: {
+          p_slug: string;
+        };
+        Returns: Json;
+      };
+      get_invitation_by_token: {
+        Args: {
+          p_token: string;
+          p_slug?: string;
+        };
+        Returns: Json;
+      };
     };
+    Enums: Record<string, string>;
+    CompositeTypes: Record<string, unknown>;
   };
-}
+};
+
+export type EventRow = Database["public"]["Tables"]["events"]["Row"];
+export type GuestGroup = Database["public"]["Tables"]["guest_groups"]["Row"];
+export type Guest = Database["public"]["Tables"]["guests"]["Row"];
+export type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
+export type Attendee = Database["public"]["Tables"]["attendees"]["Row"];
+export type ConfirmationStatus = "pending" | "confirmed" | "declined";

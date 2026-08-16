@@ -1,38 +1,53 @@
 /**
- * Tipo de configuración del evento.
- * Todos los datos del evento deben gestionarse a través de config/event.ts
- * para mantener la separación entre configuración y código visual.
+ * Tipos de eventos para la plataforma multi-evento.
+ * Cada evento es independiente y almacena su propia configuración,
+ * plantilla y datos públicos.
  */
-export interface EventConfig {
-  /** Nombre de la festejada */
+
+export type EventType = "15_years" | "wedding" | "birthday" | "other";
+export type EventStatus = "draft" | "published" | "archived";
+
+export interface Event {
+  id: string;
+  slug: string;
   name: string;
-  /** Título del evento */
   title: string;
-
-  /** Fecha del evento (formato ISO 8601, ej: "2025-11-15") */
+  type: EventType | string;
+  template_id: string;
+  status: EventStatus;
   date: string;
-  /** Hora de inicio (formato HH:mm, ej: "20:00") */
-  startTime: string;
-
-  /** Nombre del lugar */
+  start_time: string;
   location: string;
-  /** Dirección completa */
   address: string;
+  maps_url: string;
+  waze_url: string;
+  dress_code: string;
+  gifts_text: string;
+  memoroo_url: string;
+  memoroo_qr_url: string;
+  created_at: string;
+  updated_at: string;
+}
 
-  /** URL de Google Maps */
+/**
+ * Datos públicos del evento que se exponen al renderizar la invitación.
+ */
+export interface PublicEvent {
+  id: string;
+  slug: string;
+  name: string;
+  title: string;
+  type: string;
+  templateId: string;
+  status: EventStatus;
+  date: string;
+  startTime: string;
+  location: string;
+  address: string;
   mapsUrl: string;
-  /** URL de Waze */
   wazeUrl: string;
-
-  /** Descripción del dress code */
   dressCode: string;
-
-  /** Texto o instrucciones sobre regalos */
   giftsText: string;
-
-  /** URL de Memoroo (integración futura) */
   memorooUrl: string;
-
-  /** URL base para generar invitaciones personalizadas */
-  invitationBaseUrl: string;
+  memorooQrUrl: string;
 }

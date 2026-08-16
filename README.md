@@ -1,208 +1,112 @@
-# Bianca — Invitación Web 15 años
+# Plataforma de Invitaciones Digitales (Multi-Evento)
 
-Invitación web interactiva para los 15 años de Bianca.
+Motor reutilizable y multi-tenant de invitaciones web interactivas.
 
 ---
 
-## Stack tecnológico
+## 🌟 Arquitectura Multi-Evento
+
+La plataforma está diseñada para hospedar múltiples eventos independientes sobre una misma base de código, misma infraestructura y misma base de datos, garantizando aislamiento estricto entre clientes.
+
+### Diagrama Conceptual
+
+```text
+                     PLATAFORMA MULTI-EVENTO
+                                │
+               ┌────────────────┴────────────────┐
+               │                                 │
+          EVENTO 001                        EVENTO 002
+       Bianca - 15 años                    Juan y María
+        (slug: bianca-15)               (slug: juan-y-maria)
+        Template: wonderland              Template: elegant
+               │                                 │
+        ┌──────┴──────┐                   ┌──────┴──────┐
+        │             │                   │             │
+   Guest Groups    Config            Guest Groups    Config
+  (Familia Pérez)  (Las Camelias)   (Fam. Rodríguez) (Los Robles)
+        │                                 │
+     Guests                            Guests
+  (Juan, María...)                  (Roberto, Carmen...)
+        │                                 │
+  Confirmations                     Confirmations
+```
+
+### Principios de Aislamiento
+1. **Entidad `events`**: Cada evento posee su propio `id`, `slug`, `title`, `template_id`, `status` y detalles (fechas, lugar, dress code, regalos).
+2. **Relación con `guest_groups`**: Cada grupo de invitados pertenece estrictamente a un `event_id`.
+3. **Aislamiento en Consultas**: La consulta por token valida que el grupo pertenezca al evento solicitado. Si se intenta acceder al token de un evento bajo la ruta de otro evento, el sistema devuelve `404 Not Found`.
+4. **Dominios Personalizados Futuros**: En el futuro, el mapeo de dominios (`bianca15.com.ar` o `juanymaria.com.ar`) resolverá el `event_id` correspondiente en el edge/middleware manteniendo la misma aplicación.
+
+---
+
+## 🚀 Rutas de la Aplicación
+
+| Ruta | Descripción |
+|---|---|
+| `/` | Portada general de la plataforma |
+| `/e/[slug]` | Portada pública del evento (ej: `/e/bianca-15`, `/e/juan-y-maria`) |
+| `/e/[slug]/i/[token]` | Invitación personalizada para un grupo dentro del evento |
+| `/i/[token]` | Resolución y redirección automática al evento correspondiente |
+| `/confirmar` | Módulo de confirmación (preparado para Hito 3) |
+| `/admin` | Panel administrativo (preparado para Hito 4) |
+
+---
+
+## 🛠️ Stack Tecnológico
 
 | Tecnología | Uso |
 |---|---|
-| [Next.js 15](https://nextjs.org) | Framework React con App Router |
-| TypeScript | Tipado estático |
-| Tailwind CSS v4 | Estilos |
-| [Supabase](https://supabase.com) | Backend, PostgreSQL y autenticación |
-| [Vercel](https://vercel.com) | Deployment |
+| [Next.js 16](https://nextjs.org) | Framework React con App Router y Turbopack |
+| TypeScript | Tipado estático estricto |
+| Tailwind CSS v4 | Estilos y diseño responsivo |
+| [Supabase](https://supabase.com) | PostgreSQL, RLS y RPCs de acceso seguro |
+| [Vercel](https://vercel.com) | Plataforma de deployment |
 
 ---
 
-## Instalación y ejecución local
+## 📦 Instalación y Ejecución Local
 
 ### 1. Instalar dependencias
-
 ```bash
 npm install
 ```
 
 ### 2. Configurar variables de entorno
-
-Copiar el archivo de ejemplo y completar con los valores reales:
-
 ```bash
 cp .env.example .env.local
 ```
 
-Editar `.env.local` con los datos del proyecto Supabase (ver sección [Variables de entorno](#variables-de-entorno)).
+Completar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` con los datos de tu proyecto Supabase.
 
-### 3. Ejecutar en modo desarrollo
+### 3. Aplicar migraciones en Supabase
+Ejecutar las migraciones en el SQL Editor de Supabase en orden:
+1. `supabase/migrations/0001_initial_schema.sql`
+2. `supabase/migrations/0002_rls_public_read.sql`
+3. `supabase/migrations/0004_multi_event_schema.sql`
+4. `supabase/migrations/0005_multi_event_seed.sql`
 
+### 4. Iniciar servidor de desarrollo
 ```bash
 npm run dev
 ```
 
-La aplicación estará disponible en:
+Disponible en: `http://localhost:3000`
 
-```
-http://localhost:3000
-```
-
-### 4. Verificar tipos TypeScript
-
+### 5. Verificaciones de calidad
 ```bash
-npm run type-check
+npm run type-check   # npx tsc --noEmit
+npm run build        # Compilación de producción
 ```
 
 ---
 
-## Variables de entorno
+## 🧪 Eventos y Datos de Prueba
 
-| Variable | Descripción |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Clave pública (anon key) de Supabase |
-
-Para obtener estos valores:
-1. Crear un proyecto en [supabase.com](https://supabase.com)
-2. Ir a **Project Settings → API**
-3. Copiar la **Project URL** y la **anon public key**
-
-> **Importante:** Nunca subir `.env.local` al repositorio. Solo `.env.example` está versionado.
-
----
-
-## Conexión con Supabase
-
-1. Crear el proyecto en Supabase
-2. Completar las variables de entorno en `.env.local`
-3. Ejecutar la migración SQL inicial:
-   - Ir al **SQL Editor** del dashboard de Supabase
-   - Ejecutar el contenido de `supabase/migrations/0001_initial_schema.sql`
-
-En hitos futuros se integrará Supabase CLI para migrations automáticas.
-
----
-
-## Estructura de carpetas
-
-```
-bianca15/
-│
-├── app/                    # Rutas (App Router de Next.js)
-│   ├── layout.tsx          # Layout raíz
-│   ├── page.tsx            # Página principal /
-│   ├── i/[token]/          # Invitación personalizada /i/[token]
-│   ├── confirmar/          # Confirmación de asistencia /confirmar
-│   ├── admin/              # Panel administrativo /admin
-│   └── globals.css         # Estilos globales
-│
-├── components/             # Componentes React
-│   ├── invitation/         # Componentes de la invitación pública
-│   ├── confirmation/       # Componentes del formulario de confirmación
-│   └── admin/              # Componentes del panel administrativo
-│
-├── lib/                    # Lógica de negocio (sin UI)
-│   ├── supabase/
-│   │   ├── client.ts       # Cliente Supabase para Client Components
-│   │   └── server.ts       # Cliente Supabase para Server Components
-│   ├── guests/             # Funciones de acceso a datos de invitados
-│   ├── confirmations/      # Funciones de acceso a confirmaciones
-│   └── utils/              # Utilidades compartidas
-│
-├── types/                  # Tipos TypeScript
-│   ├── database.ts         # Tipos de las tablas de Supabase
-│   └── event.ts            # Tipo de configuración del evento
-│
-├── config/
-│   └── event.ts            # Configuración del evento (fecha, lugar, etc.)
-│
-├── public/                 # Assets estáticos
-│   ├── images/
-│   ├── textures/
-│   ├── cards/
-│   ├── icons/
-│   └── fonts/
-│
-├── supabase/
-│   └── migrations/         # Migraciones SQL
-│       └── 0001_initial_schema.sql
-│
-├── .env.example            # Plantilla de variables de entorno
-├── .gitignore
-├── next.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
-```
-
----
-
-## Estado actual del proyecto
-
-### Hito 1 — Arquitectura inicial ✅
-
-- [x] Proyecto Next.js 15 con TypeScript y Tailwind CSS
-- [x] Estructura de carpetas organizada
-- [x] Tipos TypeScript para todas las tablas de la base de datos
-- [x] Configuración del evento centralizada en `config/event.ts`
-- [x] Clientes de Supabase preparados (client y server)
-- [x] Migración SQL inicial con las 4 tablas
-- [x] RLS habilitado desde el inicio
-- [x] Páginas placeholder para todas las rutas
-- [x] README completo
-
-### Próximos hitos
-
-#### Hito 2 — Invitación pública
-- Diseño visual de la invitación
-- Portada, fecha, lugar, dress code, regalos
-- Cuenta regresiva
-
-#### Hito 3 — Confirmación de asistencia
-- Formulario de confirmación por token
-- Consulta a Supabase por token de invitación
-- Guardado de confirmaciones y asistentes
-
-#### Hito 4 — Panel administrativo
-- Login seguro para administradores
-- Lista de invitados con filtros
-- Ver confirmaciones y estadísticas
-
-#### Hito 5 — Features avanzados
-- Importación de invitados desde Excel/CSV
-- Generación de enlaces personalizados
-- Envío de recordatorios por WhatsApp
-- Integración con Memoroo
-- Sistema de fotos
-
----
-
-## Rutas disponibles
-
-| Ruta | Descripción |
-|---|---|
-| `/` | Página principal de la invitación |
-| `/i/[token]` | Invitación personalizada por token |
-| `/confirmar` | Formulario de confirmación de asistencia |
-| `/admin` | Panel administrativo (privado) |
-
----
-
-## Scripts disponibles
-
-```bash
-npm run dev        # Servidor de desarrollo
-npm run build      # Build de producción
-npm run start      # Servidor de producción
-npm run lint       # Linter
-npm run type-check # Verificación de tipos TypeScript
-```
-
----
-
-## Deployment
-
-El proyecto está preparado para deployment en [Vercel](https://vercel.com).
-
-1. Conectar el repositorio en Vercel
-2. Configurar las variables de entorno en el dashboard de Vercel
-3. El deployment se realiza automáticamente en cada push a `main`
+- **Bianca - 15 años** (`/e/bianca-15`)
+  - Invitación Familia Pérez: `/e/bianca-15/i/perez-test1` (5 cupos, 4 invitados)
+  - Invitación Familia García: `/e/bianca-15/i/garcia-test2` (2 cupos, 2 invitados)
+- **Juan y María - Boda** (`/e/juan-y-maria`)
+  - Invitación Familia Rodríguez: `/e/juan-y-maria/i/rodriguez-boda` (4 cupos, 3 invitados)
+  - Invitación Carlos Gómez: `/e/juan-y-maria/i/carlos-individual` (1 cupo)
+- **Prueba de Aislamiento**:
+  - `/e/juan-y-maria/i/perez-test1` → Devuelve `404 Not Found` (Familia Pérez no pertenece al evento Juan y María).
