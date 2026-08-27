@@ -1,14 +1,9 @@
-/**
- * Componentes del panel administrativo.
- *
- * Componentes a implementar en hitos futuros:
- *
- *   GuestList        — Tabla de invitados con filtros
- *   GuestForm        — Formulario para crear/editar invitados
- *   ConfirmationStat — Estadísticas de confirmaciones
- *   ImportGuests     — Importador de invitados desde Excel/CSV
- *   LinkGenerator    — Generador de enlaces personalizados
- *   AdminLogin       — Formulario de inicio de sesión
- */
-
-export {};
+﻿export * from './AdminLayout';
+export * from './EventCard';
+export * from './EventStats';
+export * from './DietarySummary';
+export * from './GuestGroupTable';
+export * from './GuestGroupModal';
+export * from './GuestPersonsModal';
+export * from './QrModal';
+export * from './CsvImporter';

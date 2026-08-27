@@ -259,6 +259,62 @@ export type Database = {
           },
         ];
       };
+      profiles: {
+        Row: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email: string;
+          name: string;
+          role?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          name?: string;
+          role?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      event_admins: {
+        Row: {
+          id: string;
+          event_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_admins_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, { Row: Record<string, unknown>; Relationships: GenericRelationship[] }>;
     Functions: Record<string, GenericFunction> & {
@@ -291,6 +347,19 @@ export type Database = {
         };
         Returns: Json;
       };
+      is_super_admin: {
+        Args: {
+          p_user_id: string;
+        };
+        Returns: boolean;
+      };
+      can_manage_event: {
+        Args: {
+          p_user_id: string;
+          p_event_id: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: Record<string, string>;
     CompositeTypes: Record<string, unknown>;
@@ -302,4 +371,8 @@ export type GuestGroup = Database["public"]["Tables"]["guest_groups"]["Row"];
 export type Guest = Database["public"]["Tables"]["guests"]["Row"];
 export type Confirmation = Database["public"]["Tables"]["confirmations"]["Row"];
 export type Attendee = Database["public"]["Tables"]["attendees"]["Row"];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type EventAdmin = Database["public"]["Tables"]["event_admins"]["Row"];
 export type ConfirmationStatus = "pending" | "confirmed" | "declined";
+export type AdminRole = "super_admin" | "event_admin";
+
