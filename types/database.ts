@@ -49,6 +49,7 @@ export type Database = {
           title: string;
           type: string;
           template_id: string;
+          template_version: string | null;
           status: string;
           date: string | null;
           start_time: string | null;
@@ -70,6 +71,7 @@ export type Database = {
           title: string;
           type?: string;
           template_id?: string;
+          template_version?: string | null;
           status?: string;
           date?: string | null;
           start_time?: string | null;
@@ -91,6 +93,7 @@ export type Database = {
           title?: string;
           type?: string;
           template_id?: string;
+          template_version?: string | null;
           status?: string;
           date?: string | null;
           start_time?: string | null;

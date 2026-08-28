@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { createEvent } from '@/lib/admin/events';
+import { getAllTemplates } from '@/templates/registry';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function NewEventPage() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [type, setType] = useState('15_years');
+  const [templateId, setTemplateId] = useState('wonderland');
   const [status, setStatus] = useState<'draft' | 'published'>('published');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -25,6 +27,8 @@ export default function NewEventPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const availableTemplates = getAllTemplates();
 
   const handleNameChange = (val: string) => {
     setName(val);
@@ -49,6 +53,7 @@ export default function NewEventPage() {
       title: title.trim() || name.trim(),
       slug: slug.trim(),
       type,
+      templateId,
       status,
       date: date || undefined,
       startTime: startTime || undefined,
@@ -79,7 +84,7 @@ export default function NewEventPage() {
             Crear Nuevo Evento
           </h1>
           <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0 }}>
-            Configurá los detalles básicos del nuevo evento.
+            Configurá los detalles básicos y la plantilla visual del nuevo evento.
           </p>
         </div>
 
@@ -135,7 +140,7 @@ export default function NewEventPage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
                 Tipo de Evento
@@ -150,6 +155,23 @@ export default function NewEventPage() {
                 <option value="birthday">Cumpleaños</option>
                 <option value="corporate">Corporativo</option>
                 <option value="other">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+                Plantilla Visual 🎨
+              </label>
+              <select
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value)}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #9333ea', fontSize: '0.9rem', boxSizing: 'border-box', background: '#fff', fontWeight: 600, color: '#9333ea' }}
+              >
+                {availableTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} (v{t.version})
+                  </option>
+                ))}
               </select>
             </div>
 

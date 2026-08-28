@@ -14,6 +14,7 @@ export interface Event {
   title: string;
   type: EventType | string;
   template_id: string;
+  template_version?: string;
   status: EventStatus;
   date: string;
   start_time: string;
@@ -39,6 +40,7 @@ export interface PublicEvent {
   title: string;
   type: string;
   templateId: string;
+  templateVersion?: string;
   status: EventStatus;
   date: string;
   startTime: string;

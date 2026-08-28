@@ -224,6 +224,7 @@ export async function getGroupByToken(
         title: rawEvent.title as string,
         type: (rawEvent.type as string) || "other",
         templateId: (rawEvent.template_id as string) || "default",
+        templateVersion: (rawEvent.template_version as string) || "1.0.0",
         status:
           (rawEvent.status as "draft" | "published" | "archived") || "draft",
         date: (rawEvent.date as string) || "",
@@ -238,7 +239,7 @@ export async function getGroupByToken(
         memorooQrUrl: (rawEvent.memoroo_qr_url as string) || "",
       },
     };
-  } catch (_e) {
+  } catch {
     return getLocalDemoGroup(token, eventSlug);
   }
 }

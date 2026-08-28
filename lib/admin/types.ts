@@ -1,4 +1,4 @@
-﻿import type { GuestGroup, Guest, Confirmation, Attendee, AdminRole } from '@/types/database';
+import type { GuestGroup, Guest, Confirmation, Attendee, AdminRole } from '@/types/database';
 
 export interface AdminUser {
   id: string;
@@ -13,6 +13,8 @@ export interface AdminEventSummary {
   name: string;
   title: string;
   type: string;
+  templateId?: string;
+  templateVersion?: string;
   status: 'draft' | 'published' | 'archived';
   date: string | null;
   startTime: string | null;
@@ -70,6 +72,7 @@ export interface CreateEventInput {
   slug: string;
   type: string;
   templateId?: string;
+  templateVersion?: string;
   status?: 'draft' | 'published' | 'archived';
   date?: string;
   startTime?: string;

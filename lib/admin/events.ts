@@ -13,6 +13,8 @@ const DEMO_EVENTS: AdminEventSummary[] = [
     name: 'Bianca - 15 años',
     title: 'Mis 15 años',
     type: '15_years',
+    templateId: 'wonderland',
+    templateVersion: '1.0.0',
     status: 'published',
     date: '2026-11-21',
     startTime: '21:00',
@@ -32,6 +34,8 @@ const DEMO_EVENTS: AdminEventSummary[] = [
     name: 'Juan y María',
     title: 'Nuestra Boda',
     type: 'wedding',
+    templateId: 'elegant',
+    templateVersion: '1.0.0',
     status: 'published',
     date: '2026-12-12',
     startTime: '19:30',
@@ -64,7 +68,7 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
     const { data: events, error } = await supabase
       .from('events')
       .select(`
-        id, slug, name, title, type, status, date, start_time, location, address,
+        id, slug, name, title, type, template_id, template_version, status, date, start_time, location, address,
         guest_groups (
           id, max_guests,
           confirmations ( status, guests_count )
@@ -82,6 +86,8 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
       name: string;
       title: string;
       type: string;
+      template_id: string | null;
+      template_version: string | null;
       status: string;
       date: string | null;
       start_time: string | null;
@@ -122,6 +128,8 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
         name: e.name,
         title: e.title,
         type: e.type,
+        templateId: e.template_id || 'default',
+        templateVersion: e.template_version || '1.0.0',
         status: e.status as AdminEventSummary['status'],
         date: e.date,
         startTime: e.start_time,
@@ -171,7 +179,8 @@ export async function getAdminEventById(
         name: demo.name,
         title: demo.title,
         type: demo.type,
-        template_id: 'default',
+        template_id: demo.templateId || 'default',
+        template_version: demo.templateVersion || '1.0.0',
         status: demo.status,
         date: demo.date,
         start_time: demo.startTime,
@@ -357,6 +366,7 @@ export async function createEvent(
         type: input.type || 'other',
         status: input.status || 'draft',
         template_id: input.templateId || 'default',
+        template_version: input.templateVersion || '1.0.0',
         date: input.date || null,
         start_time: input.startTime || null,
         location: input.location || null,
@@ -402,6 +412,8 @@ export async function updateEvent(
     if (input.title !== undefined) updateData.title = input.title.trim();
     if (input.slug !== undefined) updateData.slug = input.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
     if (input.type !== undefined) updateData.type = input.type;
+    if (input.templateId !== undefined) updateData.template_id = input.templateId;
+    if (input.templateVersion !== undefined) updateData.template_version = input.templateVersion;
     if (input.status !== undefined) updateData.status = input.status;
     if (input.date !== undefined) updateData.date = input.date || null;
     if (input.startTime !== undefined) updateData.start_time = input.startTime || null;

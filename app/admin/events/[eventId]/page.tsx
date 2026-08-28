@@ -6,6 +6,7 @@ import { getAdminEventById } from '@/lib/admin/events';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventStats } from '@/components/admin/EventStats';
 import { DietarySummary } from '@/components/admin/DietarySummary';
+import { getTemplate } from '@/templates/registry';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   if (!event) {
     notFound();
   }
+
+  const template = getTemplate(event.template_id);
 
   return (
     <AdminLayout user={user} eventId={event.id} eventName={event.name}>
@@ -105,6 +108,70 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             👁️ Ver Invitación
           </Link>
         </div>
+      </div>
+
+      {/* Template Card Banner */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '1rem',
+          border: '1px solid #e2e8f0',
+          padding: '1.25rem 1.75rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '0.75rem',
+              background: template.id === 'wonderland' ? '#0a0a0f' : '#f3e8ff',
+              border: `2px solid ${template.theme.colors.primary}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+            }}
+          >
+            {template.id === 'wonderland' ? '♠' : '✨'}
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>{template.name}</strong>
+              <span style={{ fontSize: '0.75rem', background: '#f1f5f9', color: '#475569', padding: '0.15rem 0.5rem', borderRadius: '99px', fontWeight: 600 }}>
+                v{template.version}
+              </span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.2rem 0 0 0' }}>
+              {template.description}
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href={`/admin/events/${event.id}/edit`}
+          style={{
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            border: '1px solid #9333ea',
+            background: '#faf5ff',
+            color: '#7e22ce',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+          }}
+        >
+          🎨 Cambiar Plantilla
+        </Link>
       </div>
 
       {/* KPI Stats */}

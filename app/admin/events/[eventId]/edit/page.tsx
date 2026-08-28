@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { getAdminEventById, updateEvent } from '@/lib/admin/events';
+import { getAllTemplates } from '@/templates/registry';
 
 export default function EditEventPage() {
   const params = useParams();
@@ -14,6 +15,7 @@ export default function EditEventPage() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [type, setType] = useState('15_years');
+  const [templateId, setTemplateId] = useState('default');
   const [status, setStatus] = useState<'draft' | 'published' | 'archived'>('published');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -28,6 +30,8 @@ export default function EditEventPage() {
   const [error, setError] = useState<string | null>(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
+  const availableTemplates = getAllTemplates();
+
   useEffect(() => {
     if (!eventId) return;
     getAdminEventById(eventId).then(({ event: e }) => {
@@ -36,6 +40,7 @@ export default function EditEventPage() {
         setTitle(e.title);
         setSlug(e.slug);
         setType(e.type);
+        setTemplateId(e.template_id || 'default');
         setStatus(e.status as 'draft' | 'published' | 'archived');
         setDate(e.date || '');
         setStartTime(e.start_time || '');
@@ -61,6 +66,7 @@ export default function EditEventPage() {
       title: title.trim(),
       slug: slug.trim(),
       type,
+      templateId,
       status,
       date: date || undefined,
       startTime: startTime || undefined,
@@ -94,7 +100,7 @@ export default function EditEventPage() {
               Configuración del Evento
             </h1>
             <p style={{ fontSize: '0.9rem', color: '#64748b', margin: 0 }}>
-              Editá los datos públicos y el estado del evento.
+              Editá los datos públicos, la plantilla visual y el estado del evento.
             </p>
           </div>
         </div>
@@ -153,7 +159,7 @@ export default function EditEventPage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
                 Tipo de Evento
@@ -168,6 +174,23 @@ export default function EditEventPage() {
                 <option value="birthday">Cumpleaños</option>
                 <option value="corporate">Corporativo</option>
                 <option value="other">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+                Plantilla Visual 🎨
+              </label>
+              <select
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value)}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #9333ea', fontSize: '0.9rem', boxSizing: 'border-box', background: '#fff', fontWeight: 600, color: '#9333ea' }}
+              >
+                {availableTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} (v{t.version})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -247,6 +270,32 @@ export default function EditEventPage() {
               onChange={(e) => setDressCode(e.target.value)}
               style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
             />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+                Enlace Google Maps (opcional)
+              </label>
+              <input
+                type="url"
+                value={mapsUrl}
+                onChange={(e) => setMapsUrl(e.target.value)}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+                Enlace Waze (opcional)
+              </label>
+              <input
+                type="url"
+                value={wazeUrl}
+                onChange={(e) => setWazeUrl(e.target.value)}
+                style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
+              />
+            </div>
           </div>
 
           <div>

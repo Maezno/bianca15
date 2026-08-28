@@ -78,6 +78,7 @@ export async function getEventBySlug(
       title: raw.title as string,
       type: (raw.type as string) || "other",
       templateId: (raw.template_id as string) || "default",
+      templateVersion: (raw.template_version as string) || "1.0.0",
       status: (raw.status as "draft" | "published" | "archived") || "draft",
       date: (raw.date as string) || "",
       startTime: (raw.start_time as string) || "",
@@ -90,7 +91,7 @@ export async function getEventBySlug(
       memorooUrl: (raw.memoroo_url as string) || "",
       memorooQrUrl: (raw.memoroo_qr_url as string) || "",
     };
-  } catch (_e) {
+  } catch {
     return DEMO_EVENTS[cleanSlug] || null;
   }
 }

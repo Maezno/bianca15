@@ -89,6 +89,36 @@ Juan García,1,Juan,García,1199887766,
 
 ---
 
+## 🎨 Sistema de Plantillas y Personalización Visual
+
+La plataforma desacopla completamente el **contenido**, la **lógica de negocio** y la **presentación visual**. Un evento puede alternar entre distintas plantillas sin alterar invitados, confirmaciones ni administración.
+
+### Principios Fundamentales
+- **Separación de Capas**: Las plantillas reciben datos ya resueltos (`event`, `guestGroup`, `existingConfirmation`) y no realizan consultas a la base de datos.
+- **Componentes Funcionales Compartidos**: Componentes como `ConfirmationForm`, `CountdownTimer` y `ShareSection` contienen la lógica reutilizable, mientras la plantilla define su estilizado y layout.
+- **Registro Central (`templates/registry.ts`)**: Mapea `template_id` a la definición correspondiente, ofreciendo fallback seguro (`default`) ante valores nulos o desconocidos.
+- **Versionado (`template_version`)**: Permite evolucionar plantillas en código (ej. v1.0.0 → v2.0.0) manteniendo estabilidad en eventos existentes.
+
+### Plantillas Disponibles
+1. **`wonderland` (v1.0.0)**:
+   - Inspirada en estética teatral y cartas de juego (♠ ♥ ♦ ♣).
+   - Paleta: Negro profundo `#0a0a0f`, rojo carmín `#8b0000`, acentos en oro pulido `#c5a028`.
+   - Tipografía: *Playfair Display* (títulos) + *Montserrat* (cuerpo).
+   - Asignada por defecto a: **Bianca - 15 años** (`/e/bianca-15`).
+2. **`elegant` (v1.0.0)**:
+   - Diseño editorial, limpio y minimalista.
+   - Paleta: Blanco cálido `#faf9f6`, carbón suave `#1c1c1e`, acentos en oro champán `#c9a96e`.
+   - Tipografía: *Cormorant Garamond* (títulos) + *Lato* (cuerpo).
+   - Asignada por defecto a: **Juan y María - Boda** (`/e/juan-y-maria`).
+
+### Cómo agregar una nueva plantilla
+1. Crear el directorio `templates/[nombre-plantilla]/` con `theme.ts`, `components/` e `index.ts`.
+2. Implementar el contrato `InvitationTemplate` con `EventPage` e `InvitationPage`.
+3. Registrar la plantilla en `templates/registry.ts`.
+4. La plantilla quedará disponible de inmediato en los selectores del panel administrativo sin modificar el backend.
+
+---
+
 ## 🛠️ Stack Tecnológico
 
 | Tecnología | Uso |
@@ -123,6 +153,7 @@ Ejecutar las migraciones en el SQL Editor de Supabase en orden:
 4. `supabase/migrations/0005_multi_event_seed.sql`
 5. `supabase/migrations/0006_confirmation_rpc.sql`
 6. `supabase/migrations/0007_admin_profiles_and_permissions.sql`
+7. `supabase/migrations/0008_template_version.sql`
 
 ### 4. Iniciar servidor de desarrollo
 ```bash
