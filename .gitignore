@@ -35,3 +35,7 @@ Thumbs.db
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# TypeScript & Mock runtime
+*.tsbuildinfo
+.demo-events-data.json

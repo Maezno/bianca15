@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { createEvent } from '@/lib/admin/events';
 import { getAllTemplates } from '@/templates/registry';
+import { slugify } from '@/lib/utils/slug';
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -33,13 +34,7 @@ export default function NewEventPage() {
   const handleNameChange = (val: string) => {
     setName(val);
     if (!slug) {
-      const generatedSlug = val
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      setSlug(generatedSlug);
+      setSlug(slugify(val));
     }
   };
 
@@ -136,7 +131,7 @@ export default function NewEventPage() {
                 required
                 style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
               />
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>URL: /e/{slug || 'tu-slug'}</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>URL: /invitacion/{slug || 'tu-slug'}</span>
             </div>
           </div>
 

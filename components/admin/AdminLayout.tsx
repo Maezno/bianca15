@@ -21,6 +21,9 @@ export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutP
   const isConfirmations = eventId && pathname.includes('/confirmations');
   const isImport = eventId && pathname.includes('/import');
   const isEdit = eventId && pathname.includes('/edit');
+  const isEditor = eventId && pathname.includes('/editor');
+  const isPreview = eventId && pathname.includes('/preview');
+  const isMedia = eventId && pathname.includes('/media');
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -173,6 +176,35 @@ export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutP
               📥 Importar CSV
             </Link>
             <Link
+              href={`/admin/events/${eventId}/media`}
+              style={{
+                padding: '0.4rem 0.8rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+                background: isMedia ? '#f3e8ff' : 'transparent',
+                color: isMedia ? '#7e22ce' : '#475569',
+              }}
+            >
+              🖼️ Multimedia
+            </Link>
+            <Link
+              href={`/admin/events/${eventId}/editor`}
+              style={{
+                padding: '0.4rem 0.8rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                background: isEditor ? '#f3e8ff' : '#faf5ff',
+                color: isEditor ? '#7e22ce' : '#9333ea',
+                border: '1px solid #d8b4fe',
+              }}
+            >
+              ✏️ Editor
+            </Link>
+            <Link
               href={`/admin/events/${eventId}/edit`}
               style={{
                 padding: '0.4rem 0.8rem',
@@ -185,6 +217,20 @@ export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutP
               }}
             >
               ⚙️ Configuración
+            </Link>
+            <Link
+              href={`/admin/events/${eventId}/preview`}
+              style={{
+                padding: '0.4rem 0.8rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+                background: isPreview ? '#fef9c3' : 'transparent',
+                color: isPreview ? '#854d0e' : '#475569',
+              }}
+            >
+              👁️ Preview
             </Link>
           </nav>
         </div>

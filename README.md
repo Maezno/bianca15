@@ -44,13 +44,16 @@ La plataforma está diseñada para hospedar múltiples eventos independientes so
 | Ruta | Descripción |
 |---|---|
 | `/` | Portada general de la plataforma |
-| `/e/[slug]` | Portada pública del evento (ej: `/e/bianca-15`, `/e/juan-y-maria`) |
-| `/e/[slug]/i/[token]` | Invitación personalizada para un grupo dentro del evento con confirmación interactiva |
-| `/i/[token]` | Resolución y redirección automática al evento correspondiente |
+| `/invitacion/[slug]` | Portada pública canónica del evento (ej: `/invitacion/bianca-15`, `/invitacion/juan-y-maria`) |
+| `/invitacion/[slug]/[token]` | Invitación personalizada para un grupo dentro del evento con saludo contextual y confirmación RSVP |
+| `/e/[slug]` | Redirección transparente a `/invitacion/[slug]` |
+| `/e/[slug]/i/[token]` | Redirección transparente a `/invitacion/[slug]/[token]` |
+| `/i/[token]` | Resolución y redirección automática hacia la invitación canónica del invitado |
 | `/admin` / `/admin/events` | Panel administrativo: Lista de eventos y métricas globales |
 | `/admin/login` | Inicio de sesión administrativo |
-| `/admin/events/new` | Creación de nuevos eventos |
+| `/admin/events/new` | Creación de nuevos eventos con normalización automática de slug |
 | `/admin/events/[eventId]` | Dashboard de evento: métricas, personas confirmadas y restricciones dietarias |
+| `/admin/events/[eventId]/editor` | Editor visual en tiempo real de invitaciones (Hito 6 y 7) con preview interactivo |
 | `/admin/events/[eventId]/guests` | Gestión de grupos e invitados, generación de links y códigos QR |
 | `/admin/events/[eventId]/confirmations` | Tabla de confirmaciones detallada y exportación a CSV |
 | `/admin/events/[eventId]/import` | Asistente de importación masiva por CSV con previsualización |
@@ -154,6 +157,32 @@ Ejecutar las migraciones en el SQL Editor de Supabase en orden:
 5. `supabase/migrations/0006_confirmation_rpc.sql`
 6. `supabase/migrations/0007_admin_profiles_and_permissions.sql`
 7. `supabase/migrations/0008_template_version.sql`
+8. `supabase/migrations/0009_event_config.sql`
+
+---
+
+## 🛠️ Configurador de Invitaciones y Personalización (Hito 6)
+
+El editor estructurado en `/admin/events/[eventId]/editor` permite personalizar integralmente cada invitación en tiempo real sin modificar código.
+
+### Características del Configurador:
+1. **Layout de 3 Zonas (Desktop)**:
+   - Panel de pestañas de configuración a la izquierda.
+   - Formulario de edición con debounce y feedback de cambios sin guardar.
+   - Previsualizador interactivo conmutador a la derecha (Mobile 390px, Tablet 768px, Desktop 100%).
+2. **Pestañas de Edición**:
+   - **General**: Nombres, títulos, subtítulo, texto de bienvenida, fecha, hora, lugar, dirección, enlaces a mapas y notas de regalos.
+   - **Secciones**: Control de visibilidad toggle y reordenamiento intuitivo (botones accesibles y drag & drop HTML5 nativo).
+   - **Diseño**: Selección de paletas recomendadas por plantilla (Wonderland y Elegant) y personalización hex de colores (primario, secundario, fondo, tarjetas, texto, acentos) más tipografía editorial.
+   - **Cronograma**: Gestor interactivo de itinerario para añadir, editar, ordenar y eliminar momentos clave de la celebración (hora, título, descripción).
+   - **Imágenes**: Enlaces a recursos visuales externos y fotos de álbumes colaborativos.
+3. **Flujo de Publicación**:
+   - Botón **Guardar Cambios** independiente del estado de publicación.
+   - Botón **Publicar / Despublicar** con diálogo de confirmación para evitar accesos públicos imprevistos.
+4. **Duplicación de Eventos**:
+   - Función en 1 click para clonar un evento con toda su configuración visual y secciones en estado borrador, garantizando **0 invitados y 0 confirmaciones** en el clon.
+
+---
 
 ### 4. Iniciar servidor de desarrollo
 ```bash

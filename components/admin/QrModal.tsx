@@ -1,22 +1,66 @@
 'use client';
 
-import React, { useState } from 'react';
-import { getQrDataUrl } from '@/lib/admin/qr';
+/**
+ * components/admin/QrModal.tsx
+ * Modal de visualización y descarga de Códigos QR en alta resolución (Hito 9).
+ * Genera PNG nítido mediante 'qrcode' con opción de descarga directa en pantalla e impresión.
+ */
+
+import React, { useState, useEffect } from 'react';
+import { generateQrDataUrl, getQrFallbackUrl } from '@/lib/admin/qr';
 
 interface QrModalProps {
   isOpen: boolean;
   onClose: () => void;
-  groupName: string;
+  groupName?: string;
   invitationUrl: string;
+  title?: string;
+  subtitle?: string;
 }
 
-export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalProps) {
+export function QrModal({
+  isOpen,
+  onClose,
+  groupName,
+  invitationUrl,
+  title = 'Código QR',
+  subtitle,
+}: QrModalProps) {
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [downloading, setDownloading] = useState(false);
+
+  const displaySubtitle = subtitle || groupName || 'Invitación Digital';
+
+  const fullUrl =
+    typeof window !== 'undefined' && invitationUrl.startsWith('/')
+      ? `${window.location.origin}${invitationUrl}`
+      : invitationUrl;
+
+  useEffect(() => {
+    if (!isOpen || !fullUrl) return;
+
+    let isMounted = true;
+    // Fallback inmediato
+    setQrDataUrl(getQrFallbackUrl(fullUrl, 280));
+
+    // Generar con biblioteca qrcode nativa de alta resolución
+    generateQrDataUrl(fullUrl, { size: 600, margin: 2, errorCorrectionLevel: 'M' })
+      .then((dataUrl) => {
+        if (isMounted) {
+          setQrDataUrl(dataUrl);
+        }
+      })
+      .catch((err) => {
+        console.error('Error generando QR de alta resolución:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, fullUrl]);
 
   if (!isOpen) return null;
-
-  const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${invitationUrl}` : invitationUrl;
-  const qrUrl = getQrDataUrl(fullUrl, 280);
 
   const handleCopy = async () => {
     try {
@@ -28,16 +72,35 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
     }
   };
 
+  const handleDownload = () => {
+    if (!qrDataUrl) return;
+    setDownloading(true);
+
+    const safeName = (groupName || title || 'qr')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-');
+
+    const link = document.createElement('a');
+    link.href = qrDataUrl;
+    link.download = `qr-${safeName}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => setDownloading(false), 800);
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Invitación para ${groupName}`,
-          text: `¡Hola ${groupName}! Te compartimos tu invitación digital:`,
+          title: `${title} - ${displaySubtitle}`,
+          text: `¡Hola! Te compartimos el enlace:`,
           url: fullUrl,
         });
       } catch {
-        // User cancelled or unsupported
+        // Cancelled or unsupported
       }
     } else {
       handleCopy();
@@ -49,11 +112,12 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 50,
+        zIndex: 60,
         padding: '1rem',
       }}
       onClick={onClose}
@@ -62,45 +126,63 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
         style={{
           background: '#ffffff',
           borderRadius: '1rem',
-          maxWidth: '420px',
+          maxWidth: '430px',
           width: '100%',
           padding: '1.75rem',
           textAlign: 'center',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', margin: '0 0 0.25rem 0' }}>
-          Código QR de Invitación
+          {title}
         </h3>
         <p style={{ fontSize: '0.9rem', color: '#64748b', margin: '0 0 1.25rem 0' }}>
-          {groupName}
+          {displaySubtitle}
         </p>
 
-        {/* QR Image */}
+        {/* QR Image Frame */}
         <div
           style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '0.75rem',
-            padding: '1rem',
+            background: '#ffffff',
+            border: '2px solid #f1f5f9',
+            borderRadius: '1rem',
+            padding: '1.25rem',
             display: 'inline-block',
             marginBottom: '1.25rem',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
           }}
         >
-          <img
-            src={qrUrl}
-            alt={`QR para ${groupName}`}
-            width={240}
-            height={240}
-            style={{ display: 'block', margin: '0 auto', borderRadius: '0.25rem' }}
-          />
+          {qrDataUrl ? (
+            <img
+              src={qrDataUrl}
+              alt={`QR para ${displaySubtitle}`}
+              width={240}
+              height={240}
+              style={{ display: 'block', margin: '0 auto', borderRadius: '0.25rem' }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '240px',
+                height: '240px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#94a3b8',
+                fontSize: '0.85rem',
+              }}
+            >
+              Generando código QR...
+            </div>
+          )}
         </div>
 
         {/* URL Box */}
         <div
           style={{
-            background: '#f1f5f9',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
             padding: '0.5rem 0.75rem',
             borderRadius: '0.5rem',
             fontSize: '0.75rem',
@@ -115,6 +197,30 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
 
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Main Download Button */}
+          <button
+            onClick={handleDownload}
+            disabled={!qrDataUrl || downloading}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '0.5rem',
+              background: '#9333ea',
+              color: '#ffffff',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+              border: 'none',
+              cursor: qrDataUrl ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              boxShadow: '0 2px 8px rgba(147, 51, 234, 0.3)',
+            }}
+          >
+            {downloading ? 'Descargando...' : '⬇️ Descargar Código QR (PNG)'}
+          </button>
+
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               onClick={handleCopy}
@@ -132,6 +238,7 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
             >
               {copied ? '✓ ¡Copiado!' : '📋 Copiar Link'}
             </button>
+
             <a
               href={fullUrl}
               target="_blank"
@@ -140,8 +247,9 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
                 flex: 1,
                 padding: '0.65rem',
                 borderRadius: '0.5rem',
-                background: '#9333ea',
-                color: '#ffffff',
+                border: '1px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#334155',
                 fontSize: '0.85rem',
                 fontWeight: 600,
                 textDecoration: 'none',
@@ -150,7 +258,7 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
                 justifyContent: 'center',
               }}
             >
-              🔗 Abrir
+              🔗 Abrir Link
             </a>
           </div>
 
@@ -158,17 +266,17 @@ export function QrModal({ isOpen, onClose, groupName, invitationUrl }: QrModalPr
             onClick={handleShare}
             style={{
               width: '100%',
-              padding: '0.6rem',
+              padding: '0.55rem',
               borderRadius: '0.5rem',
               border: '1px solid #e2e8f0',
               background: '#f8fafc',
-              color: '#334155',
+              color: '#475569',
               fontSize: '0.85rem',
               fontWeight: 600,
               cursor: 'pointer',
             }}
           >
-            📲 Compartir Invitación
+            📲 Compartir
           </button>
 
           <button

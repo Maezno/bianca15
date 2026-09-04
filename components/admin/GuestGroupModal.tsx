@@ -24,7 +24,9 @@ export function GuestGroupModal({
   const [name, setName] = useState('');
   const [maxGuests, setMaxGuests] = useState(1);
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const [personalMessage, setPersonalMessage] = useState('');
   const [initialGuests, setInitialGuests] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,13 +40,17 @@ export function GuestGroupModal({
       setName(groupToEdit.name || '');
       setMaxGuests(groupToEdit.max_guests || 1);
       setPhone(groupToEdit.phone || '');
+      setEmail(groupToEdit.email || '');
       setNotes(groupToEdit.notes || '');
+      setPersonalMessage(groupToEdit.personal_message || '');
       setInitialGuests('');
     } else {
       setName('');
       setMaxGuests(1);
       setPhone('');
+      setEmail('');
       setNotes('');
+      setPersonalMessage('');
       setInitialGuests('');
     }
     setError(null);
@@ -83,7 +89,9 @@ export function GuestGroupModal({
           name: name.trim(),
           maxGuests,
           phone: phone.trim() || undefined,
+          email: email.trim() || undefined,
           notes: notes.trim() || undefined,
+          personalMessage: personalMessage.trim() || undefined,
         });
 
         if (!res.success) {
@@ -102,7 +110,9 @@ export function GuestGroupModal({
           name: name.trim(),
           maxGuests,
           phone: phone.trim() || undefined,
+          email: email.trim() || undefined,
           notes: notes.trim() || undefined,
+          personalMessage: personalMessage.trim() || undefined,
           initialGuests: guestNames,
         });
 
@@ -225,6 +235,46 @@ export function GuestGroupModal({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Ej: 11 2233-4455"
+              style={{
+                width: '100%',
+                padding: '0.65rem 0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.9rem',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+              Email (opcional)
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ej: familia@ejemplo.com"
+              style={{
+                width: '100%',
+                padding: '0.65rem 0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #cbd5e1',
+                fontSize: '0.9rem',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
+              Mensaje personal para este invitado (opcional)
+            </label>
+            <textarea
+              rows={2}
+              value={personalMessage}
+              onChange={(e) => setPersonalMessage(e.target.value)}
+              placeholder="Ej: ¡Queridos tíos, no pueden faltar en esta noche tan especial!"
               style={{
                 width: '100%',
                 padding: '0.65rem 0.75rem',

@@ -47,6 +47,8 @@ export type Database = {
           slug: string;
           name: string;
           title: string;
+          subtitle: string | null;
+          welcome_text: string | null;
           type: string;
           template_id: string;
           template_version: string | null;
@@ -61,6 +63,11 @@ export type Database = {
           gifts_text: string | null;
           memoroo_url: string | null;
           memoroo_qr_url: string | null;
+          cover_image: string | null;
+          schedule: Json | null;
+          design_config: Json | null;
+          section_config: Json | null;
+          whatsapp_template: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -69,6 +76,8 @@ export type Database = {
           slug: string;
           name: string;
           title: string;
+          subtitle?: string | null;
+          welcome_text?: string | null;
           type?: string;
           template_id?: string;
           template_version?: string | null;
@@ -83,6 +92,11 @@ export type Database = {
           gifts_text?: string | null;
           memoroo_url?: string | null;
           memoroo_qr_url?: string | null;
+          cover_image?: string | null;
+          schedule?: Json | null;
+          design_config?: Json | null;
+          section_config?: Json | null;
+          whatsapp_template?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -91,6 +105,8 @@ export type Database = {
           slug?: string;
           name?: string;
           title?: string;
+          subtitle?: string | null;
+          welcome_text?: string | null;
           type?: string;
           template_id?: string;
           template_version?: string | null;
@@ -105,6 +121,11 @@ export type Database = {
           gifts_text?: string | null;
           memoroo_url?: string | null;
           memoroo_qr_url?: string | null;
+          cover_image?: string | null;
+          schedule?: Json | null;
+          design_config?: Json | null;
+          section_config?: Json | null;
+          whatsapp_template?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -118,7 +139,9 @@ export type Database = {
           token: string;
           max_guests: number;
           phone: string | null;
+          email: string | null;
           notes: string | null;
+          personal_message: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -129,7 +152,9 @@ export type Database = {
           token: string;
           max_guests?: number;
           phone?: string | null;
+          email?: string | null;
           notes?: string | null;
+          personal_message?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -140,7 +165,9 @@ export type Database = {
           token?: string;
           max_guests?: number;
           phone?: string | null;
+          email?: string | null;
           notes?: string | null;
+          personal_message?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -318,6 +345,91 @@ export type Database = {
           },
         ];
       };
+      event_media: {
+        Row: {
+          id: string;
+          event_id: string;
+          storage_path: string;
+          public_url: string;
+          file_name: string;
+          mime_type: string;
+          file_size: number;
+          width: number | null;
+          height: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          storage_path: string;
+          public_url: string;
+          file_name: string;
+          mime_type: string;
+          file_size: number;
+          width?: number | null;
+          height?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          storage_path?: string;
+          public_url?: string;
+          file_name?: string;
+          mime_type?: string;
+          file_size?: number;
+          width?: number | null;
+          height?: number | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_media_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_gallery: {
+        Row: {
+          id: string;
+          event_id: string;
+          media_id: string | null;
+          image_url: string;
+          caption: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          media_id?: string | null;
+          image_url: string;
+          caption?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event_id?: string;
+          media_id?: string | null;
+          image_url?: string;
+          caption?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_gallery_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, { Row: Record<string, unknown>; Relationships: GenericRelationship[] }>;
     Functions: Record<string, GenericFunction> & {
@@ -378,4 +490,6 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type EventAdmin = Database["public"]["Tables"]["event_admins"]["Row"];
 export type ConfirmationStatus = "pending" | "confirmed" | "declined";
 export type AdminRole = "super_admin" | "event_admin";
+export type EventMediaRow = Database["public"]["Tables"]["event_media"]["Row"];
+export type EventGalleryRow = Database["public"]["Tables"]["event_gallery"]["Row"];
 

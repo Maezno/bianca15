@@ -60,7 +60,13 @@ export default function EventGuestsPage() {
           Cargando invitados...
         </div>
       ) : (
-        <GuestGroupTable groups={groups} eventId={eventId} onRefresh={loadData} />
+        <GuestGroupTable
+          groups={groups}
+          eventId={eventId}
+          eventName={event?.name ?? undefined}
+          whatsappTemplate={event?.whatsapp_template ?? undefined}
+          onRefresh={loadData}
+        />
       )}
     </AdminLayout>
   );

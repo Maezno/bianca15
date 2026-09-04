@@ -13,10 +13,12 @@ const DEMO_GUEST_GROUPS: AdminGuestGroupItem[] = [
     token: 'perez-test1',
     max_guests: 5,
     phone: '1122334455',
+    email: 'perez@ejemplo.com',
     notes: 'Mesa principal',
+    personal_message: '¡Esperamos contar con ustedes en esta noche tan especial!',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    invitationUrl: '/e/bianca-15/i/perez-test1',
+    invitationUrl: '/invitacion/bianca-15/perez-test1',
     guests: [
       { id: 'g1', group_id: '11111111-0001-0001-0001-000000000001', name: 'Juan Pérez', created_at: '', updated_at: '' },
       { id: 'g2', group_id: '11111111-0001-0001-0001-000000000001', name: 'María Pérez', created_at: '', updated_at: '' },
@@ -47,10 +49,12 @@ const DEMO_GUEST_GROUPS: AdminGuestGroupItem[] = [
     token: 'garcia-test2',
     max_guests: 2,
     phone: '1199887766',
+    email: 'garcia@ejemplo.com',
     notes: null,
+    personal_message: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    invitationUrl: '/e/bianca-15/i/garcia-test2',
+    invitationUrl: '/invitacion/bianca-15/garcia-test2',
     guests: [
       { id: 'g5', group_id: '11111111-0002-0002-0002-000000000002', name: 'Juan García', created_at: '', updated_at: '' },
       { id: 'g6', group_id: '11111111-0002-0002-0002-000000000002', name: 'Laura Gómez', created_at: '', updated_at: '' },
@@ -70,7 +74,7 @@ export async function getAdminGuestGroups(
   if (!supabaseUrl || !supabaseKey) {
     return DEMO_GUEST_GROUPS.map((g) => ({
       ...g,
-      invitationUrl: `/e/${eventSlug}/i/${g.token}`,
+      invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
     }));
   }
 
@@ -80,7 +84,7 @@ export async function getAdminGuestGroups(
     const { data: groups, error } = await supabase
       .from('guest_groups')
       .select(`
-        id, event_id, name, token, max_guests, phone, notes, created_at, updated_at,
+        id, event_id, name, token, max_guests, phone, email, notes, personal_message, created_at, updated_at,
         guests ( id, group_id, name, created_at, updated_at ),
         confirmations (
           id, group_id, status, guests_count, comment, confirmed_at, created_at, updated_at,
@@ -93,7 +97,7 @@ export async function getAdminGuestGroups(
     if (error || !groups) {
       return DEMO_GUEST_GROUPS.map((g) => ({
         ...g,
-        invitationUrl: `/e/${eventSlug}/i/${g.token}`,
+        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
       }));
     }
 
@@ -104,7 +108,9 @@ export async function getAdminGuestGroups(
       token: string;
       max_guests: number;
       phone: string | null;
+      email: string | null;
       notes: string | null;
+      personal_message: string | null;
       created_at: string;
       updated_at: string;
       guests: Guest[];
@@ -132,19 +138,21 @@ export async function getAdminGuestGroups(
         token: g.token,
         max_guests: g.max_guests,
         phone: g.phone,
+        email: g.email,
         notes: g.notes,
+        personal_message: g.personal_message,
         created_at: g.created_at,
         updated_at: g.updated_at,
         guests: g.guests || [],
         confirmation: conf,
         attendees,
-        invitationUrl: `/e/${eventSlug}/i/${g.token}`,
+        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
       };
     });
   } catch {
     return DEMO_GUEST_GROUPS.map((g) => ({
       ...g,
-      invitationUrl: `/e/${eventSlug}/i/${g.token}`,
+      invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
     }));
   }
 }
@@ -178,7 +186,9 @@ export async function createAdminGuestGroup(
         token,
         max_guests: input.maxGuests,
         phone: input.phone?.trim() || null,
+        email: input.email?.trim() || null,
         notes: input.notes?.trim() || null,
+        personal_message: input.personalMessage?.trim() || null,
       })
       .select('id')
       .single();
@@ -240,15 +250,19 @@ export async function updateAdminGuestGroup(
       };
     }
 
+    const updatePayload: Record<string, unknown> = {
+      name: input.name.trim(),
+      max_guests: input.maxGuests,
+      phone: input.phone?.trim() || null,
+      email: input.email?.trim() || null,
+      notes: input.notes?.trim() || null,
+      personal_message: input.personalMessage?.trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+
     const { error } = await supabase
       .from('guest_groups')
-      .update({
-        name: input.name.trim(),
-        max_guests: input.maxGuests,
-        phone: input.phone?.trim() || null,
-        notes: input.notes?.trim() || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', input.id);
 
     if (error) {
@@ -418,3 +432,82 @@ export async function importCsvGuestGroups(
     return { success: false, importedGroupsCount: 0, importedGuestsCount: 0, error: 'Error inesperado durante la importación.' };
   }
 }
+
+/**
+ * Duplica un grupo de invitados generando un nuevo token aleatorio sin confirmación previa (Punto 15 del Hito 8).
+ */
+export async function duplicateAdminGuestGroup(
+  groupId: string
+): Promise<{ success: boolean; groupId?: string; error?: string }> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    const demoOrig = DEMO_GUEST_GROUPS.find((g) => g.id === groupId) || DEMO_GUEST_GROUPS[0];
+    return { success: true, groupId: `demo-dup-${demoOrig.id}` };
+  }
+
+  try {
+    const supabase = await createClient();
+
+    const { data: original, error: origErr } = await supabase
+      .from('guest_groups')
+      .select(`
+        event_id, name, max_guests, phone, email, notes, personal_message,
+        guests ( name )
+      `)
+      .eq('id', groupId)
+      .maybeSingle();
+
+    if (origErr || !original) {
+      return { success: false, error: 'No se encontró el grupo a duplicar.' };
+    }
+
+    const rawOrig = original as unknown as {
+      event_id: string;
+      name: string;
+      max_guests: number;
+      phone: string | null;
+      email: string | null;
+      notes: string | null;
+      personal_message: string | null;
+      guests: Array<{ name: string }>;
+    };
+
+    const newToken = generateToken();
+    const newName = `${rawOrig.name} (Copia)`;
+
+    const { data: newGroup, error: insertErr } = await supabase
+      .from('guest_groups')
+      .insert({
+        event_id: rawOrig.event_id,
+        name: newName,
+        token: newToken,
+        max_guests: rawOrig.max_guests,
+        phone: rawOrig.phone,
+        email: rawOrig.email,
+        notes: rawOrig.notes,
+        personal_message: rawOrig.personal_message,
+      })
+      .select('id')
+      .single();
+
+    if (insertErr || !newGroup) {
+      return { success: false, error: 'Error al insertar el grupo duplicado.' };
+    }
+
+    if (rawOrig.guests && rawOrig.guests.length > 0) {
+      const guestsPayload = rawOrig.guests.map((g) => ({
+        group_id: newGroup.id,
+        name: g.name,
+      }));
+      await supabase.from('guests').insert(guestsPayload);
+    }
+
+    return { success: true, groupId: newGroup.id };
+  } catch {
+    return { success: false, error: 'Error inesperado al duplicar el grupo.' };
+  }
+}
+
+

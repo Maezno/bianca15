@@ -23,12 +23,28 @@ export interface TemplateTheme {
 
 export interface EventPageProps {
   event: PublicEvent;
+  isInteractivePreview?: boolean;
+  selectedSectionId?: string | null;
+  onUpdateSectionHeight?: (sectionId: string, height: number) => void;
 }
 
 export interface InvitationPageProps {
   event: PublicEvent;
   guestGroup: PublicGuestGroup;
   existingConfirmation: ExistingConfirmation | null;
+}
+
+export interface ColorPreset {
+  id: string;
+  name: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    surface: string;
+    text: string;
+    accent: string;
+  };
 }
 
 export interface InvitationTemplate {
@@ -38,6 +54,8 @@ export interface InvitationTemplate {
   description: string;
   capabilities: string[];
   sections: string[];
+  supportedSections?: string[];
+  colorPresets?: ColorPreset[];
   theme: TemplateTheme;
   EventPage: React.ComponentType<EventPageProps>;
   InvitationPage: React.ComponentType<InvitationPageProps>;

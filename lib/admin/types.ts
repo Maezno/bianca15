@@ -70,6 +70,8 @@ export interface CreateEventInput {
   name: string;
   title: string;
   slug: string;
+  subtitle?: string;
+  welcomeText?: string;
   type: string;
   templateId?: string;
   templateVersion?: string;
@@ -82,10 +84,33 @@ export interface CreateEventInput {
   wazeUrl?: string;
   dressCode?: string;
   giftsText?: string;
+  memorooUrl?: string;
+  memorooQrUrl?: string;
+  coverImage?: string;
+  schedule?: import('@/types/event').ScheduleItem[];
+  designConfig?: import('@/types/event').EventDesignConfig;
+  sectionConfig?: import('@/types/event').EventSectionConfig;
+  whatsappTemplate?: string;
 }
 
 export interface UpdateEventInput extends Partial<CreateEventInput> {
   id: string;
+}
+
+export interface AdminEventMedia {
+  id: string;
+  eventId: string;
+  storagePath: string;
+  publicUrl: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+  isCover?: boolean;
+  isUsed?: boolean;
+  usedIn?: string[];
 }
 
 export interface CreateAdminGroupInput {
@@ -93,7 +118,9 @@ export interface CreateAdminGroupInput {
   name: string;
   maxGuests: number;
   phone?: string;
+  email?: string;
   notes?: string;
+  personalMessage?: string;
   initialGuests?: string[];
 }
 
@@ -103,7 +130,9 @@ export interface UpdateAdminGroupInput {
   name: string;
   maxGuests: number;
   phone?: string;
+  email?: string;
   notes?: string;
+  personalMessage?: string;
 }
 
 export interface CsvParsedRow {

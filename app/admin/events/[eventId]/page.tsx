@@ -7,6 +7,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventStats } from '@/components/admin/EventStats';
 import { DietarySummary } from '@/components/admin/DietarySummary';
 import { getTemplate } from '@/templates/registry';
+import { DuplicateEventButton } from '@/components/admin/DuplicateEventButton';
+import { GeneralQrButton } from '@/components/admin/GeneralQrButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,9 +59,9 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         </div>
 
         {/* Quick Action Buttons */}
-        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <Link
-            href={`/admin/events/${event.id}/guests`}
+            href={`/admin/events/${event.id}/editor`}
             style={{
               padding: '0.6rem 1rem',
               borderRadius: '0.5rem',
@@ -71,9 +73,27 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
+              boxShadow: '0 2px 8px rgba(147, 51, 234, 0.25)',
             }}
           >
-            👥 Gestionar Invitados
+            ✏️ Personalizar en Editor
+          </Link>
+          <Link
+            href={`/admin/events/${event.id}/guests`}
+            style={{
+              padding: '0.6rem 1rem',
+              borderRadius: '0.5rem',
+              background: '#f3e8ff',
+              color: '#7e22ce',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            👥 Invitados
           </Link>
           <Link
             href={`/admin/events/${event.id}/import`}
@@ -90,6 +110,26 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           >
             📥 Importar CSV
           </Link>
+          <Link
+            href={`/admin/events/${event.id}/media`}
+            style={{
+              padding: '0.6rem 1rem',
+              borderRadius: '0.5rem',
+              border: '1px solid #cbd5e1',
+              background: '#ffffff',
+              color: '#334155',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            🖼️ Multimedia
+          </Link>
+          <GeneralQrButton eventName={event.name} slug={event.slug} />
+          <DuplicateEventButton eventId={event.id} />
           <Link
             href={`/e/${event.slug}`}
             target="_blank"

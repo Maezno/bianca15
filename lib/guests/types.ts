@@ -11,8 +11,10 @@ export interface CreateGroupInput {
   eventId: string; // FK al evento obligatorio
   name: string;
   phone?: string;
+  email?: string;
   maxGuests: number;
   notes?: string;
+  personalMessage?: string;
 }
 
 // ─── Entrada para crear un invitado ─────────────────────────────────────────
@@ -34,6 +36,8 @@ export interface PublicGuestGroup {
   name: string;
   token: string;
   maxGuests: number;
+  email?: string;
+  personalMessage?: string;
   guests: PublicGuest[];
   confirmation: PublicConfirmation | null;
   event: PublicEvent;

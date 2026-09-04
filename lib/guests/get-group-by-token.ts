@@ -41,6 +41,30 @@ const DEMO_GROUPS: Record<
           "Tu presencia es nuestro mejor regalo. Si deseás hacernos un presente, podés colaborar con nuestra alcancía.",
         memorooUrl: "https://memoroo.app/e/bianca15",
         memorooQrUrl: "https://memoroo.app/qr/bianca15.png",
+        coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop",
+        schedule: [
+          { id: "1", time: "21:00", title: "Recepción", description: "Cocktail de bienvenida" },
+          { id: "2", time: "22:00", title: "Entrada de Bianca", description: "Momento emotivo" },
+          { id: "3", time: "22:30", title: "Cena Principal", description: "Banquete y brindis" },
+          { id: "4", time: "00:00", title: "Apertura de Pista", description: "¡Fiesta hasta el amanecer!" },
+        ],
+        sectionConfig: {
+          order: ["hero", "welcome", "countdown", "date", "location", "schedule", "dress_code", "gifts", "confirmation", "photos", "share", "footer"],
+          enabled: {
+            hero: true,
+            welcome: true,
+            countdown: true,
+            date: true,
+            location: true,
+            schedule: true,
+            dress_code: true,
+            gifts: true,
+            confirmation: true,
+            photos: false,
+            share: true,
+            footer: true,
+          },
+        },
       },
     },
   },
@@ -76,6 +100,7 @@ const DEMO_GROUPS: Record<
           "Tu presencia es nuestro mejor regalo. Si deseás hacernos un presente, podés colaborar con nuestra alcancía.",
         memorooUrl: "https://memoroo.app/e/bianca15",
         memorooQrUrl: "https://memoroo.app/qr/bianca15.png",
+        coverImage: "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop",
       },
     },
   },
@@ -111,6 +136,29 @@ const DEMO_GROUPS: Record<
         giftsText: "CBU: 0000003100010000000000 - Alias: BODA.JUAN.MARIA",
         memorooUrl: "https://memoroo.app/e/juanymaria",
         memorooQrUrl: "https://memoroo.app/qr/juanymaria.png",
+        coverImage: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80&auto=format&fit=crop",
+        schedule: [
+          { id: "1", time: "19:30", title: "Ceremonia Civil y Religiosa", description: "En el parque principal" },
+          { id: "2", time: "21:00", title: "Cocktail y Cena", description: "Salón principal" },
+          { id: "3", time: "23:30", title: "Vals y Fiesta", description: "Apertura de la pista" },
+        ],
+        sectionConfig: {
+          order: ["hero", "welcome", "countdown", "date", "location", "schedule", "dress_code", "gifts", "confirmation", "share", "footer"],
+          enabled: {
+            hero: true,
+            welcome: true,
+            countdown: true,
+            date: true,
+            location: true,
+            schedule: true,
+            dress_code: true,
+            gifts: true,
+            confirmation: true,
+            photos: false,
+            share: true,
+            footer: true,
+          },
+        },
       },
     },
   },
@@ -147,6 +195,8 @@ const DEMO_GROUPS: Record<
   },
 };
 
+import { getDemoEventBySlug } from '@/lib/events/demo-store';
+
 function getLocalDemoGroup(
   token: string,
   eventSlug?: string
@@ -157,6 +207,14 @@ function getLocalDemoGroup(
   // Validación de aislamiento estricto
   if (eventSlug && match.eventSlug !== eventSlug.trim().toLowerCase()) {
     return null; // Mismatched event -> 404
+  }
+
+  const liveEvent = getDemoEventBySlug(match.eventSlug);
+  if (liveEvent) {
+    return {
+      ...match.group,
+      event: liveEvent,
+    };
   }
 
   return match.group;
@@ -237,6 +295,12 @@ export async function getGroupByToken(
         giftsText: (rawEvent.gifts_text as string) || "",
         memorooUrl: (rawEvent.memoroo_url as string) || "",
         memorooQrUrl: (rawEvent.memoroo_qr_url as string) || "",
+        coverImage: (rawEvent.cover_image as string) || undefined,
+        subtitle: (rawEvent.subtitle as string) || undefined,
+        welcomeText: (rawEvent.welcome_text as string) || undefined,
+        schedule: Array.isArray(rawEvent.schedule) ? (rawEvent.schedule as import("@/types/event").ScheduleItem[]) : undefined,
+        designConfig: (rawEvent.design_config as import("@/types/event").EventDesignConfig) || undefined,
+        sectionConfig: (rawEvent.section_config as import("@/types/event").EventSectionConfig) || undefined,
       },
     };
   } catch {

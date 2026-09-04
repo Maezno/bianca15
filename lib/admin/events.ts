@@ -1,55 +1,25 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentAdminUser } from './auth';
 import type { AdminEventSummary, AdminEventStats, CreateEventInput, UpdateEventInput } from './types';
 import type { EventRow } from '@/types/database';
+import { slugify } from '@/lib/utils/slug';
+import {
+  getDemoEventById,
+  getDemoEventsList,
+  updateDemoEvent,
+  createDemoEvent,
+} from '@/lib/events/demo-store';
 
-// Demo mock events for local testing when Supabase is not connected
-const DEMO_EVENTS: AdminEventSummary[] = [
-  {
-    id: '11111111-1111-1111-1111-111111111111',
-    slug: 'bianca-15',
-    name: 'Bianca - 15 años',
-    title: 'Mis 15 años',
-    type: '15_years',
-    templateId: 'wonderland',
-    templateVersion: '1.0.0',
-    status: 'published',
-    date: '2026-11-21',
-    startTime: '21:00',
-    location: 'Salón Las Camelias',
-    address: 'Av. Libertador 4500, Buenos Aires',
-    totalGroups: 2,
-    confirmedGroups: 1,
-    pendingGroups: 1,
-    declinedGroups: 0,
-    totalMaxGuests: 7,
-    confirmedPersons: 4,
-    remainingCapacity: 3,
-  },
-  {
-    id: '22222222-2222-2222-2222-222222222222',
-    slug: 'juan-y-maria',
-    name: 'Juan y María',
-    title: 'Nuestra Boda',
-    type: 'wedding',
-    templateId: 'elegant',
-    templateVersion: '1.0.0',
-    status: 'published',
-    date: '2026-12-12',
-    startTime: '19:30',
-    location: 'Quinta Los Robles',
-    address: 'Ruta 8 Km 54, Pilar',
-    totalGroups: 2,
-    confirmedGroups: 0,
-    pendingGroups: 1,
-    declinedGroups: 1,
-    totalMaxGuests: 5,
-    confirmedPersons: 0,
-    remainingCapacity: 5,
-  },
-];
+function safeRevalidatePath(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {
+    // Ignorar si se ejecuta fuera del contexto de una petición Next.js
+  }
+}
 
 export async function getAdminEvents(): Promise<AdminEventSummary[]> {
   const user = await getCurrentAdminUser();
@@ -59,7 +29,7 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return DEMO_EVENTS;
+    return getDemoEventsList();
   }
 
   try {
@@ -77,7 +47,7 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
       .order('created_at', { ascending: false });
 
     if (error || !events) {
-      return DEMO_EVENTS;
+      return getDemoEventsList();
     }
 
     return (events as unknown as Array<{
@@ -145,7 +115,7 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
       };
     });
   } catch {
-    return DEMO_EVENTS;
+    return getDemoEventsList();
   }
 }
 
@@ -171,41 +141,23 @@ export async function getAdminEventById(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    const demo = DEMO_EVENTS.find((e) => e.id === eventId || e.slug === eventId) || DEMO_EVENTS[0];
+    const demoEvent = getDemoEventById(eventId) || getDemoEventById('11111111-1111-1111-1111-111111111111');
+    if (!demoEvent) {
+      return { event: null, stats: defaultStats };
+    }
     return {
-      event: {
-        id: demo.id,
-        slug: demo.slug,
-        name: demo.name,
-        title: demo.title,
-        type: demo.type,
-        template_id: demo.templateId || 'default',
-        template_version: demo.templateVersion || '1.0.0',
-        status: demo.status,
-        date: demo.date,
-        start_time: demo.startTime,
-        location: demo.location,
-        address: demo.address,
-        maps_url: null,
-        waze_url: null,
-        dress_code: 'Elegante',
-        gifts_text: null,
-        memoroo_url: null,
-        memoroo_qr_url: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
+      event: demoEvent,
       stats: {
         groups: {
-          total: demo.totalGroups,
-          confirmed: demo.confirmedGroups,
-          pending: demo.pendingGroups,
-          declined: demo.declinedGroups,
+          total: 2,
+          confirmed: 1,
+          pending: 1,
+          declined: 0,
         },
         persons: {
-          maxCapacity: demo.totalMaxGuests,
-          confirmedPersons: demo.confirmedPersons,
-          remainingCapacity: demo.remainingCapacity,
+          maxCapacity: 7,
+          confirmedPersons: 4,
+          remainingCapacity: 3,
         },
         dietary: {
           summary: [
@@ -346,13 +298,15 @@ export async function createEvent(
     return { success: false, error: 'Nombre, título y enlace personalizado (slug) son obligatorios.' };
   }
 
-  const cleanSlug = input.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  const cleanSlug = slugify(input.slug);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return { success: true, eventId: '11111111-1111-1111-1111-111111111111' };
+    const eventId = createDemoEvent(input);
+    safeRevalidatePath('/admin/events');
+    return { success: true, eventId };
   }
 
   try {
@@ -375,6 +329,9 @@ export async function createEvent(
         waze_url: input.wazeUrl || null,
         dress_code: input.dressCode || null,
         gifts_text: input.giftsText || null,
+        memoroo_url: input.memorooUrl || null,
+        memoroo_qr_url: input.memorooQrUrl || null,
+        cover_image: input.coverImage || null,
       })
       .select('id')
       .single();
@@ -386,6 +343,7 @@ export async function createEvent(
       return { success: false, error: 'No se pudo crear el evento. Por favor intentá nuevamente.' };
     }
 
+    safeRevalidatePath('/admin/events');
     return { success: true, eventId: data.id };
   } catch {
     return { success: false, error: 'Error inesperado al crear el evento.' };
@@ -396,6 +354,16 @@ export async function updateEvent(
   input: UpdateEventInput
 ): Promise<{ success: boolean; error?: string }> {
   if (!input.id) return { success: false, error: 'ID de evento faltante.' };
+
+  // Siempre actualizamos el demo store para persistencia y soporte inmediato
+  updateDemoEvent(input);
+
+  if (input.slug) {
+    safeRevalidatePath(`/invitacion/${input.slug}`);
+  }
+  safeRevalidatePath(`/admin/events/${input.id}/editor`);
+  safeRevalidatePath(`/admin/events/${input.id}`);
+  safeRevalidatePath('/admin/events');
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -410,7 +378,7 @@ export async function updateEvent(
 
     if (input.name !== undefined) updateData.name = input.name.trim();
     if (input.title !== undefined) updateData.title = input.title.trim();
-    if (input.slug !== undefined) updateData.slug = input.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    if (input.slug !== undefined) updateData.slug = slugify(input.slug);
     if (input.type !== undefined) updateData.type = input.type;
     if (input.templateId !== undefined) updateData.template_id = input.templateId;
     if (input.templateVersion !== undefined) updateData.template_version = input.templateVersion;
@@ -423,6 +391,15 @@ export async function updateEvent(
     if (input.wazeUrl !== undefined) updateData.waze_url = input.wazeUrl || null;
     if (input.dressCode !== undefined) updateData.dress_code = input.dressCode || null;
     if (input.giftsText !== undefined) updateData.gifts_text = input.giftsText || null;
+    if (input.memorooUrl !== undefined) updateData.memoroo_url = input.memorooUrl || null;
+    if (input.memorooQrUrl !== undefined) updateData.memoroo_qr_url = input.memorooQrUrl || null;
+    if (input.coverImage !== undefined) updateData.cover_image = input.coverImage || null;
+    if (input.subtitle !== undefined) updateData.subtitle = input.subtitle || null;
+    if (input.welcomeText !== undefined) updateData.welcome_text = input.welcomeText || null;
+    if (input.schedule !== undefined) updateData.schedule = input.schedule || [];
+    if (input.designConfig !== undefined) updateData.design_config = input.designConfig || {};
+    if (input.sectionConfig !== undefined) updateData.section_config = input.sectionConfig || {};
+    if (input.whatsappTemplate !== undefined) updateData.whatsapp_template = input.whatsappTemplate || null;
     updateData.updated_at = new Date().toISOString();
 
     const { error } = await supabase.from('events').update(updateData).eq('id', input.id);
@@ -434,5 +411,84 @@ export async function updateEvent(
     return { success: true };
   } catch {
     return { success: false, error: 'Error inesperado al actualizar el evento.' };
+  }
+}
+
+export async function duplicateEvent(
+  eventId: string
+): Promise<{ success: boolean; eventId?: string; error?: string }> {
+  if (!eventId) return { success: false, error: 'ID de evento faltante.' };
+
+  const { event: original } = await getAdminEventById(eventId);
+  if (!original) {
+    return { success: false, error: 'No se encontró el evento original a duplicar.' };
+  }
+
+  const randomSuffix = Math.random().toString(36).substring(2, 6);
+  const newSlug = `${original.slug}-copia-${randomSuffix}`.substring(0, 50);
+  const newName = `${original.name} (Copia)`;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    const newId = createDemoEvent({
+      name: newName,
+      title: original.title,
+      slug: newSlug,
+      type: original.type,
+      templateId: original.template_id,
+      templateVersion: original.template_version || undefined,
+      status: 'draft',
+      date: original.date || undefined,
+      startTime: original.start_time || undefined,
+      location: original.location || undefined,
+      address: original.address || undefined,
+      mapsUrl: original.maps_url || undefined,
+      wazeUrl: original.waze_url || undefined,
+      dressCode: original.dress_code || undefined,
+      giftsText: original.gifts_text || undefined,
+      coverImage: original.cover_image || undefined,
+    });
+    safeRevalidatePath('/admin/events');
+    return { success: true, eventId: newId };
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('events')
+      .insert({
+        name: newName,
+        title: original.title,
+        slug: newSlug,
+        subtitle: original.subtitle || null,
+        welcome_text: original.welcome_text || null,
+        type: original.type,
+        template_id: original.template_id,
+        template_version: original.template_version || '1.0.0',
+        status: 'draft', // Siempre arranca en borrador
+        date: original.date,
+        start_time: original.start_time,
+        location: original.location,
+        address: original.address,
+        maps_url: original.maps_url,
+        waze_url: original.waze_url,
+        dress_code: original.dress_code,
+        gifts_text: original.gifts_text,
+        schedule: original.schedule || [],
+        design_config: original.design_config || {},
+        section_config: original.section_config || {},
+      })
+      .select('id')
+      .single();
+
+    if (error || !data) {
+      return { success: false, error: error?.message || 'Error al duplicar el evento.' };
+    }
+
+    return { success: true, eventId: data.id };
+  } catch {
+    return { success: false, error: 'Error inesperado al duplicar el evento.' };
   }
 }

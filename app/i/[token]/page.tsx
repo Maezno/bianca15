@@ -19,6 +19,6 @@ export default async function DirectInvitationPage({
     notFound();
   }
 
-  // Redirigir a la URL canónica del evento
-  redirect(`/e/${group.event.slug}/i/${group.token}`);
+  // Redirigir a la URL canónica pública del evento
+  redirect(`/invitacion/${group.event.slug}/${group.token}`);
 }
