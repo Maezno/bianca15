@@ -417,7 +417,7 @@ export function PublicInvitationRenderer({
                 flexDirection: 'column',
                 justifyContent: contentAlign === 'top' ? 'flex-start' : 'center',
                 alignItems: 'center',
-                overflowY: 'auto',
+                overflowY: 'hidden',
                 overflowX: 'hidden',
                 padding: '1.25rem 1rem',
                 position: 'relative',

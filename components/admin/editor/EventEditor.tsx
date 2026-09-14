@@ -241,6 +241,9 @@ export function EventEditor({ initialData }: EventEditorProps) {
             boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)',
             display: 'flex',
             flexDirection: 'column',
+            height: 'calc(100vh - 120px)',
+            position: 'sticky',
+            top: '80px',
             overflow: 'hidden',
           }}
         >
@@ -285,7 +288,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
           </div>
 
           {/* Contenido del Tab Activo */}
-          <div style={{ padding: '1.5rem', overflowY: 'auto', maxHeight: 'calc(100vh - 180px)' }}>
+          <div className="scrollbar-hidden" style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
             {activeTab === 'general' && (
               <GeneralTab
                 name={name}
@@ -333,6 +336,8 @@ export function EventEditor({ initialData }: EventEditorProps) {
                 setDesignConfig={setDesignConfig}
                 baseTheme={templateData.theme}
                 presets={templateData.colorPresets}
+                sectionConfig={sectionConfig}
+                eventName={name || event.name}
               />
             )}
 

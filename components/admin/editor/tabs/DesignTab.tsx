@@ -1,14 +1,17 @@
 'use client';
 
 import React from 'react';
-import type { EventDesignConfig } from '@/types/event';
+import type { EventDesignConfig, EventSectionConfig } from '@/types/event';
 import type { ColorPreset, TemplateTheme } from '@/templates/types';
+import { ExportTemplateButton } from '../ExportTemplateButton';
 
 interface DesignTabProps {
   designConfig: EventDesignConfig;
   setDesignConfig: React.Dispatch<React.SetStateAction<EventDesignConfig>>;
   baseTheme: TemplateTheme;
   presets: ColorPreset[];
+  sectionConfig?: EventSectionConfig;
+  eventName?: string;
 }
 
 export function DesignTab({
@@ -16,6 +19,8 @@ export function DesignTab({
   setDesignConfig,
   baseTheme,
   presets,
+  sectionConfig,
+  eventName,
 }: DesignTabProps) {
   const currentColors = {
     primary: designConfig.colors?.primary || baseTheme.colors.primary,
@@ -487,6 +492,15 @@ export function DesignTab({
                 </label>
               </div>
             </div>
+
+            {/* Exportar Plantilla */}
+            {sectionConfig && (
+              <ExportTemplateButton
+                designConfig={designConfig}
+                sectionConfig={sectionConfig}
+                eventName={eventName}
+              />
+            )}
 
             {/* Alturas individuales por sección */}
             <div style={{ marginTop: '0.5rem', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.85rem' }}>
