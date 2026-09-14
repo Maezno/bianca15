@@ -2,8 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { logoutAdmin } from '@/lib/admin/auth';
+import { usePathname, useRouter } from 'next/navigation';
 import type { AdminUser } from '@/lib/admin/types';
 
 interface AdminLayoutProps {
@@ -15,6 +14,12 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/admin/login');
+  };
 
   const isEventHome = eventId && pathname === `/admin/events/${eventId}`;
   const isGuests = eventId && pathname.includes('/guests');
@@ -79,7 +84,7 @@ export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutP
             </div>
           )}
           <button
-            onClick={() => logoutAdmin()}
+            onClick={handleLogout}
             style={{
               padding: '0.4rem 0.8rem',
               borderRadius: '0.5rem',
