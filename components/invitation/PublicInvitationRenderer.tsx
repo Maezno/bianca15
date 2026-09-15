@@ -267,6 +267,8 @@ export function PublicInvitationRenderer({
   const defaultHeight = layout?.sectionHeight || 700;
   const sectionGap = layout?.sectionGap !== undefined ? layout.sectionGap : (isFixed ? 0 : 32);
   const continuousBg = layout?.continuousBackgroundUrl;
+  const fluidBg = layout?.fluidBackgroundUrl;
+  const generalBg = layout?.generalBackgroundUrl;
   const contentAlign = layout?.contentAlignment || 'center';
   const transparentSections = layout?.transparentSections;
 
@@ -313,13 +315,22 @@ export function PublicInvitationRenderer({
     };
   };
 
+  // Determinar la imagen de fondo según el modo (fijo usa continuousBg; fluido usa fluidBg)
+  // con respaldo al fondo general si no hay fondo específico para el modo
+  const activeModeBg = isFixed ? continuousBg : fluidBg;
+  const effectiveBgImage = activeModeBg || generalBg;
+
+  const backgroundStyle = effectiveBgImage
+    ? isFixed
+      ? `url("${effectiveBgImage}") top center / 100% auto no-repeat, ${theme.colors.background}`
+      : `url("${effectiveBgImage}") top center / cover no-repeat, ${theme.colors.background}`
+    : theme.colors.background;
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: continuousBg
-          ? `url("${continuousBg}") top center / 100% auto no-repeat, ${theme.colors.background}`
-          : theme.colors.background,
+        background: backgroundStyle,
         color: theme.colors.text,
         fontFamily: theme.typography.bodyFont,
         padding: isFixed ? '0' : '2rem 1rem',

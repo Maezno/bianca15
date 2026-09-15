@@ -35,6 +35,10 @@ export interface EventLayoutConfig {
   sectionHeights?: Record<string, number>;
   sectionGap?: number;
   continuousBackgroundUrl?: string;
+  /** URL de imagen de fondo específica para navegación en Modo Fluido (independiente) */
+  fluidBackgroundUrl?: string;
+  /** URL de imagen de fondo general de respaldo para todo el evento */
+  generalBackgroundUrl?: string;
   contentAlignment?: "center" | "top";
   transparentSections?: boolean;
   /** Estilos visuales individuales por sección (fondo, borde, transparencia) */

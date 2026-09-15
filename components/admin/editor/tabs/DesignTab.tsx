@@ -63,8 +63,11 @@ export function DesignTab({
     }));
   };
 
-  // Estado para el MediaPicker de fondos por sección
-  const [sectionBgPickerOpen, setSectionBgPickerOpen] = useState<string | null>(null);
+  // Estado para el MediaPicker (sección, fluido, continuo o general)
+  const [activePicker, setActivePicker] = useState<{
+    type: 'section' | 'fluid' | 'continuous' | 'general';
+    sectionId?: string;
+  } | null>(null);
 
   const SECTIONS_LIST = [
     { id: 'hero', label: '👑 Hero / Portada' },
@@ -282,6 +285,85 @@ export function DesignTab({
             </div>
           </div>
         </div>
+
+        {/* Imagen de Fondo General (Opcional - Base para todo el evento) */}
+        <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+              🖼️ Imagen de Fondo General (Opcional - Base para todo el evento)
+            </label>
+            <button
+              type="button"
+              onClick={() => setActivePicker({ type: 'general' })}
+              style={{
+                padding: '0.25rem 0.6rem',
+                borderRadius: '0.35rem',
+                border: '1px solid #9333ea',
+                background: '#f3e8ff',
+                color: '#7e22ce',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              {designConfig.layout?.generalBackgroundUrl ? '🔄 Cambiar fondo' : '➕ Elegir de biblioteca'}
+            </button>
+          </div>
+
+          {designConfig.layout?.generalBackgroundUrl && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#ffffff', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', border: '1px solid #cbd5e1', marginBottom: '0.4rem' }}>
+              <img
+                src={designConfig.layout.generalBackgroundUrl}
+                alt="Fondo general"
+                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '0.3rem', border: '1px solid #94a3b8' }}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {designConfig.layout.generalBackgroundUrl}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setDesignConfig((prev) => ({
+                    ...prev,
+                    layout: { ...(prev.layout || {}), generalBackgroundUrl: undefined },
+                  }))
+                }
+                style={{
+                  padding: '0.2rem 0.45rem',
+                  borderRadius: '0.25rem',
+                  border: '1px solid #fca5a5',
+                  background: '#fef2f2',
+                  color: '#b91c1c',
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                ✕ Quitar
+              </button>
+            </div>
+          )}
+
+          <input
+            type="url"
+            placeholder="O ingresa una URL directa: https://ejemplo.com/fondo-base.webp"
+            value={designConfig.layout?.generalBackgroundUrl || ''}
+            onChange={(e) =>
+              setDesignConfig((prev) => ({
+                ...prev,
+                layout: { ...(prev.layout || {}), generalBackgroundUrl: e.target.value },
+              }))
+            }
+            style={{
+              width: '100%',
+              padding: '0.45rem 0.65rem',
+              border: '1px solid #cbd5e1',
+              borderRadius: '0.35rem',
+              fontSize: '0.8rem',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
       </div>
 
       {/* Tipografía */}
@@ -455,6 +537,92 @@ export function DesignTab({
           </button>
         </div>
 
+        {/* Configuración de Modo Fluido */}
+        {(designConfig.layout?.mode || 'fluid') === 'fluid' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#334155' }}>
+                  🖼️ Fondo para Modo Fluido (Independiente)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setActivePicker({ type: 'fluid' })}
+                  style={{
+                    padding: '0.3rem 0.65rem',
+                    borderRadius: '0.35rem',
+                    border: '1px solid #9333ea',
+                    background: '#f3e8ff',
+                    color: '#7e22ce',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {designConfig.layout?.fluidBackgroundUrl ? '🔄 Cambiar fondo' : '➕ Elegir de biblioteca'}
+                </button>
+              </div>
+
+              {designConfig.layout?.fluidBackgroundUrl && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem' }}>
+                  <img
+                    src={designConfig.layout.fluidBackgroundUrl}
+                    alt="Fondo fluido"
+                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '0.35rem', border: '1px solid #94a3b8' }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {designConfig.layout.fluidBackgroundUrl}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDesignConfig((prev) => ({
+                        ...prev,
+                        layout: { ...(prev.layout || {}), fluidBackgroundUrl: undefined },
+                      }))
+                    }
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      border: '1px solid #fca5a5',
+                      background: '#fef2f2',
+                      color: '#b91c1c',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ✕ Quitar
+                  </button>
+                </div>
+              )}
+
+              <input
+                type="url"
+                placeholder="O ingresa una URL: https://ejemplo.com/fondo-fluido.webp"
+                value={designConfig.layout?.fluidBackgroundUrl || ''}
+                onChange={(e) =>
+                  setDesignConfig((prev) => ({
+                    ...prev,
+                    layout: { ...(prev.layout || {}), fluidBackgroundUrl: e.target.value },
+                  }))
+                }
+                style={{
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.85rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem', display: 'block' }}>
+                Este fondo solo se visualiza cuando la invitación está en Modo Fluido (independiente del fondo general y de las tarjetas).
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Configuración detallada de Alto Fijo */}
         {designConfig.layout?.mode === 'fixed' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
@@ -546,9 +714,62 @@ export function DesignTab({
 
             {/* URL del Fondo Continuo */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '0.35rem' }}>
-                🖼️ Imagen de Fondo Continuo (URL)
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#334155' }}>
+                  🖼️ Imagen de Fondo Continuo (Modo Fijo)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setActivePicker({ type: 'continuous' })}
+                  style={{
+                    padding: '0.3rem 0.65rem',
+                    borderRadius: '0.35rem',
+                    border: '1px solid #9333ea',
+                    background: '#f3e8ff',
+                    color: '#7e22ce',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {designConfig.layout?.continuousBackgroundUrl ? '🔄 Cambiar fondo' : '➕ Elegir de biblioteca'}
+                </button>
+              </div>
+
+              {designConfig.layout?.continuousBackgroundUrl && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', marginBottom: '0.5rem' }}>
+                  <img
+                    src={designConfig.layout.continuousBackgroundUrl}
+                    alt="Fondo continuo"
+                    style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '0.35rem', border: '1px solid #94a3b8' }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {designConfig.layout.continuousBackgroundUrl}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDesignConfig((prev) => ({
+                        ...prev,
+                        layout: { ...(prev.layout || {}), continuousBackgroundUrl: undefined },
+                      }))
+                    }
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      border: '1px solid #fca5a5',
+                      background: '#fef2f2',
+                      color: '#b91c1c',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ✕ Quitar
+                  </button>
+                </div>
+              )}
+
               <input
                 type="url"
                 placeholder="https://ejemplo.com/fondo-continuo-invitacion.webp"
@@ -770,7 +991,7 @@ export function DesignTab({
                     {/* Botón imagen de fondo */}
                     <button
                       type="button"
-                      onClick={() => setSectionBgPickerOpen(sec.id)}
+                      onClick={() => setActivePicker({ type: 'section', sectionId: sec.id })}
                       title="Seleccionar imagen de fondo para esta tarjeta"
                       style={{
                         padding: '0.28rem 0.6rem',
@@ -858,20 +1079,51 @@ export function DesignTab({
         </div>
       </div>
 
-      {/* MediaPicker para fondo de sección */}
-      {sectionBgPickerOpen && (
+      {/* MediaPicker unificado para fondos de sección, fluido, continuo y general */}
+      {activePicker && (
         <MediaPicker
           isOpen={true}
-          onClose={() => setSectionBgPickerOpen(null)}
+          onClose={() => setActivePicker(null)}
           onSelect={(url) => {
-            if (sectionBgPickerOpen) {
-              updateSectionStyle(sectionBgPickerOpen, { backgroundImage: url || undefined });
+            if (activePicker.type === 'section' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, { backgroundImage: url || undefined });
+            } else if (activePicker.type === 'fluid') {
+              setDesignConfig((prev) => ({
+                ...prev,
+                layout: { ...(prev.layout || {}), fluidBackgroundUrl: url || undefined },
+              }));
+            } else if (activePicker.type === 'continuous') {
+              setDesignConfig((prev) => ({
+                ...prev,
+                layout: { ...(prev.layout || {}), continuousBackgroundUrl: url || undefined },
+              }));
+            } else if (activePicker.type === 'general') {
+              setDesignConfig((prev) => ({
+                ...prev,
+                layout: { ...(prev.layout || {}), generalBackgroundUrl: url || undefined },
+              }));
             }
-            setSectionBgPickerOpen(null);
+            setActivePicker(null);
           }}
           eventId={eventId}
-          currentUrl={getSectionStyle(sectionBgPickerOpen).backgroundImage || ''}
-          title={`Fondo de sección: ${SECTIONS_LIST.find((s) => s.id === sectionBgPickerOpen)?.label || sectionBgPickerOpen}`}
+          currentUrl={
+            activePicker.type === 'section' && activePicker.sectionId
+              ? getSectionStyle(activePicker.sectionId).backgroundImage || ''
+              : activePicker.type === 'fluid'
+              ? designConfig.layout?.fluidBackgroundUrl || ''
+              : activePicker.type === 'continuous'
+              ? designConfig.layout?.continuousBackgroundUrl || ''
+              : designConfig.layout?.generalBackgroundUrl || ''
+          }
+          title={
+            activePicker.type === 'section' && activePicker.sectionId
+              ? `Fondo de sección: ${SECTIONS_LIST.find((s) => s.id === activePicker.sectionId)?.label || activePicker.sectionId}`
+              : activePicker.type === 'fluid'
+              ? 'Fondo para Modo Fluido'
+              : activePicker.type === 'continuous'
+              ? 'Fondo Continuo (Modo Fijo)'
+              : 'Fondo General del Evento'
+          }
         />
       )}
 

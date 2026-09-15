@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { AdminEventMedia } from '@/lib/admin/types';
 import { getEventMedia, uploadEventMedia } from '@/lib/admin/media';
 
@@ -33,7 +34,12 @@ export function MediaPicker({
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [selectedUrl, setSelectedUrl] = useState<string>(currentUrl || '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -95,9 +101,9 @@ export function MediaPicker({
     onClose();
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  const modalContent = (
     <div
       style={{
         position: 'fixed',
@@ -107,7 +113,7 @@ export function MediaPicker({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 60,
+        zIndex: 99999,
         padding: '1rem',
       }}
       onClick={onClose}
@@ -430,4 +436,6 @@ export function MediaPicker({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
 }
