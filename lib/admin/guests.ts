@@ -5,64 +5,7 @@ import { generateToken } from '@/lib/utils/token';
 import type { AdminGuestGroupItem, CreateAdminGroupInput, UpdateAdminGroupInput, CsvValidatedRow } from './types';
 import type { Guest, Confirmation, Attendee } from '@/types/database';
 
-const DEMO_GUEST_GROUPS: AdminGuestGroupItem[] = [
-  {
-    id: '11111111-0001-0001-0001-000000000001',
-    event_id: '11111111-1111-1111-1111-111111111111',
-    name: 'Familia Pérez',
-    token: 'perez-test1',
-    max_guests: 5,
-    phone: '1122334455',
-    email: 'perez@ejemplo.com',
-    notes: 'Mesa principal',
-    personal_message: '¡Esperamos contar con ustedes en esta noche tan especial!',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    invitationUrl: '/invitacion/bianca-15/perez-test1',
-    guests: [
-      { id: 'g1', group_id: '11111111-0001-0001-0001-000000000001', name: 'Juan Pérez', created_at: '', updated_at: '' },
-      { id: 'g2', group_id: '11111111-0001-0001-0001-000000000001', name: 'María Pérez', created_at: '', updated_at: '' },
-      { id: 'g3', group_id: '11111111-0001-0001-0001-000000000001', name: 'Pedro Pérez', created_at: '', updated_at: '' },
-      { id: 'g4', group_id: '11111111-0001-0001-0001-000000000001', name: 'Ana Pérez', created_at: '', updated_at: '' },
-    ],
-    confirmation: {
-      id: 'c1',
-      group_id: '11111111-0001-0001-0001-000000000001',
-      status: 'confirmed',
-      guests_count: 4,
-      comment: 'Llegaremos a las 21:30.',
-      confirmed_at: '2026-11-15T20:00:00Z',
-      created_at: '',
-      updated_at: '',
-    },
-    attendees: [
-      { id: 'a1', confirmation_id: 'c1', name: 'Juan Pérez', dietary_restriction: 'none', created_at: '', updated_at: '' },
-      { id: 'a2', confirmation_id: 'c1', name: 'María Pérez', dietary_restriction: 'vegetarian', created_at: '', updated_at: '' },
-      { id: 'a3', confirmation_id: 'c1', name: 'Pedro Pérez', dietary_restriction: 'celiac', created_at: '', updated_at: '' },
-      { id: 'a4', confirmation_id: 'c1', name: 'Ana Pérez', dietary_restriction: 'none', created_at: '', updated_at: '' },
-    ],
-  },
-  {
-    id: '11111111-0002-0002-0002-000000000002',
-    event_id: '11111111-1111-1111-1111-111111111111',
-    name: 'Familia García',
-    token: 'garcia-test2',
-    max_guests: 2,
-    phone: '1199887766',
-    email: 'garcia@ejemplo.com',
-    notes: null,
-    personal_message: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    invitationUrl: '/invitacion/bianca-15/garcia-test2',
-    guests: [
-      { id: 'g5', group_id: '11111111-0002-0002-0002-000000000002', name: 'Juan García', created_at: '', updated_at: '' },
-      { id: 'g6', group_id: '11111111-0002-0002-0002-000000000002', name: 'Laura Gómez', created_at: '', updated_at: '' },
-    ],
-    confirmation: null,
-    attendees: [],
-  },
-];
+import { loadDemoGuestGroups, saveDemoGuestGroups } from './demo-guests-store';
 
 export async function getAdminGuestGroups(
   eventId: string,
@@ -72,10 +15,13 @@ export async function getAdminGuestGroups(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return DEMO_GUEST_GROUPS.map((g) => ({
-      ...g,
-      invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
-    }));
+    const demoGroups = loadDemoGuestGroups();
+    return demoGroups
+      .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
+      .map((g) => ({
+        ...g,
+        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
+      }));
   }
 
   try {
@@ -95,10 +41,13 @@ export async function getAdminGuestGroups(
       .order('name', { ascending: true });
 
     if (error || !groups) {
-      return DEMO_GUEST_GROUPS.map((g) => ({
-        ...g,
-        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
-      }));
+      const demoGroups = loadDemoGuestGroups();
+      return demoGroups
+        .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
+        .map((g) => ({
+          ...g,
+          invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
+        }));
     }
 
     return (groups as unknown as Array<{
@@ -150,10 +99,13 @@ export async function getAdminGuestGroups(
       };
     });
   } catch {
-    return DEMO_GUEST_GROUPS.map((g) => ({
-      ...g,
-      invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
-    }));
+    const demoGroups = loadDemoGuestGroups();
+    return demoGroups
+      .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
+      .map((g) => ({
+        ...g,
+        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
+      }));
   }
 }
 
@@ -443,8 +395,9 @@ export async function duplicateAdminGuestGroup(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    const demoOrig = DEMO_GUEST_GROUPS.find((g) => g.id === groupId) || DEMO_GUEST_GROUPS[0];
-    return { success: true, groupId: `demo-dup-${demoOrig.id}` };
+    const demoGroups = loadDemoGuestGroups();
+    const demoOrig = demoGroups.find((g) => g.id === groupId) || demoGroups[0];
+    return { success: true, groupId: `demo-dup-${demoOrig?.id || 'new'}` };
   }
 
   try {

@@ -19,37 +19,28 @@ export interface AdminConfirmationRow {
   }>;
 }
 
-const DEMO_CONFIRMATIONS: AdminConfirmationRow[] = [
-  {
-    groupId: '11111111-0001-0001-0001-000000000001',
-    groupName: 'Familia Pérez',
-    token: 'perez-test1',
-    maxGuests: 5,
-    phone: '1122334455',
-    status: 'confirmed',
-    confirmedCount: 4,
-    comment: 'Llegaremos a las 21:30.',
-    confirmedAt: '2026-11-15T20:00:00Z',
-    attendees: [
-      { name: 'Juan Pérez', dietary: 'Ninguna' },
-      { name: 'María Pérez', dietary: 'Vegetariano/a' },
-      { name: 'Pedro Pérez', dietary: 'Celíaco/a' },
-      { name: 'Ana Pérez', dietary: 'Ninguna' },
-    ],
-  },
-  {
-    groupId: '11111111-0002-0002-0002-000000000002',
-    groupName: 'Familia García',
-    token: 'garcia-test2',
-    maxGuests: 2,
-    phone: '1199887766',
-    status: 'pending',
-    confirmedCount: 0,
-    comment: null,
-    confirmedAt: null,
-    attendees: [],
-  },
-];
+import { loadDemoGuestGroups } from './demo-guests-store';
+
+function getDemoConfirmationsList(eventId?: string): AdminConfirmationRow[] {
+  const groups = loadDemoGuestGroups();
+  return groups
+    .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
+    .map((g) => ({
+      groupId: g.id,
+      groupName: g.name,
+      token: g.token,
+      maxGuests: g.max_guests,
+      phone: g.phone,
+      status: (g.confirmation?.status as AdminConfirmationRow['status']) || 'pending',
+      confirmedCount: g.confirmation?.guests_count || 0,
+      comment: g.confirmation?.comment || null,
+      confirmedAt: g.confirmation?.confirmed_at || null,
+      attendees: (g.attendees || []).map((a) => ({
+        name: a.name,
+        dietary: a.dietary_restriction || 'Ninguna',
+      })),
+    }));
+}
 
 export async function getAdminConfirmations(
   eventId: string
@@ -58,7 +49,7 @@ export async function getAdminConfirmations(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return DEMO_CONFIRMATIONS;
+    return getDemoConfirmationsList(eventId);
   }
 
   try {
@@ -77,7 +68,7 @@ export async function getAdminConfirmations(
       .order('name', { ascending: true });
 
     if (error || !groups) {
-      return DEMO_CONFIRMATIONS;
+      return getDemoConfirmationsList(eventId);
     }
 
     return (groups as unknown as Array<{
@@ -116,7 +107,7 @@ export async function getAdminConfirmations(
       };
     });
   } catch {
-    return DEMO_CONFIRMATIONS;
+    return getDemoConfirmationsList(eventId);
   }
 }
 
