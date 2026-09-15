@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { PublicEvent } from '@/types/event';
+import type { SectionStyle } from '@/types/event';
 import type { PublicGuestGroup } from '@/lib/guests/types';
 import type { TemplateTheme } from '@/templates/types';
 import type { ExistingConfirmation } from '@/lib/confirmations/types';
@@ -280,6 +281,37 @@ export function PublicInvitationRenderer({
     : theme;
 
   const sectionProps = { event, theme: resolvedTheme, guestGroup, existingConfirmation };
+  const sectionStyles = layout?.sectionStyles || {};
+
+  // Inyectar fuente personalizada si está configurada
+  const customFontUrl = event.designConfig?.typography?.customFontUrl;
+  useEffect(() => {
+    if (!customFontUrl) return;
+    const existingLink = document.getElementById('custom-font-link');
+    if (existingLink) existingLink.remove();
+    const link = document.createElement('link');
+    link.id = 'custom-font-link';
+    link.rel = 'stylesheet';
+    link.href = customFontUrl;
+    document.head.appendChild(link);
+    return () => {
+      const el = document.getElementById('custom-font-link');
+      if (el) el.remove();
+    };
+  }, [customFontUrl]);
+
+  /** Resuelve el theme final para una sección aplicando sus overrides individuales */
+  const resolveSectionTheme = (sectionId: string, style?: SectionStyle) => {
+    if (!style || (!style.noBackground && !style.noBorder)) return resolvedTheme;
+    return {
+      ...resolvedTheme,
+      colors: {
+        ...resolvedTheme.colors,
+        ...(style.noBackground ? { surface: 'transparent' } : {}),
+        ...(style.noBorder ? { border: 'transparent' } : {}),
+      },
+    };
+  };
 
   return (
     <div
@@ -315,87 +347,48 @@ export function PublicInvitationRenderer({
         {customHeaderDecorator}
 
         {activeSections.map((sectionId) => {
+          // Obtener estilo individual y calcular theme resuelto para esta sección
+          const sectionStyle = sectionStyles[sectionId];
+          const sectionTheme = resolveSectionTheme(sectionId, sectionStyle);
+          const sectionSpecificProps = { ...sectionProps, theme: sectionTheme };
+
+          // Helper: construir el elemento de sección con el theme ya resuelto
           let sectionElement: React.ReactNode = null;
           switch (sectionId) {
-            case 'hero':
-              sectionElement = <HeroSection key="hero" {...sectionProps} />;
-              break;
-            case 'welcome':
-              sectionElement = <WelcomeSection key="welcome" {...sectionProps} />;
-              break;
-            case 'countdown':
-              sectionElement = (
-                <SectionErrorBoundary key="countdown" sectionId="countdown">
-                  <CountdownSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'date':
-              sectionElement = (
-                <SectionErrorBoundary key="date" sectionId="date">
-                  <DateSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'location':
-              sectionElement = (
-                <SectionErrorBoundary key="location" sectionId="location">
-                  <LocationSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'schedule':
-              sectionElement = (
-                <SectionErrorBoundary key="schedule" sectionId="schedule">
-                  <ScheduleSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'dress_code':
-              sectionElement = (
-                <SectionErrorBoundary key="dress_code" sectionId="dress_code">
-                  <DressCodeSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'gifts':
-              sectionElement = (
-                <SectionErrorBoundary key="gifts" sectionId="gifts">
-                  <GiftsSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'photos':
-              sectionElement = (
-                <SectionErrorBoundary key="photos" sectionId="photos">
-                  <PhotosSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'confirmation':
-              sectionElement = <ConfirmationSection key="confirmation" {...sectionProps} />;
-              break;
-            case 'share':
-              sectionElement = (
-                <SectionErrorBoundary key="share" sectionId="share">
-                  <ShareSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            case 'footer':
-              sectionElement = (
-                <SectionErrorBoundary key="footer" sectionId="footer">
-                  <FooterSection {...sectionProps} />
-                </SectionErrorBoundary>
-              );
-              break;
-            default:
-              return null;
+            case 'hero': sectionElement = <HeroSection key="hero" {...sectionSpecificProps} />; break;
+            case 'welcome': sectionElement = <WelcomeSection key="welcome" {...sectionSpecificProps} />; break;
+            case 'countdown': sectionElement = (<SectionErrorBoundary key="countdown" sectionId="countdown"><CountdownSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'date': sectionElement = (<SectionErrorBoundary key="date" sectionId="date"><DateSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'location': sectionElement = (<SectionErrorBoundary key="location" sectionId="location"><LocationSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'schedule': sectionElement = (<SectionErrorBoundary key="schedule" sectionId="schedule"><ScheduleSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'dress_code': sectionElement = (<SectionErrorBoundary key="dress_code" sectionId="dress_code"><DressCodeSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'gifts': sectionElement = (<SectionErrorBoundary key="gifts" sectionId="gifts"><GiftsSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'photos': sectionElement = (<SectionErrorBoundary key="photos" sectionId="photos"><PhotosSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'confirmation': sectionElement = <ConfirmationSection key="confirmation" {...sectionSpecificProps} />; break;
+            case 'share': sectionElement = (<SectionErrorBoundary key="share" sectionId="share"><ShareSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            case 'footer': sectionElement = (<SectionErrorBoundary key="footer" sectionId="footer"><FooterSection {...sectionSpecificProps} /></SectionErrorBoundary>); break;
+            default: return null;
           }
+
+          // Estilos de fondo compartidos por ambos modos
+          const bgImageStyle = sectionStyle?.backgroundImage ? {
+            backgroundImage: `url("${sectionStyle.backgroundImage}")`,
+            backgroundSize: 'cover' as const,
+            backgroundPosition: 'center' as const,
+            backgroundRepeat: 'no-repeat' as const,
+          } : {};
 
           if (!isFixed) {
             return (
-              <div key={sectionId} id={`section-${sectionId}`} style={{ width: '100%' }}>
+              <div
+                key={sectionId}
+                id={`section-${sectionId}`}
+                style={{
+                  width: '100%',
+                  position: 'relative',
+                  ...(sectionStyle?.backgroundImage ? { ...bgImageStyle, borderRadius: '1rem' } : {}),
+                }}
+              >
                 {sectionElement}
               </div>
             );
@@ -425,6 +418,7 @@ export function PublicInvitationRenderer({
                 boxShadow: isSelected
                   ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
                   : undefined,
+                ...bgImageStyle,
               }}
             >
               <div style={{ width: '100%' }}>{sectionElement}</div>

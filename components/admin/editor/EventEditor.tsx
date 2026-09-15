@@ -338,6 +338,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
                 presets={templateData.colorPresets}
                 sectionConfig={sectionConfig}
                 eventName={name || event.name}
+                eventId={event.id}
               />
             )}
 

@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { EventDesignConfig, EventSectionConfig } from '@/types/event';
 import type { ColorPreset, TemplateTheme } from '@/templates/types';
 import { ExportTemplateButton } from '../ExportTemplateButton';
+import { MediaPicker } from '@/components/admin/MediaPicker';
 
 interface DesignTabProps {
   designConfig: EventDesignConfig;
@@ -12,6 +13,7 @@ interface DesignTabProps {
   presets: ColorPreset[];
   sectionConfig?: EventSectionConfig;
   eventName?: string;
+  eventId: string;
 }
 
 export function DesignTab({
@@ -21,6 +23,7 @@ export function DesignTab({
   presets,
   sectionConfig,
   eventName,
+  eventId,
 }: DesignTabProps) {
   const currentColors = {
     primary: designConfig.colors?.primary || baseTheme.colors.primary,
@@ -58,6 +61,57 @@ export function DesignTab({
       typography: undefined,
       layout: undefined,
     }));
+  };
+
+  // Estado para el MediaPicker de fondos por sección
+  const [sectionBgPickerOpen, setSectionBgPickerOpen] = useState<string | null>(null);
+
+  const SECTIONS_LIST = [
+    { id: 'hero', label: '👑 Hero / Portada' },
+    { id: 'welcome', label: '✨ Bienvenida' },
+    { id: 'countdown', label: '⏳ Cuenta Regresiva' },
+    { id: 'date', label: '📅 Fecha y Hora' },
+    { id: 'location', label: '📍 Ubicación' },
+    { id: 'schedule', label: '⏰ Cronograma' },
+    { id: 'dress_code', label: '👔 Dress Code' },
+    { id: 'gifts', label: '🎁 Regalos' },
+    { id: 'photos', label: '📸 Fotos' },
+    { id: 'confirmation', label: '✅ Confirmación' },
+    { id: 'share', label: '🔗 Compartir' },
+    { id: 'footer', label: '💌 Cierre' },
+  ];
+
+  const getSectionStyle = (sectionId: string) =>
+    designConfig.layout?.sectionStyles?.[sectionId] || {};
+
+  const updateSectionStyle = (sectionId: string, patch: Record<string, unknown>) => {
+    setDesignConfig((prev) => ({
+      ...prev,
+      layout: {
+        ...(prev.layout || {}),
+        sectionStyles: {
+          ...(prev.layout?.sectionStyles || {}),
+          [sectionId]: {
+            ...(prev.layout?.sectionStyles?.[sectionId] || {}),
+            ...patch,
+          },
+        },
+      },
+    }));
+  };
+
+  const clearSectionStyle = (sectionId: string) => {
+    setDesignConfig((prev) => {
+      const styles = { ...(prev.layout?.sectionStyles || {}) };
+      delete styles[sectionId];
+      return {
+        ...prev,
+        layout: {
+          ...(prev.layout || {}),
+          sectionStyles: styles,
+        },
+      };
+    });
   };
 
   return (
@@ -254,6 +308,77 @@ export function DesignTab({
           <option value="Cinzel, serif">Cinzel (Teatral / Majestuosa)</option>
           <option value="Lato, sans-serif">Lato (Limpia y Minimalista)</option>
         </select>
+      </div>
+
+      {/* Tipografía Personalizada */}
+      <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '0.75rem', padding: '1.25rem' }}>
+        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#6b21a8', marginBottom: '0.25rem' }}>
+          🔤 Tipografía Personalizada
+        </label>
+        <p style={{ fontSize: '0.8rem', color: '#7e22ce', margin: '0 0 0.75rem 0' }}>
+          Pegá una URL de Google Fonts o cualquier CSS de fuente externa. Se aplicará a toda la invitación.
+        </p>
+        <input
+          type="url"
+          placeholder="https://fonts.googleapis.com/css2?family=MiFuente:ital,wght@400;700&display=swap"
+          value={designConfig.typography?.customFontUrl || ''}
+          onChange={(e) =>
+            setDesignConfig((prev) => ({
+              ...prev,
+              typography: {
+                ...(prev.typography || {}),
+                customFontUrl: e.target.value || undefined,
+              },
+            }))
+          }
+          style={{
+            width: '100%',
+            padding: '0.6rem 0.75rem',
+            border: '1px solid #d8b4fe',
+            borderRadius: '0.4rem',
+            fontSize: '0.82rem',
+            boxSizing: 'border-box',
+            background: '#ffffff',
+          }}
+        />
+        {designConfig.typography?.customFontUrl && (
+          <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.75rem', color: '#7e22ce' }}>
+              ✓ URL de fuente personalizada configurada. Se cargará al abrir la invitación.
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  typography: { ...(prev.typography || {}), customFontUrl: undefined },
+                }))
+              }
+              style={{
+                padding: '0.3rem 0.6rem',
+                borderRadius: '0.35rem',
+                border: '1px solid #fca5a5',
+                background: '#fef2f2',
+                color: '#b91c1c',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              ✕ Quitar fuente
+            </button>
+          </div>
+        )}
+        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem', marginBottom: 0 }}>
+          Ejemplo de URL: <code style={{ background: '#ede9fe', padding: '1px 4px', borderRadius: '3px' }}>https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap</code>
+        </p>
+        {designConfig.typography?.customFontUrl && (
+          <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', background: '#ffffff', border: '1px solid #d8b4fe', borderRadius: '0.4rem' }}>
+            <p style={{ fontSize: '0.75rem', color: '#6b21a8', margin: '0 0 0.3rem 0', fontWeight: 600 }}>Después de guardar, usá el nombre de la familia en el selector de arriba:</p>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>Ingresalo como fuente personalizada en el campo de texto del selector de tipografía (ej. <em>Great Vibes, cursive</em>).</p>
+          </div>
+        )}
       </div>
 
       {/* Estructura y Dimensiones de Secciones (Layout) */}
@@ -582,6 +707,173 @@ export function DesignTab({
           </div>
         )}
       </div>
+
+      {/* ─── ESTILOS INDIVIDUALES POR SECCIÓN ─── */}
+      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.75rem', padding: '1.25rem' }}>
+        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#14532d', marginBottom: '0.25rem' }}>
+          🖼️ Fondos y Estilos Individuales por Sección
+        </label>
+        <p style={{ fontSize: '0.8rem', color: '#166534', margin: '0 0 1rem 0' }}>
+          Cada tarjeta puede tener su propia imagen de fondo que se mueve junto con ella. También podés quitarle el fondo de color o el borde de forma independiente.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {SECTIONS_LIST.map((sec) => {
+            const style = getSectionStyle(sec.id);
+            const hasBg = !!style.backgroundImage;
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder;
+            return (
+              <div
+                key={sec.id}
+                style={{
+                  background: hasAnyStyle ? '#ffffff' : '#f8fafc',
+                  border: `1px solid ${hasAnyStyle ? '#86efac' : '#e2e8f0'}`,
+                  borderRadius: '0.5rem',
+                  padding: '0.65rem 0.85rem',
+                }}
+              >
+                {/* Fila superior: label + botones */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1e293b', flexShrink: 0 }}>
+                    {sec.label}
+                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    {/* Toggle sin fondo */}
+                    <label
+                      title="Quitar el color de fondo de esta tarjeta"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBackground ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={style.noBackground === true}
+                        onChange={(e) => updateSectionStyle(sec.id, { noBackground: e.target.checked || undefined })}
+                        style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
+                      />
+                      Sin fondo
+                    </label>
+
+                    {/* Toggle sin borde */}
+                    <label
+                      title="Quitar el borde de esta tarjeta"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBorder ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={style.noBorder === true}
+                        onChange={(e) => updateSectionStyle(sec.id, { noBorder: e.target.checked || undefined })}
+                        style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
+                      />
+                      Sin borde
+                    </label>
+
+                    {/* Botón imagen de fondo */}
+                    <button
+                      type="button"
+                      onClick={() => setSectionBgPickerOpen(sec.id)}
+                      title="Seleccionar imagen de fondo para esta tarjeta"
+                      style={{
+                        padding: '0.28rem 0.6rem',
+                        borderRadius: '0.35rem',
+                        border: '1px solid',
+                        borderColor: hasBg ? '#16a34a' : '#cbd5e1',
+                        background: hasBg ? '#dcfce7' : '#ffffff',
+                        color: hasBg ? '#14532d' : '#475569',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {hasBg ? '🖼️ Cambiar fondo' : '🖼️ + Fondo'}
+                    </button>
+
+                    {/* Botón limpiar todo */}
+                    {hasAnyStyle && (
+                      <button
+                        type="button"
+                        onClick={() => clearSectionStyle(sec.id)}
+                        title="Quitar todos los estilos de esta sección"
+                        style={{
+                          padding: '0.28rem 0.5rem',
+                          borderRadius: '0.35rem',
+                          border: '1px solid #fca5a5',
+                          background: '#fef2f2',
+                          color: '#b91c1c',
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Miniatura del fondo si hay imagen */}
+                {hasBg && (
+                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div
+                      style={{
+                        width: '56px',
+                        height: '36px',
+                        borderRadius: '0.3rem',
+                        backgroundImage: `url("${style.backgroundImage}")`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        border: '1px solid #86efac',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-all' }}>
+                      {style.backgroundImage?.split('/').pop()}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateSectionStyle(sec.id, { backgroundImage: undefined })}
+                      title="Quitar imagen de fondo"
+                      style={{
+                        marginLeft: 'auto',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #fca5a5',
+                        background: '#fef2f2',
+                        color: '#b91c1c',
+                        fontSize: '0.68rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                      }}
+                    >
+                      ✕ Quitar
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MediaPicker para fondo de sección */}
+      {sectionBgPickerOpen && (
+        <MediaPicker
+          isOpen={true}
+          onClose={() => setSectionBgPickerOpen(null)}
+          onSelect={(url) => {
+            if (sectionBgPickerOpen) {
+              updateSectionStyle(sectionBgPickerOpen, { backgroundImage: url || undefined });
+            }
+            setSectionBgPickerOpen(null);
+          }}
+          eventId={eventId}
+          currentUrl={getSectionStyle(sectionBgPickerOpen).backgroundImage || ''}
+          title={`Fondo de sección: ${SECTIONS_LIST.find((s) => s.id === sectionBgPickerOpen)?.label || sectionBgPickerOpen}`}
+        />
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
         <button

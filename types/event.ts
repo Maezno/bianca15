@@ -15,6 +15,20 @@ export interface ScheduleItem {
   icon?: string;
 }
 
+/**
+ * Estilo visual individual por sección/tarjeta.
+ * Permite sobreescribir el fondo, borde y añadir imagen de fondo
+ * que se ancla dentro del contenedor de la sección.
+ */
+export interface SectionStyle {
+  /** URL de imagen de fondo (PNG, WebP, etc.) que vive dentro de la tarjeta */
+  backgroundImage?: string;
+  /** Si true, elimina el color de superficie (surface) → tarjeta transparente */
+  noBackground?: boolean;
+  /** Si true, elimina el borde de la tarjeta */
+  noBorder?: boolean;
+}
+
 export interface EventLayoutConfig {
   mode?: "fluid" | "fixed";
   sectionHeight?: number;
@@ -23,6 +37,8 @@ export interface EventLayoutConfig {
   continuousBackgroundUrl?: string;
   contentAlignment?: "center" | "top";
   transparentSections?: boolean;
+  /** Estilos visuales individuales por sección (fondo, borde, transparencia) */
+  sectionStyles?: Record<string, SectionStyle>;
 }
 
 export interface EventDesignConfig {
@@ -39,6 +55,8 @@ export interface EventDesignConfig {
   typography?: {
     headingFont?: string;
     bodyFont?: string;
+    /** URL de CSS de fuente personalizada (e.g. Google Fonts CSS URL o @font-face) */
+    customFontUrl?: string;
   };
   layout?: EventLayoutConfig;
 }
