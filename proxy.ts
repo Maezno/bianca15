@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * middleware.ts
+ * proxy.ts
  * La app es completamente privada.
  * Todas las rutas requieren la cookie `admin-session`, excepto:
  *  - /admin/login  (pantalla de login)
  *  - /api/auth/*   (endpoints de login/logout)
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rutas públicas: login y API de autenticación

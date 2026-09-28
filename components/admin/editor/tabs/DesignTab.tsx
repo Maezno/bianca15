@@ -1124,6 +1124,7 @@ export function DesignTab({
               ? 'Fondo Continuo (Modo Fijo)'
               : 'Fondo General del Evento'
           }
+          purpose="background"
         />
       )}
 

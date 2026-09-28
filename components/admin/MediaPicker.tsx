@@ -4,12 +4,14 @@
  * components/admin/MediaPicker.tsx
  * Selector modal de imágenes reutilizable para cualquier sección del editor.
  * Permite seleccionar una imagen existente de la biblioteca del evento o subir una nueva.
+ * Las imágenes se convierten automáticamente a WebP con compresión adaptativa (≤ 1 MB).
  */
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { AdminEventMedia } from '@/lib/admin/types';
 import { getEventMedia, uploadEventMedia } from '@/lib/admin/media';
+import { optimizeImage, formatBytes, type ImagePurpose } from '@/lib/image-optimizer';
 
 interface MediaPickerProps {
   isOpen: boolean;
@@ -18,6 +20,8 @@ interface MediaPickerProps {
   eventId: string;
   currentUrl?: string;
   title?: string;
+  /** Propósito de la imagen: 'background' reduce a 1920×1080, 'general' a 2560×1440 */
+  purpose?: ImagePurpose;
 }
 
 export function MediaPicker({
@@ -27,6 +31,7 @@ export function MediaPicker({
   eventId,
   currentUrl,
   title = 'Seleccionar Imagen',
+  purpose = 'general',
 }: MediaPickerProps) {
   const [mediaList, setMediaList] = useState<AdminEventMedia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,34 +69,58 @@ export function MediaPicker({
     const file = e.target.files?.[0];
     if (!file) return;
     await processUpload(file);
+    // Limpiar el input para permitir re-seleccionar el mismo archivo
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const processUpload = async (file: File) => {
     setUploading(true);
-    setUploadProgress('Subiendo imagen...');
+    setUploadProgress('Optimizando imagen a WebP...');
     setErrorMessage(null);
 
-    const formData = new FormData();
-    formData.append('eventId', eventId);
-    formData.append('file', file);
+    try {
+      // 1. Optimizar: convertir a WebP, redimensionar y comprimir a ≤ 1 MB
+      const optimized = await optimizeImage(file, purpose);
 
-    const result = await uploadEventMedia(formData);
+      const savedPercent = Math.round(
+        ((optimized.originalSize - optimized.optimizedSize) / optimized.originalSize) * 100
+      );
+      setUploadProgress(
+        `Convertida a WebP (${formatBytes(optimized.originalSize)} → ${formatBytes(optimized.optimizedSize)}, −${savedPercent}%). Subiendo...`
+      );
 
-    if (!result.success || !result.media) {
-      setErrorMessage(result.error || 'Error al subir la imagen.');
+      // 2. Subir el archivo optimizado
+      const formData = new FormData();
+      formData.append('eventId', eventId);
+      formData.append('file', optimized.file);
+
+      const result = await uploadEventMedia(formData);
+
+      if (!result.success || !result.media) {
+        setErrorMessage(result.error || 'Error al subir la imagen.');
+        setUploading(false);
+        setUploadProgress(null);
+        return;
+      }
+
+      setUploadProgress(
+        `¡Subida completada! WebP ${optimized.width}×${optimized.height} · ${formatBytes(optimized.optimizedSize)}`
+      );
+      setMediaList((prev) => [result.media!, ...prev]);
+      setSelectedUrl(result.media.publicUrl);
+
+      setTimeout(() => {
+        setUploading(false);
+        setUploadProgress(null);
+      }, 2500);
+    } catch (err) {
+      console.error('Error al optimizar la imagen:', err);
+      setErrorMessage(
+        err instanceof Error ? err.message : 'Error inesperado al procesar la imagen.'
+      );
       setUploading(false);
       setUploadProgress(null);
-      return;
     }
-
-    setUploadProgress('¡Subida completada!');
-    setMediaList((prev) => [result.media!, ...prev]);
-    setSelectedUrl(result.media.publicUrl);
-
-    setTimeout(() => {
-      setUploading(false);
-      setUploadProgress(null);
-    }, 1000);
   };
 
   const handleConfirm = () => {
@@ -179,7 +208,12 @@ export function MediaPicker({
           }}
         >
           <div style={{ fontSize: '0.85rem', color: '#475569' }}>
-            Formatos admitidos: <strong>JPG, PNG, WebP</strong> (Máx. 5MB)
+            Formatos admitidos: <strong>JPG, PNG, WebP</strong> — Se convierte automáticamente a WebP (≤ 1 MB)
+            {purpose === 'background' && (
+              <span style={{ display: 'block', fontSize: '0.78rem', color: '#9333ea', marginTop: '2px' }}>
+                📐 Fondo: resolución recomendada máx. 1920×1080
+              </span>
+            )}
           </div>
 
           <div>
