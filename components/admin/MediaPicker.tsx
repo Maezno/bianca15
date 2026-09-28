@@ -82,12 +82,19 @@ export function MediaPicker({
       // 1. Optimizar: convertir a WebP, redimensionar y comprimir a ≤ 1 MB
       const optimized = await optimizeImage(file, purpose);
 
-      const savedPercent = Math.round(
-        ((optimized.originalSize - optimized.optimizedSize) / optimized.originalSize) * 100
-      );
-      setUploadProgress(
-        `Convertida a WebP (${formatBytes(optimized.originalSize)} → ${formatBytes(optimized.optimizedSize)}, −${savedPercent}%). Subiendo...`
-      );
+      if (optimized.skipped) {
+        setUploadProgress(
+          `Imagen WebP ya optimizada (${formatBytes(optimized.optimizedSize)}). Subiendo...`
+        );
+      } else {
+        const savedPercent = Math.max(
+          0,
+          Math.round(((optimized.originalSize - optimized.optimizedSize) / optimized.originalSize) * 100)
+        );
+        setUploadProgress(
+          `Convertida a WebP (${formatBytes(optimized.originalSize)} → ${formatBytes(optimized.optimizedSize)}, −${savedPercent}%). Subiendo...`
+        );
+      }
 
       // 2. Subir el archivo optimizado
       const formData = new FormData();

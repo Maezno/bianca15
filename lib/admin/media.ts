@@ -4,9 +4,11 @@
  * lib/admin/media.ts
  * Gestión y almacenamiento de recursos multimedia por evento (Hito 9).
  * Soporta Supabase Storage con bucket 'event-assets' y aislamiento estricto por event_id.
- * Incluye almacenamiento local en memoria como fallback de desarrollo / testing.
+ * Incluye almacenamiento local en memoria y disco como fallback de desarrollo / testing.
  */
 
+import fs from 'fs';
+import path from 'path';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentAdminUser } from './auth';
 import type { AdminEventMedia } from './types';
@@ -15,8 +17,15 @@ import type { EventMediaRow, EventRow } from '@/types/database';
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
-// Store local en memoria para desarrollo/demo y testing sin conexión
-const LOCAL_MEDIA_STORE: Map<string, AdminEventMedia[]> = new Map([
+// Store persistente en globalThis para evitar pérdidas por Fast Refresh / HMR en Next.js
+interface GlobalMediaCache {
+  _LOCAL_MEDIA_STORE?: Map<string, AdminEventMedia[]>;
+  _LOCAL_MEDIA_BUFFERS?: Map<string, { buffer: Buffer; mime: string }>;
+}
+
+const globalForMedia = globalThis as unknown as GlobalMediaCache;
+
+const INITIAL_LOCAL_MEDIA = new Map<string, AdminEventMedia[]>([
   [
     '11111111-1111-1111-1111-111111111111',
     [
@@ -73,6 +82,14 @@ const LOCAL_MEDIA_STORE: Map<string, AdminEventMedia[]> = new Map([
     ],
   ],
 ]);
+
+const LOCAL_MEDIA_STORE =
+  globalForMedia._LOCAL_MEDIA_STORE ||
+  (globalForMedia._LOCAL_MEDIA_STORE = INITIAL_LOCAL_MEDIA);
+
+export const LOCAL_MEDIA_BUFFERS =
+  globalForMedia._LOCAL_MEDIA_BUFFERS ||
+  (globalForMedia._LOCAL_MEDIA_BUFFERS = new Map<string, { buffer: Buffer; mime: string }>());
 
 /**
  * Obtiene la biblioteca de medios del evento especificado.
@@ -156,11 +173,17 @@ export async function uploadEventMedia(
     return { success: false, error: 'Parámetros insuficientes (eventId o archivo ausente).' };
   }
 
+  // Deducción robusta del formato y MIME type
+  const rawExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  const ext = ['jpg', 'jpeg', 'png', 'webp'].includes(rawExt) ? rawExt : 'webp';
+  const effectiveMime =
+    file.type || (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`);
+
   // Validaciones
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.includes(effectiveMime)) {
     return {
       success: false,
-      error: `Formato '${file.type}' no soportado. Se permiten únicamente JPG, PNG y WebP.`,
+      error: `Formato '${effectiveMime}' no soportado. Se permiten únicamente JPG, PNG y WebP.`,
     };
   }
 
@@ -172,8 +195,6 @@ export async function uploadEventMedia(
   }
 
   // Generar nombre de archivo seguro
-  const rawExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
-  const ext = ['jpg', 'jpeg', 'png', 'webp'].includes(rawExt) ? rawExt : 'webp';
   const fileUuid = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `med-${Date.now()}`;
   const storagePath = `${eventId}/${fileUuid}.${ext}`;
 
@@ -181,14 +202,32 @@ export async function uploadEventMedia(
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    // Fallback local: crear objeto representativo
+    // Modo local / demo sin Supabase configurado
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 1. Guardar en memoria para API route
+    LOCAL_MEDIA_BUFFERS.set(storagePath, { buffer, mime: effectiveMime });
+
+    // 2. Guardar en disco en public/uploads/event-assets/...
+    try {
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'event-assets', eventId);
+      await fs.promises.mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, `${fileUuid}.${ext}`);
+      await fs.promises.writeFile(filePath, buffer);
+    } catch (fsErr) {
+      console.warn('Advertencia al escribir archivo en disco local:', fsErr);
+    }
+
+    const publicUrl = `/api/uploads/event-assets/${storagePath}`;
+
     const localMedia: AdminEventMedia = {
       id: fileUuid,
       eventId,
       storagePath,
-      publicUrl: URL.createObjectURL ? URL.createObjectURL(file) : `https://placeholder.storage/event-assets/${storagePath}`,
+      publicUrl,
       fileName: file.name,
-      mimeType: file.type,
+      mimeType: effectiveMime,
       fileSize: file.size,
       width: 1200,
       height: 800,
@@ -214,7 +253,7 @@ export async function uploadEventMedia(
     const { error: uploadError } = await supabase.storage
       .from('event-assets')
       .upload(storagePath, buffer, {
-        contentType: file.type,
+        contentType: effectiveMime,
         upsert: false,
       });
 
@@ -238,7 +277,7 @@ export async function uploadEventMedia(
         storage_path: storagePath,
         public_url: publicUrl,
         file_name: file.name,
-        mime_type: file.type,
+        mime_type: effectiveMime,
         file_size: file.size,
       })
       .select()
@@ -246,18 +285,20 @@ export async function uploadEventMedia(
 
     if (dbError || !insertedMedia) {
       console.error('Error al registrar metadatos en event_media:', dbError);
-      // Retornar de todos modos el recurso con id temporal
       const fallbackMedia: AdminEventMedia = {
         id: fileUuid,
         eventId,
         storagePath,
         publicUrl,
         fileName: file.name,
-        mimeType: file.type,
+        mimeType: effectiveMime,
         fileSize: file.size,
         width: null,
         height: null,
         createdAt: new Date().toISOString(),
+        isCover: false,
+        isUsed: false,
+        usedIn: [],
       };
       return { success: true, media: fallbackMedia };
     }
@@ -318,6 +359,19 @@ export async function deleteEventMedia(
       eventId,
       list.filter((m) => m.id !== mediaId)
     );
+
+    if (target?.storagePath) {
+      LOCAL_MEDIA_BUFFERS.delete(target.storagePath);
+      try {
+        const filePath = path.join(process.cwd(), 'public', 'uploads', 'event-assets', target.storagePath);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (err) {
+        console.warn('No se pudo borrar archivo local:', err);
+      }
+    }
+
     return { success: true };
   }
 

@@ -108,12 +108,13 @@
           "share": 347,
           "footer": 250
         },
-        "transparentSections": true
+        "transparentSections": true,
+        "generalBackgroundUrl": "blob:nodedata:096ca75c-84c4-4189-b421-98616b9b704f"
       }
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-09-28T17:31:35.853Z"
+    "updated_at": "2026-09-28T17:56:27.514Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",
