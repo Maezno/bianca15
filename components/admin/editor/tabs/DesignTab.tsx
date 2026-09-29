@@ -363,6 +363,84 @@ export function DesignTab({
               boxSizing: 'border-box',
             }}
           />
+
+          {/* Selector de comportamiento del fondo (Fijo en pantalla / Desplazable) */}
+          <div style={{ marginTop: '0.75rem', paddingTop: '0.65rem', borderTop: '1px solid #e2e8f0' }}>
+            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '0.35rem' }}>
+              📌 Fijación del fondo en pantalla
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() =>
+                  setDesignConfig((prev) => ({
+                    ...prev,
+                    layout: { ...(prev.layout || {}), backgroundAttachment: 'fixed' },
+                  }))
+                }
+                style={{
+                  padding: '0.45rem 0.55rem',
+                  borderRadius: '0.35rem',
+                  border: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                    ? '2px solid #9333ea'
+                    : '1px solid #cbd5e1',
+                  background: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                    ? '#f3e8ff'
+                    : '#ffffff',
+                  color: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                    ? '#7e22ce'
+                    : '#475569',
+                  fontSize: '0.75rem',
+                  fontWeight: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed' ? 700 : 500,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
+                <span>📌 Fijo (Wallpaper)</span>
+                <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 400 }}>
+                  Cubre la pantalla de punta a punta y no se mueve con el scroll
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setDesignConfig((prev) => ({
+                    ...prev,
+                    layout: { ...(prev.layout || {}), backgroundAttachment: 'scroll' },
+                  }))
+                }
+                style={{
+                  padding: '0.45rem 0.55rem',
+                  borderRadius: '0.35rem',
+                  border: designConfig.layout?.backgroundAttachment === 'scroll'
+                    ? '2px solid #9333ea'
+                    : '1px solid #cbd5e1',
+                  background: designConfig.layout?.backgroundAttachment === 'scroll'
+                    ? '#f3e8ff'
+                    : '#ffffff',
+                  color: designConfig.layout?.backgroundAttachment === 'scroll'
+                    ? '#7e22ce'
+                    : '#475569',
+                  fontSize: '0.75rem',
+                  fontWeight: designConfig.layout?.backgroundAttachment === 'scroll' ? 700 : 500,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
+                }}
+              >
+                <span>📜 Desplazable</span>
+                <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 400 }}>
+                  Acompaña el avance del scroll a lo largo de la página
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -792,6 +870,50 @@ export function DesignTab({
               <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem', display: 'block' }}>
                 Esta imagen se colocará de fondo en todo el scroll alineada con la altura fija de cada sección.
               </span>
+
+              {/* Fijación del fondo en Modo Fijo */}
+              <div style={{ marginTop: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155', display: 'block' }}>
+                    Fondo fijo en altura (Wallpaper)
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                    {(designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                      ? 'El fondo cubre la pantalla de punta a punta y queda fijo'
+                      : 'El fondo se desplaza junto con las secciones'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDesignConfig((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...(prev.layout || {}),
+                        backgroundAttachment: (prev.layout?.backgroundAttachment ?? 'fixed') === 'fixed' ? 'scroll' : 'fixed',
+                      },
+                    }))
+                  }
+                  style={{
+                    padding: '0.3rem 0.65rem',
+                    borderRadius: '0.35rem',
+                    border: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                      ? '1px solid #9333ea'
+                      : '1px solid #cbd5e1',
+                    background: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                      ? '#f3e8ff'
+                      : '#ffffff',
+                    color: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
+                      ? '#7e22ce'
+                      : '#475569',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {(designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed' ? '✓ Activo (Fijo)' : 'Desplazable'}
+                </button>
+              </div>
             </div>
 
             {/* Opciones adicionales: Alineación y Transparencia */}

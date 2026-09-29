@@ -320,9 +320,12 @@ export function PublicInvitationRenderer({
   const activeModeBg = isFixed ? continuousBg : fluidBg;
   const effectiveBgImage = activeModeBg || generalBg;
 
-  const backgroundStyle = effectiveBgImage
+  // Comportamiento del fondo: 'fixed' (por defecto: wallpaper estático de punta a punta) o 'scroll'
+  const isBgFixed = layout?.backgroundAttachment !== 'scroll';
+
+  const scrollBackgroundStyle = effectiveBgImage && !isBgFixed
     ? isFixed
-      ? `url("${effectiveBgImage}") top center / 100% auto no-repeat, ${theme.colors.background}`
+      ? `url("${effectiveBgImage}") top center / 100% 100% no-repeat, ${theme.colors.background}`
       : `url("${effectiveBgImage}") top center / cover no-repeat, ${theme.colors.background}`
     : theme.colors.background;
 
@@ -330,7 +333,7 @@ export function PublicInvitationRenderer({
     <div
       style={{
         minHeight: '100vh',
-        background: backgroundStyle,
+        background: isBgFixed ? theme.colors.background : scrollBackgroundStyle,
         color: theme.colors.text,
         fontFamily: theme.typography.bodyFont,
         padding: isFixed ? '0' : '2rem 1rem',
@@ -343,6 +346,29 @@ export function PublicInvitationRenderer({
         width: '100%',
       }}
     >
+      {/* Fondo fijo de punta a punta en altura (Wallpaper que cubre todo el viewport y no se corta al hacer scroll) */}
+      {effectiveBgImage && isBgFixed && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            height: '100%',
+            minHeight: '100dvh',
+            backgroundImage: `url("${effectiveBgImage}")`,
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+
       <main
         style={{
           position: 'relative',

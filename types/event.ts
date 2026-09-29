@@ -41,6 +41,8 @@ export interface EventLayoutConfig {
   generalBackgroundUrl?: string;
   contentAlignment?: "center" | "top";
   transparentSections?: boolean;
+  /** Comportamiento del fondo principal: fijo a la pantalla (wallpaper de punta a punta) o desplazable con el scroll */
+  backgroundAttachment?: "fixed" | "scroll";
   /** Estilos visuales individuales por sección (fondo, borde, transparencia) */
   sectionStyles?: Record<string, SectionStyle>;
 }
