@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { LOCAL_MEDIA_BUFFERS } from '@/lib/admin/media';
+import { LOCAL_MEDIA_BUFFERS } from '@/lib/admin/media-buffers';
 
 const MIME_MAP: Record<string, string> = {
   webp: 'image/webp',

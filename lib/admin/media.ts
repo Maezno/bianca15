@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentAdminUser } from './auth';
 import type { AdminEventMedia } from './types';
 import type { EventMediaRow, EventRow } from '@/types/database';
+import { LOCAL_MEDIA_BUFFERS } from './media-buffers';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -20,7 +21,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 // Store persistente en globalThis para evitar pérdidas por Fast Refresh / HMR en Next.js
 interface GlobalMediaCache {
   _LOCAL_MEDIA_STORE?: Map<string, AdminEventMedia[]>;
-  _LOCAL_MEDIA_BUFFERS?: Map<string, { buffer: Buffer; mime: string }>;
 }
 
 const globalForMedia = globalThis as unknown as GlobalMediaCache;
@@ -86,10 +86,6 @@ const INITIAL_LOCAL_MEDIA = new Map<string, AdminEventMedia[]>([
 const LOCAL_MEDIA_STORE =
   globalForMedia._LOCAL_MEDIA_STORE ||
   (globalForMedia._LOCAL_MEDIA_STORE = INITIAL_LOCAL_MEDIA);
-
-export const LOCAL_MEDIA_BUFFERS =
-  globalForMedia._LOCAL_MEDIA_BUFFERS ||
-  (globalForMedia._LOCAL_MEDIA_BUFFERS = new Map<string, { buffer: Buffer; mime: string }>());
 
 /**
  * Obtiene la biblioteca de medios del evento especificado.
