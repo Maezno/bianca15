@@ -1155,7 +1155,7 @@ export function DesignTab({
                   </div>
                 </div>
 
-                {/* Miniatura y controles de tamaño de fondo si hay imagen */}
+                {/* Miniatura y controles de adaptación del div y tamaño de fondo */}
                 {hasBg && (
                   <div
                     style={{
@@ -1176,7 +1176,7 @@ export function DesignTab({
                           height: '36px',
                           borderRadius: '0.35rem',
                           backgroundImage: `url("${style.backgroundImage}")`,
-                          backgroundSize: style.backgroundSize || 'cover',
+                          backgroundSize: style.backgroundSize || 'contain',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
                           backgroundColor: '#e2e8f0',
@@ -1184,12 +1184,25 @@ export function DesignTab({
                           flexShrink: 0,
                         }}
                       />
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-all', flex: 1 }}>
-                        {style.backgroundImage?.split('/').pop()}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                        <span style={{ fontSize: '0.72rem', color: '#1e293b', fontWeight: 600, wordBreak: 'break-all' }}>
+                          {style.backgroundImage?.split('/').pop()}
+                        </span>
+                        {style.imageWidth && style.imageHeight && (
+                          <span style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                            Original: {style.imageWidth} × {style.imageHeight} px
+                          </span>
+                        )}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => updateSectionStyle(sec.id, { backgroundImage: undefined, backgroundSize: undefined })}
+                        onClick={() => updateSectionStyle(sec.id, {
+                          backgroundImage: undefined,
+                          backgroundSize: undefined,
+                          cardWidth: undefined,
+                          imageWidth: undefined,
+                          imageHeight: undefined,
+                        })}
                         title="Quitar imagen de fondo"
                         style={{
                           padding: '0.2rem 0.45rem',
@@ -1208,8 +1221,8 @@ export function DesignTab({
                       </button>
                     </div>
 
-                    {/* Controles de tamaño de fondo de la tarjeta */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.4rem', borderTop: '1px dashed #e2e8f0' }}>
+                    {/* Control de tamaño / ajuste de la imagen de fondo con slider */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
                           Tamaño del fondo:
@@ -1219,20 +1232,21 @@ export function DesignTab({
                         </span>
                       </div>
 
-                      {/* Botones predefinidos */}
+                      {/* Botones rápidos de ajuste */}
                       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                         {[
-                          { label: 'Cubrir', value: 'cover', desc: 'Cubre toda la tarjeta (recorte automático)' },
-                          { label: 'Contener', value: 'contain', desc: 'Imagen completa visible sin recortes' },
-                          { label: '100% Ancho', value: '100% auto', desc: 'Ajusta al ancho exacto de la tarjeta' },
+                          { label: 'Cubrir', value: 'cover' },
+                          { label: '100% Ancho', value: '100% auto' },
+                          { label: '120%', value: '120% auto' },
+                          { label: '150%', value: '150% auto' },
+                          { label: 'Contener', value: 'contain' },
                         ].map((preset) => {
                           const isActive = (style.backgroundSize || 'cover') === preset.value;
                           return (
                             <button
                               key={preset.value}
                               type="button"
-                              onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value })}
-                              title={preset.desc}
+                              onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value, cardWidth: undefined })}
                               style={{
                                 padding: '0.22rem 0.5rem',
                                 borderRadius: '0.3rem',
@@ -1251,26 +1265,26 @@ export function DesignTab({
                         })}
                       </div>
 
-                      {/* Slider de zoom / escala porcentual */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                        <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Zoom:</span>
+                      {/* Slider libre de tamaño */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
+                        <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Escala:</span>
                         <input
                           type="range"
-                          min="40"
-                          max="220"
+                          min="50"
+                          max="250"
                           step="5"
                           value={
-                            style.backgroundSize && /^\d+%$/.test(style.backgroundSize)
+                            style.backgroundSize && /^\d+/.test(style.backgroundSize)
                               ? parseInt(style.backgroundSize, 10)
-                              : (style.backgroundSize === 'contain' ? 70 : 100)
+                              : 100
                           }
                           onChange={(e) => {
-                            updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}%` });
+                            updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}% auto`, cardWidth: undefined });
                           }}
-                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
                         />
-                        <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '32px', textAlign: 'right', fontWeight: 600 }}>
-                          {style.backgroundSize && /^\d+%$/.test(style.backgroundSize) ? style.backgroundSize : '100%'}
+                        <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                          {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
                         </span>
                       </div>
                     </div>
@@ -1289,7 +1303,22 @@ export function DesignTab({
           onClose={() => setActivePicker(null)}
           onSelect={(url) => {
             if (activePicker.type === 'section' && activePicker.sectionId) {
-              updateSectionStyle(activePicker.sectionId, { backgroundImage: url || undefined });
+              const secId = activePicker.sectionId;
+              if (!url) {
+                updateSectionStyle(secId, {
+                  backgroundImage: undefined,
+                  imageWidth: undefined,
+                  imageHeight: undefined,
+                  cardWidth: undefined,
+                  backgroundSize: undefined,
+                });
+              } else {
+                updateSectionStyle(secId, {
+                  backgroundImage: url,
+                  cardWidth: undefined,
+                  backgroundSize: '120% auto',
+                });
+              }
             } else if (activePicker.type === 'fluid') {
               setDesignConfig((prev) => ({
                 ...prev,

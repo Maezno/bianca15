@@ -251,6 +251,173 @@ function InteractiveSectionResizer({
   );
 }
 
+interface SectionCardItemProps {
+  sectionId: string;
+  sectionStyle?: SectionStyle;
+  sectionElement: React.ReactNode;
+  isFixed: boolean;
+  currentSectionHeight: number;
+  contentAlign: 'center' | 'top';
+  isSelected: boolean;
+  isInteractivePreview?: boolean;
+  onUpdateSectionHeight?: (sectionId: string, height: number) => void;
+  defaultHeight: number;
+}
+
+function SectionCardItem({
+  sectionId,
+  sectionStyle,
+  sectionElement,
+  isFixed,
+  currentSectionHeight,
+  contentAlign,
+  isSelected,
+  isInteractivePreview,
+  onUpdateSectionHeight,
+  defaultHeight,
+}: SectionCardItemProps) {
+  const [naturalDimensions, setNaturalDimensions] = useState<{ width: number; height: number } | null>(null);
+
+  useEffect(() => {
+    if (!sectionStyle?.backgroundImage) {
+      setNaturalDimensions(null);
+      return;
+    }
+    if (sectionStyle.imageWidth && sectionStyle.imageHeight) {
+      setNaturalDimensions({ width: sectionStyle.imageWidth, height: sectionStyle.imageHeight });
+      return;
+    }
+    const img = new Image();
+    img.src = sectionStyle.backgroundImage;
+    if (img.complete && img.naturalWidth > 0) {
+      setNaturalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+    } else {
+      img.onload = () => {
+        setNaturalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+    }
+  }, [sectionStyle?.backgroundImage, sectionStyle?.imageWidth, sectionStyle?.imageHeight]);
+
+  const hasBgImage = !!sectionStyle?.backgroundImage;
+
+  // Ancho efectivo del div de la tarjeta:
+  // Se adapta automáticamente al ancho de la imagen seleccionada, o al cardWidth definido
+  const effectiveWidth = sectionStyle?.cardWidth
+    ? (typeof sectionStyle.cardWidth === 'number' ? `${sectionStyle.cardWidth}px` : sectionStyle.cardWidth)
+    : (sectionStyle?.imageWidth
+        ? `${sectionStyle.imageWidth}px`
+        : (naturalDimensions?.width ? `${naturalDimensions.width}px` : '560px'));
+
+  // Proporción natural de la imagen para garantizar que se muestre completa sin recortes
+  const imgRatio = (sectionStyle?.imageWidth && sectionStyle?.imageHeight)
+    ? (sectionStyle.imageWidth / sectionStyle.imageHeight)
+    : (naturalDimensions && naturalDimensions.height > 0 ? (naturalDimensions.width / naturalDimensions.height) : null);
+
+  // Estilos de fondo: cover o 100% auto para llenar el ancho completo del div
+  const bgSize = sectionStyle?.backgroundSize || 'cover';
+  const bgPos = sectionStyle?.backgroundPosition || 'center';
+  const bgImageStyle = hasBgImage ? {
+    backgroundImage: `url("${sectionStyle?.backgroundImage}")`,
+    backgroundSize: bgSize,
+    backgroundPosition: bgPos,
+    backgroundRepeat: 'no-repeat' as const,
+  } : {};
+
+  if (!isFixed) {
+    return (
+      <div
+        id={`section-${sectionId}`}
+        style={{
+          width: '100%',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxSizing: 'border-box',
+          overflow: 'visible',
+        }}
+      >
+        {/* Div de la tarjeta: abarca de punta a punta (100%) sin límites de 420px para que el fondo corte solo por la pantalla */}
+        <div
+          style={{
+            width: '100%',
+            position: 'relative',
+            boxSizing: 'border-box',
+            ...(hasBgImage
+              ? {
+                  ...bgImageStyle,
+                  minHeight: imgRatio
+                    ? `clamp(200px, calc(100vw / ${imgRatio}), ${(sectionStyle?.imageHeight || naturalDimensions?.height || 650)}px)`
+                    : undefined,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }
+              : {}),
+          }}
+        >
+          <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', padding: '0 1rem', boxSizing: 'border-box' }}>
+            {sectionElement}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      id={`section-${sectionId}`}
+      style={{
+        height: `${currentSectionHeight}px`,
+        maxHeight: `${currentSectionHeight}px`,
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: contentAlign === 'top' ? 'flex-start' : 'center',
+        alignItems: 'center',
+        padding: hasBgImage ? '1.25rem 0' : '1.25rem 1rem',
+        position: 'relative',
+        transition: 'box-shadow 0.2s ease',
+        overflow: 'visible',
+        boxShadow: isSelected
+          ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
+          : undefined,
+      }}
+    >
+      {/* Div de la tarjeta: abarca el 100% de punta a punta, el tamaño del fondo se controla con el slider */}
+      <div
+        style={{
+          width: '100%',
+          height: hasBgImage ? '100%' : 'auto',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxSizing: 'border-box',
+          ...(hasBgImage ? bgImageStyle : {}),
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', padding: '0 1rem', boxSizing: 'border-box' }}>
+          {sectionElement}
+        </div>
+      </div>
+
+      {isInteractivePreview && onUpdateSectionHeight && (
+        <InteractiveSectionResizer
+          sectionId={sectionId}
+          currentHeight={currentSectionHeight}
+          defaultHeight={defaultHeight}
+          isSelected={isSelected}
+          onUpdateHeight={onUpdateSectionHeight}
+        />
+      )}
+    </div>
+  );
+}
+
 export function PublicInvitationRenderer({
   event,
   theme,
@@ -310,11 +477,11 @@ export function PublicInvitationRenderer({
       colors: {
         ...resolvedTheme.colors,
         ...(style.noBackground || style.backgroundImage ? { surface: 'transparent' } : {}),
-        ...(style.noBorder ? { border: 'transparent' } : {}),
+        ...(style.noBorder || style.noBackground ? { border: 'transparent' } : {}),
       },
       styles: {
         ...(resolvedTheme.styles || {}),
-        ...(style.noBackground ? { cardShadow: 'none' } : {}),
+        ...(style.noBackground || style.backgroundImage ? { cardShadow: 'none' } : {}),
       },
     };
   };
@@ -340,7 +507,7 @@ export function PublicInvitationRenderer({
         background: isBgFixed ? theme.colors.background : scrollBackgroundStyle,
         color: theme.colors.text,
         fontFamily: theme.typography.bodyFont,
-        padding: isFixed ? '0' : '2rem 1rem',
+        padding: isFixed ? '0' : '2rem 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -377,10 +544,10 @@ export function PublicInvitationRenderer({
         style={{
           position: 'relative',
           zIndex: 1,
-          maxWidth: '560px',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
           gap: `${sectionGap}px`,
           boxSizing: 'border-box',
         }}
@@ -411,91 +578,23 @@ export function PublicInvitationRenderer({
             default: return null;
           }
 
-          // Estilos de fondo de la tarjeta individual (contenido dentro de los bordes de la tarjeta)
-          const bgSize = sectionStyle?.backgroundSize || 'cover';
-          const bgPos = sectionStyle?.backgroundPosition || 'center';
-          const bgImageStyle = sectionStyle?.backgroundImage ? {
-            backgroundImage: `url("${sectionStyle.backgroundImage}")`,
-            backgroundSize: bgSize,
-            backgroundPosition: bgPos,
-            backgroundRepeat: 'no-repeat' as const,
-          } : {};
-
-          if (!isFixed) {
-            return (
-              <div
-                key={sectionId}
-                id={`section-${sectionId}`}
-                style={{
-                  width: '100%',
-                  position: 'relative',
-                  ...(sectionStyle?.backgroundImage
-                    ? {
-                        ...bgImageStyle,
-                        borderRadius: '1.25rem',
-                        overflow: 'hidden',
-                      }
-                    : {}),
-                }}
-              >
-                {sectionElement}
-              </div>
-            );
-          }
-
           const currentSectionHeight = layout?.sectionHeights?.[sectionId] || defaultHeight;
           const isSelected = selectedSectionId === sectionId;
 
           return (
-            <div
+            <SectionCardItem
               key={sectionId}
-              id={`section-${sectionId}`}
-              style={{
-                height: `${currentSectionHeight}px`,
-                maxHeight: `${currentSectionHeight}px`,
-                width: '100%',
-                boxSizing: 'border-box',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: contentAlign === 'top' ? 'flex-start' : 'center',
-                alignItems: 'center',
-                overflowY: 'hidden',
-                overflowX: 'hidden',
-                padding: '1.25rem 1rem',
-                position: 'relative',
-                transition: 'box-shadow 0.2s ease',
-                boxShadow: isSelected
-                  ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
-                  : undefined,
-              }}
-            >
-              {/* Contenedor de la tarjeta: limita el fondo dentro de los bordes de la tarjeta */}
-              <div
-                style={{
-                  width: '100%',
-                  position: 'relative',
-                  ...(sectionStyle?.backgroundImage
-                    ? {
-                        ...bgImageStyle,
-                        borderRadius: '1.25rem',
-                        overflow: 'hidden',
-                      }
-                    : {}),
-                }}
-              >
-                {sectionElement}
-              </div>
-
-              {isInteractivePreview && onUpdateSectionHeight && (
-                <InteractiveSectionResizer
-                  sectionId={sectionId}
-                  currentHeight={currentSectionHeight}
-                  defaultHeight={defaultHeight}
-                  isSelected={isSelected}
-                  onUpdateHeight={onUpdateSectionHeight}
-                />
-              )}
-            </div>
+              sectionId={sectionId}
+              sectionStyle={sectionStyle}
+              sectionElement={sectionElement}
+              isFixed={isFixed}
+              currentSectionHeight={currentSectionHeight}
+              contentAlign={contentAlign}
+              isSelected={isSelected}
+              isInteractivePreview={isInteractivePreview}
+              onUpdateSectionHeight={onUpdateSectionHeight}
+              defaultHeight={defaultHeight}
+            />
           );
         })}
       </main>

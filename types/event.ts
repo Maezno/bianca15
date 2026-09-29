@@ -29,14 +29,23 @@ export interface SectionStyle {
   noBorder?: boolean;
   /**
    * Tamaño del fondo de la tarjeta.
-   * Acepta valores CSS: 'cover', 'contain', 'auto', o porcentaje como '120%'.
-   * Por defecto: 'cover'.
+   * Acepta valores CSS: 'contain', '100% auto', 'cover', o porcentaje como '120%'.
+   * Por defecto: 'contain'.
    */
   backgroundSize?: string;
   /**
    * Posición del fondo dentro de la tarjeta (e.g. 'center', 'top center', 'bottom center').
    */
   backgroundPosition?: string;
+  /**
+   * Ancho personalizado de la tarjeta en px o '100%' / 'auto'.
+   * Si no se define o es 'auto', el div se adapta al ancho de la imagen seleccionada.
+   */
+  cardWidth?: number | string;
+  /** Ancho natural detectado de la imagen (px) */
+  imageWidth?: number;
+  /** Alto natural detectado de la imagen (px) */
+  imageHeight?: number;
 }
 
 export interface EventLayoutConfig {
