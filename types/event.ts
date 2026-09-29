@@ -27,6 +27,16 @@ export interface SectionStyle {
   noBackground?: boolean;
   /** Si true, elimina el borde de la tarjeta */
   noBorder?: boolean;
+  /**
+   * Tamaño del fondo de la tarjeta.
+   * Acepta valores CSS: 'cover', 'contain', 'auto', o porcentaje como '120%'.
+   * Por defecto: 'cover'.
+   */
+  backgroundSize?: string;
+  /**
+   * Posición del fondo dentro de la tarjeta (e.g. 'center', 'top center', 'bottom center').
+   */
+  backgroundPosition?: string;
 }
 
 export interface EventLayoutConfig {

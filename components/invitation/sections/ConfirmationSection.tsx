@@ -35,7 +35,9 @@ export function ConfirmationSection({
           borderRadius: '1.25rem',
           border: `1px solid ${theme.colors.border}`,
           padding: '2rem 1.5rem',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+          boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+            ? 'none'
+            : '0 8px 30px rgba(0, 0, 0, 0.08)',
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -91,7 +93,9 @@ export function ConfirmationSection({
           border: `1px solid ${theme.colors.border}`,
           padding: '2.5rem 1.75rem',
           textAlign: 'center',
-          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.12)',
+          boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+            ? 'none'
+            : '0 12px 36px rgba(0, 0, 0, 0.12)',
           position: 'relative',
           overflow: 'hidden',
         }}

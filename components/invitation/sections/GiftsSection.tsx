@@ -12,7 +12,9 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
         borderRadius: '1.25rem',
         border: `1px solid ${theme.colors.border}`,
         padding: '1.75rem',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.04)',
+        boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+          ? 'none'
+          : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
       <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>

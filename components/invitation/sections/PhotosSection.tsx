@@ -71,7 +71,9 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
         border: `1px solid ${theme.colors.border}`,
         padding: '1.75rem',
         textAlign: 'center',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.04)',
+        boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+          ? 'none'
+          : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
       <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }} aria-hidden="true">

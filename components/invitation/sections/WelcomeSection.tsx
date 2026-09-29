@@ -13,7 +13,9 @@ export function WelcomeSection({ event, theme }: SectionBaseProps) {
         background: theme.colors.surface,
         borderRadius: '1rem',
         border: `1px solid ${theme.colors.border}`,
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.04)',
+        boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+          ? 'none'
+          : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
       <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">

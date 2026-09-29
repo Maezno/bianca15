@@ -33,7 +33,9 @@ export function DateSection({ event, theme }: SectionBaseProps) {
         display: 'flex',
         alignItems: 'center',
         gap: '1.25rem',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.04)',
+        boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+          ? 'none'
+          : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
       <div

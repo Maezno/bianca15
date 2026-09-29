@@ -304,13 +304,17 @@ export function PublicInvitationRenderer({
 
   /** Resuelve el theme final para una sección aplicando sus overrides individuales */
   const resolveSectionTheme = (sectionId: string, style?: SectionStyle) => {
-    if (!style || (!style.noBackground && !style.noBorder)) return resolvedTheme;
+    if (!style || (!style.noBackground && !style.noBorder && !style.backgroundImage)) return resolvedTheme;
     return {
       ...resolvedTheme,
       colors: {
         ...resolvedTheme.colors,
-        ...(style.noBackground ? { surface: 'transparent' } : {}),
+        ...(style.noBackground || style.backgroundImage ? { surface: 'transparent' } : {}),
         ...(style.noBorder ? { border: 'transparent' } : {}),
+      },
+      styles: {
+        ...(resolvedTheme.styles || {}),
+        ...(style.noBackground ? { cardShadow: 'none' } : {}),
       },
     };
   };
@@ -407,11 +411,13 @@ export function PublicInvitationRenderer({
             default: return null;
           }
 
-          // Estilos de fondo compartidos por ambos modos
+          // Estilos de fondo de la tarjeta individual (contenido dentro de los bordes de la tarjeta)
+          const bgSize = sectionStyle?.backgroundSize || 'cover';
+          const bgPos = sectionStyle?.backgroundPosition || 'center';
           const bgImageStyle = sectionStyle?.backgroundImage ? {
             backgroundImage: `url("${sectionStyle.backgroundImage}")`,
-            backgroundSize: 'cover' as const,
-            backgroundPosition: 'center' as const,
+            backgroundSize: bgSize,
+            backgroundPosition: bgPos,
             backgroundRepeat: 'no-repeat' as const,
           } : {};
 
@@ -423,7 +429,13 @@ export function PublicInvitationRenderer({
                 style={{
                   width: '100%',
                   position: 'relative',
-                  ...(sectionStyle?.backgroundImage ? { ...bgImageStyle, borderRadius: '1rem' } : {}),
+                  ...(sectionStyle?.backgroundImage
+                    ? {
+                        ...bgImageStyle,
+                        borderRadius: '1.25rem',
+                        overflow: 'hidden',
+                      }
+                    : {}),
                 }}
               >
                 {sectionElement}
@@ -455,10 +467,24 @@ export function PublicInvitationRenderer({
                 boxShadow: isSelected
                   ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
                   : undefined,
-                ...bgImageStyle,
               }}
             >
-              <div style={{ width: '100%' }}>{sectionElement}</div>
+              {/* Contenedor de la tarjeta: limita el fondo dentro de los bordes de la tarjeta */}
+              <div
+                style={{
+                  width: '100%',
+                  position: 'relative',
+                  ...(sectionStyle?.backgroundImage
+                    ? {
+                        ...bgImageStyle,
+                        borderRadius: '1.25rem',
+                        overflow: 'hidden',
+                      }
+                    : {}),
+                }}
+              >
+                {sectionElement}
+              </div>
 
               {isInteractivePreview && onUpdateSectionHeight && (
                 <InteractiveSectionResizer

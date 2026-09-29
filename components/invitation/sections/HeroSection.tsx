@@ -10,7 +10,9 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
         background: theme.colors.surface,
         borderRadius: '1.25rem',
         border: `1px solid ${theme.colors.border}`,
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+        boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
+          ? 'none'
+          : '0 8px 30px rgba(0, 0, 0, 0.08)',
         position: 'relative',
         overflow: 'hidden',
       }}

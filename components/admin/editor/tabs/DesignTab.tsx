@@ -1082,9 +1082,9 @@ export function DesignTab({
                   </span>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {/* Toggle sin fondo */}
+                    {/* Toggle sin fondo y sombra */}
                     <label
-                      title="Quitar el color de fondo de esta tarjeta"
+                      title="Quitar el color de fondo y la sombra de esta tarjeta"
                       style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBackground ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
                     >
                       <input
@@ -1155,44 +1155,125 @@ export function DesignTab({
                   </div>
                 </div>
 
-                {/* Miniatura del fondo si hay imagen */}
+                {/* Miniatura y controles de tamaño de fondo si hay imagen */}
                 {hasBg && (
-                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div
-                      style={{
-                        width: '56px',
-                        height: '36px',
-                        borderRadius: '0.3rem',
-                        backgroundImage: `url("${style.backgroundImage}")`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        border: '1px solid #86efac',
-                        flexShrink: 0,
-                      }}
-                    />
-                    <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-all' }}>
-                      {style.backgroundImage?.split('/').pop()}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => updateSectionStyle(sec.id, { backgroundImage: undefined })}
-                      title="Quitar imagen de fondo"
-                      style={{
-                        marginLeft: 'auto',
-                        padding: '0.2rem 0.4rem',
-                        borderRadius: '0.25rem',
-                        border: '1px solid #fca5a5',
-                        background: '#fef2f2',
-                        color: '#b91c1c',
-                        fontSize: '0.68rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                      }}
-                    >
-                      ✕ Quitar
-                    </button>
+                  <div
+                    style={{
+                      marginTop: '0.6rem',
+                      padding: '0.6rem',
+                      borderRadius: '0.5rem',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div
+                        style={{
+                          width: '56px',
+                          height: '36px',
+                          borderRadius: '0.35rem',
+                          backgroundImage: `url("${style.backgroundImage}")`,
+                          backgroundSize: style.backgroundSize || 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundColor: '#e2e8f0',
+                          border: '1px solid #86efac',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-all', flex: 1 }}>
+                        {style.backgroundImage?.split('/').pop()}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateSectionStyle(sec.id, { backgroundImage: undefined, backgroundSize: undefined })}
+                        title="Quitar imagen de fondo"
+                        style={{
+                          padding: '0.2rem 0.45rem',
+                          borderRadius: '0.25rem',
+                          border: '1px solid #fca5a5',
+                          background: '#fef2f2',
+                          color: '#b91c1c',
+                          fontSize: '0.68rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                        }}
+                      >
+                        ✕ Quitar
+                      </button>
+                    </div>
+
+                    {/* Controles de tamaño de fondo de la tarjeta */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.4rem', borderTop: '1px dashed #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
+                          Tamaño del fondo:
+                        </span>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #bfdbfe' }}>
+                          {style.backgroundSize || 'cover'}
+                        </span>
+                      </div>
+
+                      {/* Botones predefinidos */}
+                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                        {[
+                          { label: 'Cubrir', value: 'cover', desc: 'Cubre toda la tarjeta (recorte automático)' },
+                          { label: 'Contener', value: 'contain', desc: 'Imagen completa visible sin recortes' },
+                          { label: '100% Ancho', value: '100% auto', desc: 'Ajusta al ancho exacto de la tarjeta' },
+                        ].map((preset) => {
+                          const isActive = (style.backgroundSize || 'cover') === preset.value;
+                          return (
+                            <button
+                              key={preset.value}
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value })}
+                              title={preset.desc}
+                              style={{
+                                padding: '0.22rem 0.5rem',
+                                borderRadius: '0.3rem',
+                                border: '1px solid',
+                                borderColor: isActive ? '#3b82f6' : '#cbd5e1',
+                                background: isActive ? '#3b82f6' : '#ffffff',
+                                color: isActive ? '#ffffff' : '#334155',
+                                fontSize: '0.7rem',
+                                fontWeight: isActive ? 700 : 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {preset.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Slider de zoom / escala porcentual */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
+                        <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Zoom:</span>
+                        <input
+                          type="range"
+                          min="40"
+                          max="220"
+                          step="5"
+                          value={
+                            style.backgroundSize && /^\d+%$/.test(style.backgroundSize)
+                              ? parseInt(style.backgroundSize, 10)
+                              : (style.backgroundSize === 'contain' ? 70 : 100)
+                          }
+                          onChange={(e) => {
+                            updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}%` });
+                          }}
+                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                        />
+                        <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '32px', textAlign: 'right', fontWeight: 600 }}>
+                          {style.backgroundSize && /^\d+%$/.test(style.backgroundSize) ? style.backgroundSize : '100%'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
