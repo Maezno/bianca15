@@ -14,6 +14,8 @@ import { generateQrDataUrl, getQrFallbackUrl } from '@/lib/admin/qr';
 
 export function PhotosSection({ event, theme }: SectionBaseProps) {
   const photosConfig = event.sectionConfig?.photos;
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['photos'];
+  const titleOffsetY = sectionStyle?.titleOffsetY;
 
   const rawAlbumUrl = (photosConfig?.albumUrl || event.memorooUrl || '').trim();
 
@@ -27,13 +29,12 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
   const description =
     photosConfig?.description ||
     'Subí tus fotos y videos durante la fiesta para que todos podamos revivir cada momento.';
-  const buttonText = photosConfig?.buttonText || '📷 Compartir fotos';
+  const buttonText = (photosConfig?.buttonText || 'Compartir fotos').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
   const isQrEnabled = photosConfig?.qrEnabled !== false;
 
   const [qrUrl, setQrUrl] = useState<string>(event.memorooQrUrl || '');
 
   useEffect(() => {
-    // Si ya viene memorooQrUrl preconfigurado, respetarlo; si no, generar QR dinámico para el albumUrl
     if (event.memorooQrUrl) {
       setQrUrl(event.memorooQrUrl);
       return;
@@ -57,7 +58,6 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
     }
   }, [albumUrl, isQrEnabled, event.memorooQrUrl]);
 
-  // Fallback seguro: Si no hay URL válida ni QR disponible, no mostrar la sección ni un botón roto
   if (!albumUrl && !event.memorooQrUrl) {
     return null;
   }
@@ -76,38 +76,54 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }} aria-hidden="true">
-        📸
+      <div
+        data-heading-container="true"
+        style={{
+          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          textAlign: 'center',
+          width: '100%',
+        }}
+      >
+        <span
+          data-badge="true"
+          style={{
+            display: 'block',
+            fontSize: '0.8rem',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            color: theme.colors.primary,
+            fontWeight: 700,
+            marginBottom: '0.35rem',
+            textAlign: 'center',
+          }}
+        >
+          ÁLBUM DE FOTOS
+        </span>
+        <h2
+          data-heading="true"
+          style={{
+            fontFamily: theme.typography.headingFont,
+            fontSize: '1.35rem',
+            color: theme.colors.text,
+            margin: '0.25rem 0 0.5rem 0',
+            fontWeight: 500,
+            textAlign: 'center',
+          }}
+        >
+          {title}
+        </h2>
       </div>
-      <span
-        style={{
-          fontSize: '0.8rem',
-          letterSpacing: '0.15em',
-          textTransform: 'uppercase',
-          color: theme.colors.primary,
-          fontWeight: 700,
-        }}
-      >
-        ÁLBUM DE FOTOS
-      </span>
-      <h2
-        style={{
-          fontFamily: theme.typography.headingFont,
-          fontSize: '1.35rem',
-          color: theme.colors.text,
-          margin: '0.25rem 0 0.5rem 0',
-          fontWeight: 700,
-        }}
-      >
-        {title}
-      </h2>
+
       <p
+        data-body="true"
         style={{
           fontSize: '0.9rem',
           color: theme.colors.textMuted,
           maxWidth: '380px',
           margin: '0 auto 1.25rem auto',
           lineHeight: 1.5,
+          textAlign: 'center',
         }}
       >
         {description}
@@ -115,7 +131,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
 
       {/* QR del Álbum */}
       {isQrEnabled && qrUrl && (
-        <div style={{ marginBottom: '1.25rem' }}>
+        <div style={{ marginBottom: '1.25rem', textAlign: 'center' }}>
           <img
             src={qrUrl}
             alt="Código QR para subir fotos al álbum"
@@ -130,7 +146,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
               display: 'block',
             }}
           />
-          <span style={{ fontSize: '0.78rem', color: theme.colors.textMuted, marginTop: '0.5rem', display: 'block' }}>
+          <span style={{ fontSize: '0.78rem', color: theme.colors.textMuted, marginTop: '0.5rem', display: 'block', textAlign: 'center' }}>
             Escaneá con tu celular para subir fotos
           </span>
         </div>
@@ -138,16 +154,17 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
 
       {/* Botón de acceso directo al álbum */}
       {albumUrl && (
-        <ActionButton
-          label={buttonText}
-          icon="📤"
-          href={albumUrl}
-          variant="primary"
-          primaryColor={theme.colors.primary}
-          textColor="#ffffff"
-          target="_blank"
-          rel="noopener noreferrer"
-        />
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <ActionButton
+            label={buttonText}
+            href={albumUrl}
+            variant="primary"
+            primaryColor={theme.colors.primary}
+            textColor="#ffffff"
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        </div>
       )}
     </section>
   );

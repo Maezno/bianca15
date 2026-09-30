@@ -9,6 +9,10 @@ const MIME_MAP: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   svg: 'image/svg+xml',
+  woff2: 'font/woff2',
+  woff: 'font/woff',
+  ttf: 'font/ttf',
+  otf: 'font/otf',
 };
 
 export async function GET(

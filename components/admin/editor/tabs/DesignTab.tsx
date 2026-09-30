@@ -1,10 +1,78 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { EventDesignConfig, EventSectionConfig } from '@/types/event';
 import type { ColorPreset, TemplateTheme } from '@/templates/types';
 import { ExportTemplateButton } from '../ExportTemplateButton';
 import { MediaPicker } from '@/components/admin/MediaPicker';
+import { uploadEventFont } from '@/lib/admin/media';
+
+/** Mapa compacto de fuente predefinida → URL de Google Fonts (para preview en editor) */
+const EDITOR_FONT_URLS: Record<string, string> = {
+  'Great Vibes, cursive': 'https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap',
+  'Alex Brush, cursive': 'https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap',
+  'Pinyon Script, cursive': 'https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap',
+  'Tangerine, cursive': 'https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap',
+  'Dancing Script, cursive': 'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap',
+  'Parisienne, cursive': 'https://fonts.googleapis.com/css2?family=Parisienne&display=swap',
+  'Italianno, cursive': 'https://fonts.googleapis.com/css2?family=Italianno&display=swap',
+  'Cormorant Garamond, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap',
+  'Playfair Display, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap',
+  'Cinzel, serif': 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap',
+  'EB Garamond, Georgia, serif': 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap',
+  'Libre Baskerville, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap',
+  'DM Serif Display, Georgia, serif': 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap',
+  'Cardo, serif': 'https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&display=swap',
+  'Montserrat, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Raleway, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Josefin Sans, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap',
+  'Lato, sans-serif': 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap',
+  'Poppins, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Nunito, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Open Sans, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+};
+
+function loadEditorFont(fontFamilyOrUrl: string) {
+  if (!fontFamilyOrUrl || typeof window === 'undefined') return;
+
+  if (fontFamilyOrUrl.startsWith('http://') || fontFamilyOrUrl.startsWith('https://')) {
+    const id = `editor-url-${fontFamilyOrUrl.replace(/[^a-z0-9]/gi, '-').slice(-24)}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = fontFamilyOrUrl;
+    document.head.appendChild(link);
+    return;
+  }
+
+  const url = EDITOR_FONT_URLS[fontFamilyOrUrl];
+  if (!url) return;
+  const id = `editor-gf-${fontFamilyOrUrl.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = url;
+  document.head.appendChild(link);
+}
+
+function injectUploadedFontsInEditor(fonts?: Array<{ name: string; url: string; format?: string }>) {
+  if (!fonts || fonts.length === 0 || typeof window === 'undefined') return;
+  const id = 'editor-uploaded-fonts';
+  let styleEl = document.getElementById(id) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = id;
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = fonts
+    .map((f) => {
+      const formatStr = f.format ? ` format('${f.format}')` : '';
+      return `@font-face { font-family: '${f.name}'; src: url('${f.url}')${formatStr}; font-display: swap; }`;
+    })
+    .join('\n');
+}
 
 interface DesignTabProps {
   designConfig: EventDesignConfig;
@@ -63,15 +131,155 @@ export function DesignTab({
     }));
   };
 
-  // Estado para el MediaPicker (sección, fluido, continuo o general)
+  // Estado para el MediaPicker (sección, fluido, continuo, general o bandas laterales)
   const [activePicker, setActivePicker] = useState<{
-    type: 'section' | 'fluid' | 'continuous' | 'general';
+    type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars';
     sectionId?: string;
   } | null>(null);
 
+  // Estado para subida de fuentes (.woff2, .woff, .ttf, .otf)
+  const fontFileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingFont, setIsUploadingFont] = useState(false);
+  const [fontUploadMessage, setFontUploadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Manejador de subida de fuentes
+  const handleFontUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingFont(true);
+    setFontUploadMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('eventId', eventId);
+
+      const result = await uploadEventFont(formData);
+
+      if (!result.success || !result.fontUrl || !result.fontFamily) {
+        setFontUploadMessage({ type: 'error', text: result.error || 'Error al subir la fuente.' });
+        setIsUploadingFont(false);
+        return;
+      }
+
+      const newFont = {
+        name: result.fontFamily,
+        url: result.fontUrl,
+        format: result.format,
+      };
+
+      setDesignConfig((prev) => {
+        const existing = prev.typography?.uploadedFonts || [];
+        const filtered = existing.filter((f) => f.name !== newFont.name);
+        return {
+          ...prev,
+          typography: {
+            ...(prev.typography || {}),
+            headingFont: prev.typography?.headingFont || newFont.name,
+            uploadedFonts: [...filtered, newFont],
+          },
+        };
+      });
+
+      setFontUploadMessage({
+        type: 'success',
+        text: `¡Fuente "${result.fontFamily}" subida exitosamente!`,
+      });
+
+      if (fontFileInputRef.current) fontFileInputRef.current.value = '';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al procesar el archivo de fuente.';
+      setFontUploadMessage({ type: 'error', text: msg });
+    } finally {
+      setIsUploadingFont(false);
+    }
+  };
+
+  // Cargar fuentes en el DOM del editor para visualización en tiempo real
+  useEffect(() => {
+    // 1. Inyectar fuentes subidas del usuario
+    injectUploadedFontsInEditor(designConfig.typography?.uploadedFonts);
+
+    // 2. Cargar fuentes globales (Google Fonts o URL custom)
+    const headingFont = designConfig.typography?.headingFont || baseTheme.typography.headingFont;
+    const bodyFont = designConfig.typography?.bodyFont || baseTheme.typography.bodyFont;
+    if (headingFont) loadEditorFont(headingFont);
+    if (bodyFont) loadEditorFont(bodyFont);
+    if (designConfig.typography?.customFontUrl) {
+      loadEditorFont(designConfig.typography.customFontUrl);
+    }
+
+    // 3. Cargar fuentes específicas de cada sección
+    const sectionStyles = designConfig.layout?.sectionStyles || {};
+    Object.values(sectionStyles).forEach((style) => {
+      if (style.sectionFont) loadEditorFont(style.sectionFont);
+      if (style.sectionFontUrl) loadEditorFont(style.sectionFontUrl);
+      if (style.sectionBodyFont) loadEditorFont(style.sectionBodyFont);
+      if (style.sectionBodyFontUrl) loadEditorFont(style.sectionBodyFontUrl);
+    });
+  }, [
+    designConfig.typography?.headingFont,
+    designConfig.typography?.bodyFont,
+    designConfig.typography?.customFontUrl,
+    designConfig.typography?.uploadedFonts,
+    designConfig.layout?.sectionStyles,
+    baseTheme.typography.headingFont,
+    baseTheme.typography.bodyFont,
+  ]);
+
+  const uploadedFonts = designConfig.typography?.uploadedFonts || [];
+
+  const renderFontSelectOptions = (includeInherit = false) => (
+    <>
+      {includeInherit && (
+        <option value="">— Heredar fuente global —</option>
+      )}
+      {uploadedFonts.length > 0 && (
+        <optgroup label="⭐ Mis Fuentes Subidas">
+          {uploadedFonts.map((f) => (
+            <option key={f.name} value={f.name}>
+              {f.name} (Subida)
+            </option>
+          ))}
+        </optgroup>
+      )}
+      <optgroup label="✨ Caligráficas / Bodas">
+        <option value="Great Vibes, cursive">Great Vibes – Elegante caligráfica</option>
+        <option value="Alex Brush, cursive">Alex Brush – Caligráfica fluida</option>
+        <option value="Pinyon Script, cursive">Pinyon Script – Manuscrita formal</option>
+        <option value="Tangerine, cursive">Tangerine – Clásica inclinada</option>
+        <option value="Dancing Script, cursive">Dancing Script – Movida y festiva</option>
+        <option value="Parisienne, cursive">Parisienne – Parisina y refinada</option>
+      </optgroup>
+      <optgroup label="📖 Serif Elegantes">
+        <option value="Cormorant Garamond, Georgia, serif">Cormorant Garamond – Editorial / Bodas</option>
+        <option value="Playfair Display, Georgia, serif">Playfair Display – Elegante clásica</option>
+        <option value="Cinzel, serif">Cinzel – Teatral / Majestuosa</option>
+        <option value="EB Garamond, Georgia, serif">EB Garamond – Clásica académica</option>
+        <option value="Libre Baskerville, Georgia, serif">Libre Baskerville – Publicación seria</option>
+        <option value="DM Serif Display, Georgia, serif">DM Serif Display – Moderna y serif</option>
+        <option value="Cardo, serif">Cardo – Humanista clásica</option>
+      </optgroup>
+      <optgroup label="🎨 Sans-serif Modernas">
+        <option value="Montserrat, system-ui, sans-serif">Montserrat – Moderna geométrica</option>
+        <option value="Raleway, system-ui, sans-serif">Raleway – Estilosa y delgada</option>
+        <option value="Josefin Sans, system-ui, sans-serif">Josefin Sans – Geométrica vintage</option>
+        <option value="Lato, sans-serif">Lato – Limpia y minimalista</option>
+        <option value="Poppins, system-ui, sans-serif">Poppins – Amigable y moderna</option>
+        <option value="Nunito, system-ui, sans-serif">Nunito – Redondeada y amigable</option>
+        <option value="Open Sans, system-ui, sans-serif">Open Sans – Neutral legible</option>
+      </optgroup>
+      <optgroup label="🖋️ Decorativas y Temáticas">
+        <option value="'Alice in Wonderland', cursive">Alice in Wonderland (Tema Bianca 15)</option>
+        <option value="Italianno, cursive">Italianno – Italiana estilizada</option>
+      </optgroup>
+    </>
+  );
+
   const SECTIONS_LIST = [
     { id: 'hero', label: '👑 Hero / Portada' },
-    { id: 'welcome', label: '✨ Bienvenida' },
+    { id: 'welcome', label: 'Bienvenida' },
     { id: 'countdown', label: '⏳ Cuenta Regresiva' },
     { id: 'date', label: '📅 Fecha y Hora' },
     { id: 'location', label: '📍 Ubicación' },
@@ -444,99 +652,697 @@ export function DesignTab({
         </div>
       </div>
 
-      {/* Tipografía */}
-      <div>
-        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
-          Tipografía de Títulos
-        </label>
-        <select
-          value={designConfig.typography?.headingFont || baseTheme.typography.headingFont}
-          onChange={(e) =>
-            setDesignConfig((prev) => ({
-              ...prev,
-              typography: {
-                ...(prev.typography || {}),
-                headingFont: e.target.value,
-              },
-            }))
-          }
-          style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', background: '#fff' }}
-        >
-          <option value="Playfair Display, Georgia, serif">Playfair Display (Elegante Clásica)</option>
-          <option value="Cormorant Garamond, Georgia, serif">Cormorant Garamond (Editorial / Bodas)</option>
-          <option value="Montserrat, system-ui, sans-serif">Montserrat (Moderna Geométrica)</option>
-          <option value="Cinzel, serif">Cinzel (Teatral / Majestuosa)</option>
-          <option value="Lato, sans-serif">Lato (Limpia y Minimalista)</option>
-        </select>
-      </div>
-
-      {/* Tipografía Personalizada */}
+      {/* ─── TIPOGRAFÍA GLOBAL ─── */}
       <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '0.75rem', padding: '1.25rem' }}>
-        <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#6b21a8', marginBottom: '0.25rem' }}>
-          🔤 Tipografía Personalizada
-        </label>
-        <p style={{ fontSize: '0.8rem', color: '#7e22ce', margin: '0 0 0.75rem 0' }}>
-          Pegá una URL de Google Fonts o cualquier CSS de fuente externa. Se aplicará a toda la invitación.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#6b21a8' }}>
+            🔤 Tipografía Global
+          </label>
+
+          {/* Botón rápido para subir fuente */}
+          <button
+            type="button"
+            onClick={() => fontFileInputRef.current?.click()}
+            disabled={isUploadingFont}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.35rem 0.75rem',
+              borderRadius: '0.4rem',
+              border: '1px solid #c084fc',
+              background: '#ffffff',
+              color: '#7e22ce',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: isUploadingFont ? 'not-allowed' : 'pointer',
+              boxShadow: '0 1px 3px rgba(126, 34, 206, 0.1)',
+            }}
+          >
+            {isUploadingFont ? '⏳ Subiendo...' : '📤 Subir archivo de fuente (.ttf, .otf, .woff)'}
+          </button>
+        </div>
+
+        <p style={{ fontSize: '0.8rem', color: '#7e22ce', margin: '0 0 1rem 0' }}>
+          Elegí fuentes para títulos y cuerpo, subí tus propios archivos de tipografía o conectá una URL de Google Fonts.
         </p>
+
+        {/* Input file oculto para subir fuentes */}
         <input
-          type="url"
-          placeholder="https://fonts.googleapis.com/css2?family=MiFuente:ital,wght@400;700&display=swap"
-          value={designConfig.typography?.customFontUrl || ''}
-          onChange={(e) =>
-            setDesignConfig((prev) => ({
-              ...prev,
-              typography: {
-                ...(prev.typography || {}),
-                customFontUrl: e.target.value || undefined,
-              },
-            }))
-          }
-          style={{
-            width: '100%',
-            padding: '0.6rem 0.75rem',
-            border: '1px solid #d8b4fe',
-            borderRadius: '0.4rem',
-            fontSize: '0.82rem',
-            boxSizing: 'border-box',
-            background: '#ffffff',
-          }}
+          ref={fontFileInputRef}
+          type="file"
+          accept=".woff2,.woff,.ttf,.otf,font/*,application/font-woff,application/x-font-ttf"
+          onChange={handleFontUpload}
+          style={{ display: 'none' }}
         />
-        {designConfig.typography?.customFontUrl && (
-          <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.75rem', color: '#7e22ce' }}>
-              ✓ URL de fuente personalizada configurada. Se cargará al abrir la invitación.
-            </span>
+
+        {/* Mensaje de feedback de subida */}
+        {fontUploadMessage && (
+          <div
+            style={{
+              marginBottom: '1rem',
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.4rem',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              background: fontUploadMessage.type === 'success' ? '#f0fdf4' : '#fef2f2',
+              border: `1px solid ${fontUploadMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+              color: fontUploadMessage.type === 'success' ? '#15803d' : '#b91c1c',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <span>{fontUploadMessage.text}</span>
             <button
               type="button"
-              onClick={() =>
-                setDesignConfig((prev) => ({
-                  ...prev,
-                  typography: { ...(prev.typography || {}), customFontUrl: undefined },
-                }))
-              }
-              style={{
-                padding: '0.3rem 0.6rem',
-                borderRadius: '0.35rem',
-                border: '1px solid #fca5a5',
-                background: '#fef2f2',
-                color: '#b91c1c',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+              onClick={() => setFontUploadMessage(null)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}
             >
-              ✕ Quitar fuente
+              ✕
             </button>
           </div>
         )}
-        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem', marginBottom: 0 }}>
-          Ejemplo de URL: <code style={{ background: '#ede9fe', padding: '1px 4px', borderRadius: '3px' }}>https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap</code>
-        </p>
-        {designConfig.typography?.customFontUrl && (
-          <div style={{ marginTop: '0.75rem', padding: '0.6rem 1rem', background: '#ffffff', border: '1px solid #d8b4fe', borderRadius: '0.4rem' }}>
-            <p style={{ fontSize: '0.75rem', color: '#6b21a8', margin: '0 0 0.3rem 0', fontWeight: 600 }}>Después de guardar, usá el nombre de la familia en el selector de arriba:</p>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>Ingresalo como fuente personalizada en el campo de texto del selector de tipografía (ej. <em>Great Vibes, cursive</em>).</p>
+
+        {/* Lista de fuentes subidas por el usuario */}
+        {uploadedFonts.length > 0 && (
+          <div style={{ marginBottom: '1rem', padding: '0.65rem 0.75rem', background: '#fdf4ff', border: '1px solid #f0abfc', borderRadius: '0.5rem' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#86198f', display: 'block', marginBottom: '0.4rem' }}>
+              ⭐ Tus Fuentes Subidas ({uploadedFonts.length}):
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              {uploadedFonts.map((f) => (
+                <div
+                  key={f.name}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0.35rem 0.6rem',
+                    background: '#ffffff',
+                    borderRadius: '0.35rem',
+                    border: '1px solid #e879f9',
+                    fontSize: '0.78rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span style={{ fontFamily: f.name, fontSize: '1.05rem', color: '#1e293b' }}>
+                      {f.name}
+                    </span>
+                    <span style={{ fontSize: '0.68rem', color: '#a21caf', background: '#fae8ff', padding: '1px 6px', borderRadius: '99px' }}>
+                      {f.format || 'fuente'}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <button
+                      type="button"
+                      title="Usar como fuente de Títulos"
+                      onClick={() =>
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          typography: { ...(prev.typography || {}), headingFont: f.name },
+                        }))
+                      }
+                      style={{
+                        padding: '0.15rem 0.45rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #d8b4fe',
+                        background: '#faf5ff',
+                        color: '#7e22ce',
+                        fontSize: '0.68rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      En Títulos
+                    </button>
+                    <button
+                      type="button"
+                      title="Usar como fuente de Texto"
+                      onClick={() =>
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          typography: { ...(prev.typography || {}), bodyFont: f.name },
+                        }))
+                      }
+                      style={{
+                        padding: '0.15rem 0.45rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #d8b4fe',
+                        background: '#faf5ff',
+                        color: '#7e22ce',
+                        fontSize: '0.68rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      En Texto
+                    </button>
+                    <button
+                      type="button"
+                      title="Quitar de fuentes subidas"
+                      onClick={() => {
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          typography: {
+                            ...(prev.typography || {}),
+                            uploadedFonts: (prev.typography?.uploadedFonts || []).filter((item) => item.name !== f.name),
+                          },
+                        }));
+                      }}
+                      style={{
+                        padding: '0.15rem 0.4rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #fca5a5',
+                        background: '#fef2f2',
+                        color: '#b91c1c',
+                        fontSize: '0.68rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fuente de Títulos */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+            Fuente de Títulos (Headings)
+          </label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <select
+              value={designConfig.typography?.headingFont || baseTheme.typography.headingFont}
+              onChange={(e) =>
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  typography: {
+                    ...(prev.typography || {}),
+                    headingFont: e.target.value,
+                  },
+                }))
+              }
+              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #d8b4fe', fontSize: '0.88rem', background: '#fff' }}
+            >
+              {renderFontSelectOptions(false)}
+            </select>
+            {/* Preview de la fuente seleccionada */}
+            <div style={{
+              padding: '0.6rem 0.85rem',
+              background: '#ffffff',
+              border: '1px solid #e9d5ff',
+              borderRadius: '0.4rem',
+              fontSize: '1.3rem',
+              fontFamily: designConfig.typography?.headingFont || baseTheme.typography.headingFont,
+              color: '#1e293b',
+              textAlign: 'center',
+              letterSpacing: '0.02em',
+            }}>
+              Bianca cumple 15 años ✨
+            </div>
+          </div>
+        </div>
+
+        {/* Fuente de Cuerpo */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+            Fuente del Cuerpo de Texto (Body)
+          </label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <select
+              value={designConfig.typography?.bodyFont || baseTheme.typography.bodyFont}
+              onChange={(e) =>
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  typography: {
+                    ...(prev.typography || {}),
+                    bodyFont: e.target.value,
+                  },
+                }))
+              }
+              style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #d8b4fe', fontSize: '0.88rem', background: '#fff' }}
+            >
+              {renderFontSelectOptions(false)}
+            </select>
+            <div style={{
+              padding: '0.5rem 0.85rem',
+              background: '#ffffff',
+              border: '1px solid #e9d5ff',
+              borderRadius: '0.4rem',
+              fontSize: '0.9rem',
+              fontFamily: designConfig.typography?.bodyFont || baseTheme.typography.bodyFont,
+              color: '#475569',
+              lineHeight: '1.5',
+            }}>
+              Nos alegra invitarte a celebrar este momento especial junto a nuestra familia.
+            </div>
+          </div>
+        </div>
+
+        {/* URL de Fuente Personalizada */}
+        <div style={{ paddingTop: '0.75rem', borderTop: '1px solid #e9d5ff' }}>
+          <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#6b21a8', marginBottom: '0.3rem' }}>
+            🌐 Fuente Personalizada via URL (opcional)
+          </label>
+          <p style={{ fontSize: '0.75rem', color: '#7e22ce', margin: '0 0 0.5rem 0' }}>
+            Pegá una URL de Google Fonts u otro CSS de fuente. Luego escribí el nombre de la familia en el campo del selector de arriba.
+          </p>
+          <input
+            type="url"
+            placeholder="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap"
+            value={designConfig.typography?.customFontUrl || ''}
+            onChange={(e) =>
+              setDesignConfig((prev) => ({
+                ...prev,
+                typography: {
+                  ...(prev.typography || {}),
+                  customFontUrl: e.target.value || undefined,
+                },
+              }))
+            }
+            style={{
+              width: '100%',
+              padding: '0.55rem 0.75rem',
+              border: '1px solid #d8b4fe',
+              borderRadius: '0.4rem',
+              fontSize: '0.82rem',
+              boxSizing: 'border-box',
+              background: '#ffffff',
+            }}
+          />
+          {designConfig.typography?.customFontUrl && (
+            <div style={{ marginTop: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: '#7e22ce' }}>
+                ✓ URL configurada. Cargará al abrir la invitación.
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  setDesignConfig((prev) => ({
+                    ...prev,
+                    typography: { ...(prev.typography || {}), customFontUrl: undefined },
+                  }))
+                }
+                style={{
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '0.35rem',
+                  border: '1px solid #fca5a5',
+                  background: '#fef2f2',
+                  color: '#b91c1c',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                ✕ Quitar
+              </button>
+            </div>
+          )}
+          <p style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.4rem', marginBottom: 0 }}>
+            Ejemplo: <code style={{ background: '#ede9fe', padding: '1px 4px', borderRadius: '3px', fontSize: '0.7rem' }}>https://fonts.googleapis.com/css2?family=Parisienne&display=swap</code>
+          </p>
+        </div>
+      </div>
+
+
+      {/* ─── PRIMERA OPCIÓN: BANDAS LATERALES EN MODO DESKTOP ─── */}
+      <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '0.75rem', padding: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.2rem' }}>
+              🎛️ Bandas Laterales en Modo Desktop (Primera Opción)
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+              Al ver la invitación en computadora, genera bandas a los lados que delimitan el visor móvil para que solo se vea lo que se vería en un celular.
+            </p>
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', background: '#ffffff', padding: '0.35rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }}>
+            <input
+              type="checkbox"
+              checked={designConfig.layout?.desktopSidebars?.enabled ?? true}
+              onChange={(e) =>
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  layout: {
+                    ...(prev.layout || {}),
+                    desktopSidebars: {
+                      ...(prev.layout?.desktopSidebars || {}),
+                      enabled: e.target.checked,
+                    },
+                  },
+                }))
+              }
+              style={{ width: '16px', height: '16px', accentColor: '#9333ea', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: (designConfig.layout?.desktopSidebars?.enabled ?? true) ? '#166534' : '#64748b' }}>
+              {(designConfig.layout?.desktopSidebars?.enabled ?? true) ? '✓ Bandas activas' : 'Desactivadas'}
+            </span>
+          </label>
+        </div>
+
+        {(designConfig.layout?.desktopSidebars?.enabled ?? true) && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0' }}>
+
+            {/* Selector de Estilo de Bandas */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '0.4rem' }}>
+                Estilo de las bandas laterales:
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.5rem' }}>
+                {[
+                  { id: 'black', label: '⬛ Bandas Negras', desc: 'Color sólido oscuro' },
+                  { id: 'blur', label: '🪟 Vidrio Esmerilado', desc: 'Desenfoque blur' },
+                  { id: 'transparent', label: '🫧 100% Transparente', desc: 'Sin cubrir los lados' },
+                  { id: 'image', label: '🖼️ Imagen de Fondo', desc: 'Fondo personalizado' },
+                ].map((st) => {
+                  const currentStyle = designConfig.layout?.desktopSidebars?.style || 'black';
+                  const isSelected = currentStyle === st.id;
+                  return (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() =>
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          layout: {
+                            ...(prev.layout || {}),
+                            desktopSidebars: {
+                              ...(prev.layout?.desktopSidebars || {}),
+                              style: st.id as any,
+                            },
+                          },
+                        }))
+                      }
+                      style={{
+                        padding: '0.6rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        border: isSelected ? '2px solid #9333ea' : '1px solid #cbd5e1',
+                        background: isSelected ? '#f3e8ff' : '#ffffff',
+                        color: isSelected ? '#7e22ce' : '#334155',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.2rem',
+                      }}
+                    >
+                      <strong style={{ fontSize: '0.8rem' }}>{st.label}</strong>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{st.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Si es estilo NEGRO / COLOR SÓLIDO */}
+            {(designConfig.layout?.desktopSidebars?.style || 'black') === 'black' && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#ffffff', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+                  Color de las bandas:
+                </label>
+                <input
+                  type="color"
+                  value={designConfig.layout?.desktopSidebars?.color || '#000000'}
+                  onChange={(e) =>
+                    setDesignConfig((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...(prev.layout || {}),
+                        desktopSidebars: {
+                          ...(prev.layout?.desktopSidebars || {}),
+                          color: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                  style={{ width: '36px', height: '32px', border: '1px solid #cbd5e1', borderRadius: '0.35rem', cursor: 'pointer' }}
+                />
+                <input
+                  type="text"
+                  value={designConfig.layout?.desktopSidebars?.color || '#000000'}
+                  onChange={(e) =>
+                    setDesignConfig((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...(prev.layout || {}),
+                        desktopSidebars: {
+                          ...(prev.layout?.desktopSidebars || {}),
+                          color: e.target.value,
+                        },
+                      },
+                    }))
+                  }
+                  style={{ width: '90px', padding: '0.35rem 0.5rem', border: '1px solid #cbd5e1', borderRadius: '0.35rem', fontSize: '0.8rem', fontFamily: 'monospace' }}
+                />
+              </div>
+            )}
+
+            {/* Si es estilo BLUR (Vidrio Esmerilado) */}
+            {designConfig.layout?.desktopSidebars?.style === 'blur' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: '#ffffff', padding: '0.75rem 0.85rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+                      Intensidad del Desenfoque (Blur):
+                    </span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7e22ce' }}>
+                      {designConfig.layout?.desktopSidebars?.blurAmount ?? 16} px
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <input
+                      type="range"
+                      min="4"
+                      max="40"
+                      step="2"
+                      value={designConfig.layout?.desktopSidebars?.blurAmount ?? 16}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          layout: {
+                            ...(prev.layout || {}),
+                            desktopSidebars: {
+                              ...(prev.layout?.desktopSidebars || {}),
+                              blurAmount: val,
+                            },
+                          },
+                        }));
+                      }}
+                      style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+                      Opacidad del Tinte Esmerilado:
+                    </span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7e22ce' }}>
+                      {Math.round((designConfig.layout?.desktopSidebars?.opacity ?? 0.5) * 100)}%
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <input
+                      type="range"
+                      min="0"
+                      max="0.95"
+                      step="0.05"
+                      value={designConfig.layout?.desktopSidebars?.opacity ?? 0.5}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          layout: {
+                            ...(prev.layout || {}),
+                            desktopSidebars: {
+                              ...(prev.layout?.desktopSidebars || {}),
+                              opacity: val,
+                            },
+                          },
+                        }));
+                      }}
+                      style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Si es estilo IMAGEN DE FONDO */}
+            {designConfig.layout?.desktopSidebars?.style === 'image' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#ffffff', padding: '0.75rem 0.85rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+                    Imagen para las bandas:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActivePicker({ type: 'sidebars' })}
+                    style={{
+                      padding: '0.3rem 0.65rem',
+                      borderRadius: '0.35rem',
+                      border: '1px solid #9333ea',
+                      background: '#f3e8ff',
+                      color: '#7e22ce',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {designConfig.layout?.desktopSidebars?.backgroundImageUrl ? '🔄 Cambiar imagen' : '➕ Elegir de biblioteca'}
+                  </button>
+                </div>
+
+                {designConfig.layout?.desktopSidebars?.backgroundImageUrl && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#f8fafc', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', border: '1px solid #cbd5e1' }}>
+                    <img
+                      src={designConfig.layout.desktopSidebars.backgroundImageUrl}
+                      alt="Fondo bandas"
+                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '0.3rem', border: '1px solid #94a3b8' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {designConfig.layout.desktopSidebars.backgroundImageUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDesignConfig((prev) => ({
+                          ...prev,
+                          layout: {
+                            ...(prev.layout || {}),
+                            desktopSidebars: {
+                              ...(prev.layout?.desktopSidebars || {}),
+                              backgroundImageUrl: undefined,
+                            },
+                          },
+                        }))
+                      }
+                      style={{
+                        padding: '0.2rem 0.45rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #fca5a5',
+                        background: '#fef2f2',
+                        color: '#b91c1c',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ✕ Quitar
+                    </button>
+                  </div>
+                )}
+
+                <input
+                  type="url"
+                  placeholder="https://ejemplo.com/textura-lateral.webp"
+                  value={designConfig.layout?.desktopSidebars?.backgroundImageUrl || ''}
+                  onChange={(e) =>
+                    setDesignConfig((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...(prev.layout || {}),
+                        desktopSidebars: {
+                          ...(prev.layout?.desktopSidebars || {}),
+                          backgroundImageUrl: e.target.value || undefined,
+                        },
+                      },
+                    }))
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '0.35rem',
+                    fontSize: '0.8rem',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Ajuste del ancho del visor móvil central */}
+            <div style={{ background: '#ffffff', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+                  Ancho del visor central (área móvil visible):
+                </span>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#7e22ce' }}>
+                  {designConfig.layout?.desktopSidebars?.centralWidth ?? 480} px
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <input
+                  type="range"
+                  min="380"
+                  max="650"
+                  step="10"
+                  value={designConfig.layout?.desktopSidebars?.centralWidth ?? 480}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setDesignConfig((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...(prev.layout || {}),
+                        desktopSidebars: {
+                          ...(prev.layout?.desktopSidebars || {}),
+                          centralWidth: val,
+                        },
+                      },
+                    }));
+                  }}
+                  style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer' }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+                {[
+                  { label: '390px (iPhone estándar)', val: 390 },
+                  { label: '450px (Móvil cómodo)', val: 450 },
+                  { label: '480px (Recomendado)', val: 480 },
+                  { label: '540px (Más ancho)', val: 540 },
+                ].map((b) => (
+                  <button
+                    key={b.val}
+                    type="button"
+                    onClick={() =>
+                      setDesignConfig((prev) => ({
+                        ...prev,
+                        layout: {
+                          ...(prev.layout || {}),
+                          desktopSidebars: {
+                            ...(prev.layout?.desktopSidebars || {}),
+                            centralWidth: b.val,
+                          },
+                        },
+                      }))
+                    }
+                    style={{
+                      padding: '0.18rem 0.45rem',
+                      borderRadius: '0.25rem',
+                      border: '1px solid',
+                      borderColor: (designConfig.layout?.desktopSidebars?.centralWidth ?? 480) === b.val ? '#9333ea' : '#cbd5e1',
+                      background: (designConfig.layout?.desktopSidebars?.centralWidth ?? 480) === b.val ? '#f3e8ff' : '#ffffff',
+                      color: (designConfig.layout?.desktopSidebars?.centralWidth ?? 480) === b.val ? '#7e22ce' : '#475569',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
       </div>
@@ -1054,17 +1860,36 @@ export function DesignTab({
       {/* ─── ESTILOS INDIVIDUALES POR SECCIÓN ─── */}
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.75rem', padding: '1.25rem' }}>
         <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#14532d', marginBottom: '0.25rem' }}>
-          🖼️ Fondos y Estilos Individuales por Sección
+          🖼️ Fondos, Fuentes y Estilos Individuales por Sección
         </label>
         <p style={{ fontSize: '0.8rem', color: '#166534', margin: '0 0 1rem 0' }}>
-          Cada tarjeta puede tener su propia imagen de fondo que se mueve junto con ella. También podés quitarle el fondo de color o el borde de forma independiente.
+          Cada tarjeta puede tener su propia imagen de fondo, fuente tipográfica y opciones de apariencia independientes del resto.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {SECTIONS_LIST.map((sec) => {
             const style = getSectionStyle(sec.id);
             const hasBg = !!style.backgroundImage;
-            const hasAnyStyle = hasBg || style.noBackground || style.noBorder;
+            const hasFont = !!(
+              style.sectionFont ||
+              style.sectionBodyFont ||
+              style.sectionFontUrl ||
+              style.sectionBodyFontUrl ||
+              style.titleFontSize !== undefined ||
+              style.bodyFontSize !== undefined ||
+              style.verticalGap !== undefined ||
+              style.wordSpacing !== undefined ||
+              style.horizontalPadding !== undefined ||
+              style.countdownNoBoxes ||
+              style.countdownNumberSize !== undefined ||
+              style.countdownNumberColor ||
+              style.titleColor ||
+              style.textColor ||
+              style.nameFontSize !== undefined ||
+              style.nameColor ||
+              style.titleOffsetY !== undefined
+            );
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont;
             return (
               <div
                 key={sec.id}
@@ -1109,6 +1934,35 @@ export function DesignTab({
                       />
                       Sin borde
                     </label>
+
+                    {/* Toggle específico para Cuenta Regresiva: Quitar cuadros de fondo */}
+                    {sec.id === 'countdown' && (
+                      <label
+                        title="Ocultar los cuadros de fondo de los números en la cuenta regresiva (deja los números transparentes)"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          color: style.countdownNoBoxes ? '#7e22ce' : '#64748b',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          background: style.countdownNoBoxes ? '#f3e8ff' : '#ffffff',
+                          padding: '0.2rem 0.45rem',
+                          borderRadius: '0.3rem',
+                          border: `1px solid ${style.countdownNoBoxes ? '#d8b4fe' : '#cbd5e1'}`,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.countdownNoBoxes === true}
+                          onChange={(e) => updateSectionStyle('countdown', { countdownNoBoxes: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#9333ea', cursor: 'pointer' }}
+                        />
+                        ⏳ Quitar cuadros de números
+                      </label>
+                    )}
 
                     {/* Botón imagen de fondo */}
                     <button
@@ -1199,6 +2053,7 @@ export function DesignTab({
                         onClick={() => updateSectionStyle(sec.id, {
                           backgroundImage: undefined,
                           backgroundSize: undefined,
+                          backgroundSizeMobile: undefined,
                           cardWidth: undefined,
                           imageWidth: undefined,
                           imageHeight: undefined,
@@ -1221,75 +2076,1400 @@ export function DesignTab({
                       </button>
                     </div>
 
-                    {/* Control de tamaño / ajuste de la imagen de fondo con slider */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingTop: '0.4rem', borderTop: '1px dashed #e2e8f0' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
-                          Tamaño del fondo:
-                        </span>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #bfdbfe' }}>
-                          {style.backgroundSize || 'cover'}
-                        </span>
+                    {/* Controles de escala independientes: Desktop y Móvil */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px dashed #cbd5e1' }}>
+
+                      {/* 1. CONTROL PARA MODO DESKTOP */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#ffffff', padding: '0.5rem 0.65rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            🖥️ Escala Desktop (1000px)
+                          </span>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #bfdbfe' }}>
+                            {style.backgroundSize || 'cover'}
+                          </span>
+                        </div>
+
+                        {/* Botones rápidos Desktop */}
+                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                          {[
+                            { label: 'Cubrir', value: 'cover' },
+                            { label: '100% Ancho', value: '100% auto' },
+                            { label: '120%', value: '120% auto' },
+                            { label: '150%', value: '150% auto' },
+                            { label: 'Contener', value: 'contain' },
+                          ].map((preset) => {
+                            const isActive = (style.backgroundSize || 'cover') === preset.value;
+                            return (
+                              <button
+                                key={preset.value}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value, cardWidth: undefined })}
+                                style={{
+                                  padding: '0.18rem 0.45rem',
+                                  borderRadius: '0.25rem',
+                                  border: '1px solid',
+                                  borderColor: isActive ? '#3b82f6' : '#cbd5e1',
+                                  background: isActive ? '#3b82f6' : '#ffffff',
+                                  color: isActive ? '#ffffff' : '#334155',
+                                  fontSize: '0.68rem',
+                                  fontWeight: isActive ? 700 : 500,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {preset.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Slider Desktop */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
+                          <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Slider:</span>
+                          <input
+                            type="range"
+                            min="50"
+                            max="300"
+                            step="5"
+                            value={
+                              style.backgroundSize && /^\d+/.test(style.backgroundSize)
+                                ? parseInt(style.backgroundSize, 10)
+                                : 100
+                            }
+                            onChange={(e) => {
+                              updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}% auto`, cardWidth: undefined });
+                            }}
+                            style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
+                          />
+                          <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                            {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Botones rápidos de ajuste */}
-                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                        {[
-                          { label: 'Cubrir', value: 'cover' },
-                          { label: '100% Ancho', value: '100% auto' },
-                          { label: '120%', value: '120% auto' },
-                          { label: '150%', value: '150% auto' },
-                          { label: 'Contener', value: 'contain' },
-                        ].map((preset) => {
-                          const isActive = (style.backgroundSize || 'cover') === preset.value;
-                          return (
-                            <button
-                              key={preset.value}
-                              type="button"
-                              onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value, cardWidth: undefined })}
-                              style={{
-                                padding: '0.22rem 0.5rem',
-                                borderRadius: '0.3rem',
-                                border: '1px solid',
-                                borderColor: isActive ? '#3b82f6' : '#cbd5e1',
-                                background: isActive ? '#3b82f6' : '#ffffff',
-                                color: isActive ? '#ffffff' : '#334155',
-                                fontSize: '0.7rem',
-                                fontWeight: isActive ? 700 : 500,
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {preset.label}
-                            </button>
-                          );
-                        })}
+                      {/* 2. CONTROL PARA MODO MÓVIL */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#faf5ff', padding: '0.5rem 0.65rem', borderRadius: '0.4rem', border: '1px solid #e9d5ff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b21a8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              📱 Escala Móvil (Pantalla chica)
+                            </span>
+                            {style.backgroundSizeMobile && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { backgroundSizeMobile: undefined })}
+                                title="Restablecer y usar el mismo valor que en Desktop"
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: '#9333ea',
+                                  fontSize: '0.65rem',
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline',
+                                  padding: 0,
+                                }}
+                              >
+                                (Igualar a Desktop)
+                              </button>
+                            )}
+                          </div>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', background: '#f3e8ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #d8b4fe' }}>
+                            {style.backgroundSizeMobile || (style.backgroundSize ? `${style.backgroundSize} (heredado)` : 'cover')}
+                          </span>
+                        </div>
+
+                        {/* Botones rápidos Móvil */}
+                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                          {[
+                            { label: '100% Ancho', value: '100% auto' },
+                            { label: '110%', value: '110% auto' },
+                            { label: '120%', value: '120% auto' },
+                            { label: '140%', value: '140% auto' },
+                            { label: 'Cubrir', value: 'cover' },
+                            { label: 'Contener', value: 'contain' },
+                          ].map((preset) => {
+                            const effectiveMobile = style.backgroundSizeMobile || style.backgroundSize || 'cover';
+                            const isActive = effectiveMobile === preset.value;
+                            return (
+                              <button
+                                key={preset.value}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { backgroundSizeMobile: preset.value })}
+                                style={{
+                                  padding: '0.18rem 0.45rem',
+                                  borderRadius: '0.25rem',
+                                  border: '1px solid',
+                                  borderColor: isActive ? '#9333ea' : '#d8b4fe',
+                                  background: isActive ? '#9333ea' : '#ffffff',
+                                  color: isActive ? '#ffffff' : '#6b21a8',
+                                  fontSize: '0.68rem',
+                                  fontWeight: isActive ? 700 : 500,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {preset.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Slider Móvil */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
+                          <span style={{ fontSize: '0.68rem', color: '#7e22ce', whiteSpace: 'nowrap' }}>Slider:</span>
+                          <input
+                            type="range"
+                            min="50"
+                            max="300"
+                            step="5"
+                            value={
+                              style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
+                                ? parseInt(style.backgroundSizeMobile, 10)
+                                : style.backgroundSize && /^\d+/.test(style.backgroundSize)
+                                  ? parseInt(style.backgroundSize, 10)
+                                  : 100
+                            }
+                            onChange={(e) => {
+                              updateSectionStyle(sec.id, { backgroundSizeMobile: `${e.target.value}% auto` });
+                            }}
+                            style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
+                          />
+                          <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                            {style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
+                              ? `${parseInt(style.backgroundSizeMobile, 10)}%`
+                              : style.backgroundSize && /^\d+/.test(style.backgroundSize)
+                                ? `${parseInt(style.backgroundSize, 10)}%`
+                                : '100%'}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Slider libre de tamaño */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
-                        <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Escala:</span>
-                        <input
-                          type="range"
-                          min="50"
-                          max="250"
-                          step="5"
-                          value={
-                            style.backgroundSize && /^\d+/.test(style.backgroundSize)
-                              ? parseInt(style.backgroundSize, 10)
-                              : 100
-                          }
-                          onChange={(e) => {
-                            updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}% auto`, cardWidth: undefined });
-                          }}
-                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
-                        />
-                        <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
-                          {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 )}
+                {/* Selector de Fuentes por Sección (Títulos y Cuerpo) */}
+                <div
+                  style={{
+                    marginTop: '0.6rem',
+                    padding: '0.65rem 0.75rem',
+                    borderRadius: '0.5rem',
+                    background: hasFont ? '#faf5ff' : '#f8fafc',
+                    border: `1px solid ${hasFont ? '#d8b4fe' : '#e2e8f0'}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.6rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: hasFont ? '#7e22ce' : '#334155' }}>
+                        🔤 Tipografías de esta tarjeta
+                      </span>
+                      {hasFont && (
+                        <span style={{ fontSize: '0.68rem', color: '#15803d', background: '#dcfce7', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                          Personalizada
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => fontFileInputRef.current?.click()}
+                        title="Subir un archivo de fuente (.ttf, .otf, .woff)"
+                        style={{
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '0.25rem',
+                          border: '1px solid #c084fc',
+                          background: '#ffffff',
+                          color: '#7e22ce',
+                          fontSize: '0.68rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        📤 Subir fuente
+                      </button>
+
+                      {hasFont && (
+                        <button
+                          type="button"
+                          onClick={() => updateSectionStyle(sec.id, {
+                            sectionFont: undefined,
+                            sectionFontUrl: undefined,
+                            sectionBodyFont: undefined,
+                            sectionBodyFontUrl: undefined,
+                            titleFontSize: undefined,
+                            bodyFontSize: undefined,
+                            verticalGap: undefined,
+                            wordSpacing: undefined,
+                            horizontalPadding: undefined,
+                            countdownNoBoxes: undefined,
+                            countdownNumberSize: undefined,
+                            countdownNumberColor: undefined,
+                            titleColor: undefined,
+                            textColor: undefined,
+                            nameFontSize: undefined,
+                            nameColor: undefined,
+                            titleOffsetY: undefined,
+                            textAlign: undefined,
+                          })}
+                          title="Restablecer para heredar las fuentes y tamaños globales"
+                          style={{
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: '0.25rem',
+                            border: '1px solid #fca5a5',
+                            background: '#fef2f2',
+                            color: '#b91c1c',
+                            fontSize: '0.68rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          ✕ Heredar global
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 1. Familia Tipográfica: Títulos y Cuerpo */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.5rem' }}>
+                    {/* Fuente Títulos */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
+                        Fuente de Títulos:
+                      </label>
+                      <select
+                        value={style.sectionFont || ''}
+                        onChange={(e) => updateSectionStyle(sec.id, { sectionFont: e.target.value || undefined })}
+                        style={{
+                          width: '100%',
+                          padding: '0.38rem 0.5rem',
+                          borderRadius: '0.35rem',
+                          border: `1px solid ${style.sectionFont ? '#a855f7' : '#cbd5e1'}`,
+                          fontSize: '0.78rem',
+                          background: '#ffffff',
+                        }}
+                      >
+                        {renderFontSelectOptions(true)}
+                      </select>
+                    </div>
+
+                    {/* Fuente Cuerpo */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                      <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#475569' }}>
+                        Fuente de Textos / Detalles:
+                      </label>
+                      <select
+                        value={style.sectionBodyFont || ''}
+                        onChange={(e) => updateSectionStyle(sec.id, { sectionBodyFont: e.target.value || undefined })}
+                        style={{
+                          width: '100%',
+                          padding: '0.38rem 0.5rem',
+                          borderRadius: '0.35rem',
+                          border: `1px solid ${style.sectionBodyFont ? '#a855f7' : '#cbd5e1'}`,
+                          fontSize: '0.78rem',
+                          background: '#ffffff',
+                        }}
+                      >
+                        {renderFontSelectOptions(true)}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Selector de Colores y Tamaños (Diferenciado para Portada/Hero vs otras tarjetas) */}
+                  {sec.id === 'hero' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                      {/* 1. Nombre Interno del Evento (ej: Bianca) */}
+                      <div style={{ background: '#fdf4ff', padding: '0.6rem', borderRadius: '0.45rem', border: '1px solid #f0abfc', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#86198f' }}>
+                            👑 Nombre Interno del Evento (ej: Bianca)
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#a21caf' }}>
+                              {style.nameFontSize ? `${style.nameFontSize}px` : 'Auto'}
+                            </span>
+                            {style.nameFontSize !== undefined && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { nameFontSize: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (auto)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Color del Nombre */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#701a75', minWidth: '45px' }}>Color:</span>
+                          <input
+                            type="color"
+                            value={style.nameColor || '#ffffff'}
+                            onChange={(e) => updateSectionStyle(sec.id, { nameColor: e.target.value })}
+                            style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #c084fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                            title="Color del nombre del evento"
+                          />
+                          <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                            {[
+                              { color: '#ffffff', title: 'Blanco' },
+                              { color: '#c5a028', title: 'Dorado' },
+                              { color: '#f43f5e', title: 'Rosa' },
+                              { color: '#a855f7', title: 'Púrpura' },
+                              { color: '#38bdf8', title: 'Celeste' },
+                              { color: '#0f172a', title: 'Oscuro' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { nameColor: c.color })}
+                                title={c.title}
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '3px',
+                                  background: c.color,
+                                  border: style.nameColor === c.color ? '2px solid #86198f' : '1px solid #cbd5e1',
+                                  cursor: 'pointer',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {style.nameColor && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { nameColor: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (auto)
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Presets Tamaño del Nombre */}
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '0.1rem' }}>
+                          {[
+                            { label: 'Chico (24px)', val: 24 },
+                            { label: 'Normal (36px)', val: 36 },
+                            { label: 'Grande (54px)', val: 54 },
+                            { label: 'Gigante (80px)', val: 80 },
+                            { label: 'Extra (130px)', val: 130 },
+                            { label: 'Máx (200px)', val: 200 },
+                          ].map((b) => (
+                            <button
+                              key={b.val}
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { nameFontSize: b.val })}
+                              style={{
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '0.25rem',
+                                border: '1px solid',
+                                borderColor: style.nameFontSize === b.val ? '#86198f' : '#f0abfc',
+                                background: style.nameFontSize === b.val ? '#86198f' : '#ffffff',
+                                color: style.nameFontSize === b.val ? '#ffffff' : '#701a75',
+                                fontSize: '0.65rem',
+                                fontWeight: style.nameFontSize === b.val ? 700 : 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {b.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Slider Tamaño del Nombre */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <input
+                            type="range"
+                            min="12"
+                            max="200"
+                            step="1"
+                            value={typeof style.nameFontSize === 'number' ? style.nameFontSize : 48}
+                            onChange={(e) => updateSectionStyle(sec.id, { nameFontSize: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: '#86198f', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            {style.nameFontSize ? `${style.nameFontSize}px` : '48px'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 2. Título Público (ej: Mis 15 años) */}
+                      <div style={{ background: '#faf5ff', padding: '0.6rem', borderRadius: '0.45rem', border: '1px solid #d8b4fe', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#6b21a8' }}>
+                            🏷️ Título Público (ej: Mis 15 años)
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#7e22ce' }}>
+                              {style.titleFontSize ? `${style.titleFontSize}px` : 'Auto'}
+                            </span>
+                            {style.titleFontSize !== undefined && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { titleFontSize: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (auto)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Color del Título Público */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#581c87', minWidth: '45px' }}>Color:</span>
+                          <input
+                            type="color"
+                            value={style.titleColor || '#c5a028'}
+                            onChange={(e) => updateSectionStyle(sec.id, { titleColor: e.target.value })}
+                            style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #c084fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                            title="Color del título público"
+                          />
+                          <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                            {[
+                              { color: '#c5a028', title: 'Dorado' },
+                              { color: '#ffffff', title: 'Blanco' },
+                              { color: '#f43f5e', title: 'Rosa' },
+                              { color: '#a855f7', title: 'Púrpura' },
+                              { color: '#38bdf8', title: 'Celeste' },
+                              { color: '#0f172a', title: 'Oscuro' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { titleColor: c.color })}
+                                title={c.title}
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '3px',
+                                  background: c.color,
+                                  border: style.titleColor === c.color ? '2px solid #7e22ce' : '1px solid #cbd5e1',
+                                  cursor: 'pointer',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {style.titleColor && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { titleColor: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (auto)
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Presets Tamaño del Título Público */}
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '0.1rem' }}>
+                          {[
+                            { label: 'Chico (16px)', val: 16 },
+                            { label: 'Normal (22px)', val: 22 },
+                            { label: 'Grande (32px)', val: 32 },
+                            { label: 'Extra (48px)', val: 48 },
+                            { label: 'Gigante (70px)', val: 70 },
+                            { label: 'Máx (200px)', val: 200 },
+                          ].map((b) => (
+                            <button
+                              key={b.val}
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { titleFontSize: b.val })}
+                              style={{
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '0.25rem',
+                                border: '1px solid',
+                                borderColor: style.titleFontSize === b.val ? '#7e22ce' : '#d8b4fe',
+                                background: style.titleFontSize === b.val ? '#7e22ce' : '#ffffff',
+                                color: style.titleFontSize === b.val ? '#ffffff' : '#6b21a8',
+                                fontSize: '0.65rem',
+                                fontWeight: style.titleFontSize === b.val ? 700 : 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {b.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Slider Tamaño del Título Público */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <input
+                            type="range"
+                            min="12"
+                            max="200"
+                            step="1"
+                            value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 22}
+                            onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, accentColor: '#7e22ce', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            {style.titleFontSize ? `${style.titleFontSize}px` : '22px'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 3. Subtítulo / Texto de Portada */}
+                      <div style={{ background: '#f8fafc', padding: '0.6rem', borderRadius: '0.45rem', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155' }}>
+                            📝 Subtítulo / Texto de Portada
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569' }}>
+                              {style.bodyFontSize ? `${style.bodyFontSize}px` : 'Auto'}
+                            </span>
+                            {style.bodyFontSize !== undefined && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { bodyFontSize: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#475569', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (auto)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Color del Subtítulo */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#475569', minWidth: '45px' }}>Color:</span>
+                          <input
+                            type="color"
+                            value={style.textColor || '#cbd5e1'}
+                            onChange={(e) => updateSectionStyle(sec.id, { textColor: e.target.value })}
+                            style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #cbd5e1', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                            title="Color del subtítulo"
+                          />
+                          <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                            {[
+                              { color: '#ffffff', title: 'Blanco' },
+                              { color: '#cbd5e1', title: 'Gris Claro' },
+                              { color: '#c5a028', title: 'Dorado' },
+                              { color: '#fef08a', title: 'Crema' },
+                              { color: '#0f172a', title: 'Oscuro' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { textColor: c.color })}
+                                title={c.title}
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '3px',
+                                  background: c.color,
+                                  border: style.textColor === c.color ? '2px solid #334155' : '1px solid #cbd5e1',
+                                  cursor: 'pointer',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          {style.textColor && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { textColor: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#475569', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (auto)
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Presets Tamaño del Subtítulo */}
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '0.1rem' }}>
+                          {[
+                            { label: 'Chico (14px)', val: 14 },
+                            { label: 'Normal (18px)', val: 18 },
+                            { label: 'Grande (26px)', val: 26 },
+                            { label: 'Extra (42px)', val: 42 },
+                            { label: 'Gigante (70px)', val: 70 },
+                            { label: 'Máx (200px)', val: 200 },
+                          ].map((b) => (
+                            <button
+                              key={b.val}
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { bodyFontSize: b.val })}
+                              style={{
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '0.25rem',
+                                border: '1px solid',
+                                borderColor: style.bodyFontSize === b.val ? '#334155' : '#cbd5e1',
+                                background: style.bodyFontSize === b.val ? '#334155' : '#ffffff',
+                                color: style.bodyFontSize === b.val ? '#ffffff' : '#334155',
+                                fontSize: '0.65rem',
+                                fontWeight: style.bodyFontSize === b.val ? 700 : 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {b.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Slider Tamaño del Subtítulo */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <input
+                            type="range"
+                            min="10"
+                            max="200"
+                            step="1"
+                            value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 17}
+                            onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, accentColor: '#475569', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: '#334155', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            {style.bodyFontSize ? `${style.bodyFontSize}px` : '17px'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selector de Colores de Textos Internos de esta Tarjeta */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.5rem', background: '#faf5ff', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #d8b4fe' }}>
+                        {/* Color de Títulos */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b21a8' }}>
+                              🎨 Color de Títulos
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.titleColor || '#6b21a8' }}>
+                                {style.titleColor || 'Auto'}
+                              </span>
+                              {style.titleColor && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { titleColor: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (auto)
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <input
+                              type="color"
+                              value={style.titleColor || '#ffffff'}
+                              onChange={(e) => updateSectionStyle(sec.id, { titleColor: e.target.value })}
+                              style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #c084fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                              title="Elegir color personalizado de títulos"
+                            />
+                            <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                              {[
+                                { color: '#ffffff', title: 'Blanco' },
+                                { color: '#c5a028', title: 'Dorado' },
+                                { color: '#f43f5e', title: 'Rosa' },
+                                { color: '#a855f7', title: 'Púrpura' },
+                                { color: '#38bdf8', title: 'Celeste' },
+                                { color: '#0f172a', title: 'Oscuro' },
+                              ].map((c) => (
+                                <button
+                                  key={c.color}
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { titleColor: c.color })}
+                                  title={c.title}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '3px',
+                                    background: c.color,
+                                    border: style.titleColor === c.color ? '2px solid #9333ea' : '1px solid #cbd5e1',
+                                    cursor: 'pointer',
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Color de Textos / Cuerpo */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b21a8' }}>
+                              🎨 Color de Textos / Cuerpo
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.textColor || '#6b21a8' }}>
+                                {style.textColor || 'Auto'}
+                              </span>
+                              {style.textColor && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { textColor: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (auto)
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <input
+                              type="color"
+                              value={style.textColor || '#ffffff'}
+                              onChange={(e) => updateSectionStyle(sec.id, { textColor: e.target.value })}
+                              style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #c084fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                              title="Elegir color personalizado de textos"
+                            />
+                            <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                              {[
+                                { color: '#ffffff', title: 'Blanco' },
+                                { color: '#c5a028', title: 'Dorado' },
+                                { color: '#fef08a', title: 'Crema' },
+                                { color: '#cbd5e1', title: 'Gris Claro' },
+                                { color: '#f472b6', title: 'Rosa Pastel' },
+                                { color: '#0f172a', title: 'Oscuro' },
+                              ].map((c) => (
+                                <button
+                                  key={c.color}
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { textColor: c.color })}
+                                  title={c.title}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '3px',
+                                    background: c.color,
+                                    border: style.textColor === c.color ? '2px solid #9333ea' : '1px solid #cbd5e1',
+                                    cursor: 'pointer',
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Tamaños de Tipografía (Títulos y Cuerpo) */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.5rem', background: '#ffffff', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #e9d5ff' }}>
+                        {/* Control Tamaño de Títulos - Máximo 200px */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b21a8' }}>
+                              🔠 Tamaño de Títulos (hasta 200px)
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#7e22ce' }}>
+                                {style.titleFontSize ? `${style.titleFontSize}px` : 'Por defecto'}
+                              </span>
+                              {style.titleFontSize !== undefined && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { titleFontSize: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (auto)
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                            {[
+                              { label: 'Chico (22px)', val: 22 },
+                              { label: 'Normal (32px)', val: 32 },
+                              { label: 'Grande (50px)', val: 50 },
+                              { label: 'Gigante (80px)', val: 80 },
+                              { label: 'Extra (130px)', val: 130 },
+                              { label: 'Máx (200px)', val: 200 },
+                            ].map((b) => (
+                              <button
+                                key={b.val}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { titleFontSize: b.val })}
+                                style={{
+                                  padding: '0.15rem 0.4rem',
+                                  borderRadius: '0.25rem',
+                                  border: '1px solid',
+                                  borderColor: style.titleFontSize === b.val ? '#9333ea' : '#d8b4fe',
+                                  background: style.titleFontSize === b.val ? '#9333ea' : '#faf5ff',
+                                  color: style.titleFontSize === b.val ? '#ffffff' : '#7e22ce',
+                                  fontSize: '0.65rem',
+                                  fontWeight: style.titleFontSize === b.val ? 700 : 500,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {b.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                            <input
+                              type="range"
+                              min="12"
+                              max="200"
+                              step="1"
+                              value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 32}
+                              onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
+                              style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                            />
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                              {style.titleFontSize ? `${style.titleFontSize}px` : '32px'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Control Tamaño de Textos / Cuerpo - Máximo 200px */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6b21a8' }}>
+                              📝 Tamaño de Texto / Cuerpo (hasta 200px)
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#7e22ce' }}>
+                                {style.bodyFontSize ? `${style.bodyFontSize}px` : 'Por defecto'}
+                              </span>
+                              {style.bodyFontSize !== undefined && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { bodyFontSize: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (auto)
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                            {[
+                              { label: 'Chico (14px)', val: 14 },
+                              { label: 'Normal (18px)', val: 18 },
+                              { label: 'Grande (28px)', val: 28 },
+                              { label: 'Extra (48px)', val: 48 },
+                              { label: 'Gigante (90px)', val: 90 },
+                              { label: 'Máx (200px)', val: 200 },
+                            ].map((b) => (
+                              <button
+                                key={b.val}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { bodyFontSize: b.val })}
+                                style={{
+                                  padding: '0.15rem 0.4rem',
+                                  borderRadius: '0.25rem',
+                                  border: '1px solid',
+                                  borderColor: style.bodyFontSize === b.val ? '#9333ea' : '#d8b4fe',
+                                  background: style.bodyFontSize === b.val ? '#9333ea' : '#faf5ff',
+                                  color: style.bodyFontSize === b.val ? '#ffffff' : '#7e22ce',
+                                  fontSize: '0.65rem',
+                                  fontWeight: style.bodyFontSize === b.val ? 700 : 500,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {b.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                            <input
+                              type="range"
+                              min="10"
+                              max="200"
+                              step="1"
+                              value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 15}
+                              onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
+                              style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                            />
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                              {style.bodyFontSize ? `${style.bodyFontSize}px` : '15px'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* 3. Separación Vertical y Lateral entre Textos */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.5rem', background: '#f8fafc', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                    {/* Control Separación Vertical */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
+                          ↕️ Separación Vertical entre Textos
+                        </span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#2563eb' }}>
+                          {style.verticalGap !== undefined ? `${style.verticalGap}px` : 'Normal'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {[
+                          { label: 'Junto (4px)', val: 4 },
+                          { label: 'Normal (12px)', val: 12 },
+                          { label: 'Holgado (22px)', val: 22 },
+                          { label: 'Amplio (32px)', val: 32 },
+                        ].map((b) => (
+                          <button
+                            key={b.val}
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { verticalGap: b.val })}
+                            style={{
+                              padding: '0.15rem 0.4rem',
+                              borderRadius: '0.25rem',
+                              border: '1px solid',
+                              borderColor: style.verticalGap === b.val ? '#2563eb' : '#cbd5e1',
+                              background: style.verticalGap === b.val ? '#2563eb' : '#ffffff',
+                              color: style.verticalGap === b.val ? '#ffffff' : '#334155',
+                              fontSize: '0.65rem',
+                              fontWeight: style.verticalGap === b.val ? 700 : 500,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {b.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <input
+                          type="range"
+                          min="0"
+                          max="40"
+                          step="2"
+                          value={style.verticalGap ?? 12}
+                          onChange={(e) => updateSectionStyle(sec.id, { verticalGap: parseInt(e.target.value, 10) })}
+                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Control Separación entre Palabras (word-spacing) */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
+                          ↔️ Separación entre Palabras
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#16a34a' }}>
+                            {style.wordSpacing !== undefined ? `${style.wordSpacing}px` : '0px'}
+                          </span>
+                          {style.wordSpacing !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { wordSpacing: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#16a34a', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (auto)
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {[
+                          { label: 'Normal (0px)', val: 0 },
+                          { label: 'Fino (4px)', val: 4 },
+                          { label: 'Medio (8px)', val: 8 },
+                          { label: 'Amplio (16px)', val: 16 },
+                        ].map((b) => (
+                          <button
+                            key={b.val}
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { wordSpacing: b.val })}
+                            style={{
+                              padding: '0.15rem 0.4rem',
+                              borderRadius: '0.25rem',
+                              border: '1px solid',
+                              borderColor: style.wordSpacing === b.val ? '#16a34a' : '#cbd5e1',
+                              background: style.wordSpacing === b.val ? '#16a34a' : '#ffffff',
+                              color: style.wordSpacing === b.val ? '#ffffff' : '#334155',
+                              fontSize: '0.65rem',
+                              fontWeight: style.wordSpacing === b.val ? 700 : 500,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {b.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <input
+                          type="range"
+                          min="-2"
+                          max="40"
+                          step="1"
+                          value={style.wordSpacing ?? 0}
+                          onChange={(e) => updateSectionStyle(sec.id, { wordSpacing: parseInt(e.target.value, 10) })}
+                          style={{ flex: 1, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Posición Vertical del Título (Acomodar en altura) */}
+                  <div style={{ background: '#f8fafc', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
+                        ↕️ Altura / Posición Vertical del Título
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: style.titleOffsetY ? '#2563eb' : '#64748b' }}>
+                          {style.titleOffsetY !== undefined ? (style.titleOffsetY === 0 ? 'Centrado (0px)' : `${style.titleOffsetY > 0 ? `+${style.titleOffsetY}` : style.titleOffsetY}px`) : 'Normal (0px)'}
+                        </span>
+                        {style.titleOffsetY !== undefined && (
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { titleOffsetY: undefined })}
+                            style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                          >
+                            (centrar)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Presets rápidos de altura */}
+                    <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                      {[
+                        { label: 'Arriba (-60px)', val: -60 },
+                        { label: 'Arriba (-30px)', val: -30 },
+                        { label: 'Normal (0px)', val: 0 },
+                        { label: 'Abajo (+30px)', val: 30 },
+                        { label: 'Abajo (+60px)', val: 60 },
+                        { label: 'Abajo (+100px)', val: 100 },
+                      ].map((b) => (
+                        <button
+                          key={b.val}
+                          type="button"
+                          onClick={() => updateSectionStyle(sec.id, { titleOffsetY: b.val })}
+                          style={{
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '0.25rem',
+                            border: '1px solid',
+                            borderColor: style.titleOffsetY === b.val ? '#2563eb' : '#cbd5e1',
+                            background: style.titleOffsetY === b.val ? '#2563eb' : '#ffffff',
+                            color: style.titleOffsetY === b.val ? '#ffffff' : '#334155',
+                            fontSize: '0.65rem',
+                            fontWeight: style.titleOffsetY === b.val ? 700 : 500,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Slider continuo de altura */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>-150px</span>
+                      <input
+                        type="range"
+                        min="-150"
+                        max="150"
+                        step="2"
+                        value={style.titleOffsetY ?? 0}
+                        onChange={(e) => updateSectionStyle(sec.id, { titleOffsetY: parseInt(e.target.value, 10) })}
+                        style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                      />
+                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>+150px</span>
+                    </div>
+                  </div>
+
+                  {/* 5. Control de Alineación de Texto */}
+                  <div style={{ background: '#f8fafc', padding: '0.45rem 0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
+                      ↔️ Alineación de Texto
+                    </span>
+                    <div style={{ display: 'flex', gap: '0.2rem' }}>
+                      {[
+                        { label: 'Izquierda', value: 'left' as const },
+                        { label: 'Centro (default)', value: 'center' as const },
+                        { label: 'Derecha', value: 'right' as const },
+                      ].map((align) => {
+                        const isCurrent = (style.textAlign || 'center') === align.value;
+                        return (
+                          <button
+                            key={align.value}
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { textAlign: align.value === 'center' ? undefined : align.value })}
+                            style={{
+                              padding: '0.18rem 0.45rem',
+                              borderRadius: '0.25rem',
+                              border: '1px solid',
+                              borderColor: isCurrent ? '#2563eb' : '#cbd5e1',
+                              background: isCurrent ? '#eff6ff' : '#ffffff',
+                              color: isCurrent ? '#1d4ed8' : '#475569',
+                              fontSize: '0.68rem',
+                              fontWeight: isCurrent ? 700 : 500,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {align.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Opciones especiales para Cuenta Regresiva */}
+                  {sec.id === 'countdown' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#fdf4ff', padding: '0.6rem', borderRadius: '0.4rem', border: '1px solid #f0abfc' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#86198f' }}>
+                        ⏳ Ajustes de Cuenta Regresiva
+                      </span>
+
+                      {/* Quitar recuadros de fondo */}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.75rem', fontWeight: 600, color: '#701a75', cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(style.countdownNoBoxes)}
+                          onChange={(e) => updateSectionStyle(sec.id, { countdownNoBoxes: e.target.checked })}
+                          style={{ accentColor: '#a21caf', cursor: 'pointer' }}
+                        />
+                        Quitar cuadros de fondo de los números (sin recuadros)
+                      </label>
+
+                      {/* Color de los números de la cuenta regresiva */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#701a75' }}>
+                            🎨 Color de Números
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.countdownNumberColor || '#701a75' }}>
+                              {style.countdownNumberColor || 'Auto'}
+                            </span>
+                            {style.countdownNumberColor && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { countdownNumberColor: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (auto)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <input
+                            type="color"
+                            value={style.countdownNumberColor || '#ffffff'}
+                            onChange={(e) => updateSectionStyle(sec.id, { countdownNumberColor: e.target.value })}
+                            style={{ width: '28px', height: '24px', padding: 0, border: '1px solid #f0abfc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                            title="Color personalizado de los números de la cuenta regresiva"
+                          />
+                          <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                            {[
+                              { color: '#ffffff', title: 'Blanco' },
+                              { color: '#c5a028', title: 'Dorado' },
+                              { color: '#f43f5e', title: 'Rosa' },
+                              { color: '#a855f7', title: 'Púrpura' },
+                              { color: '#38bdf8', title: 'Celeste' },
+                              { color: '#0f172a', title: 'Oscuro' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { countdownNumberColor: c.color })}
+                                title={c.title}
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '3px',
+                                  background: c.color,
+                                  border: style.countdownNumberColor === c.color ? '2px solid #86198f' : '1px solid #cbd5e1',
+                                  cursor: 'pointer',
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tamaño de los números de la cuenta regresiva */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.2rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#701a75' }}>
+                            🔢 Tamaño de Números
+                          </span>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#a21caf' }}>
+                            {style.countdownNumberSize ? `${style.countdownNumberSize}px` : 'Normal (32px)'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                          {[
+                            { label: 'Normal (36px)', val: 36 },
+                            { label: 'Grande (54px)', val: 54 },
+                            { label: 'Muy Grande (84px)', val: 84 },
+                            { label: 'Gigante (130px)', val: 130 },
+                            { label: 'Máx (200px)', val: 200 },
+                          ].map((b) => (
+                            <button
+                              key={b.val}
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { countdownNumberSize: b.val })}
+                              style={{
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '0.25rem',
+                                border: '1px solid',
+                                borderColor: style.countdownNumberSize === b.val ? '#a21caf' : '#f0abfc',
+                                background: style.countdownNumberSize === b.val ? '#a21caf' : '#ffffff',
+                                color: style.countdownNumberSize === b.val ? '#ffffff' : '#701a75',
+                                fontSize: '0.65rem',
+                                fontWeight: style.countdownNumberSize === b.val ? 700 : 500,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {b.label}
+                            </button>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <input
+                            type="range"
+                            min="20"
+                            max="200"
+                            step="2"
+                            value={style.countdownNumberSize ?? 32}
+                            onChange={(e) => updateSectionStyle(sec.id, { countdownNumberSize: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: '#a21caf', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            {style.countdownNumberSize ? `${style.countdownNumberSize}px` : '32px'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. Preview en vivo de la tipografía, colores y tamaños configurados */}
+                  {(style.sectionFont || style.sectionBodyFont || style.titleFontSize || style.bodyFontSize || style.verticalGap !== undefined || style.wordSpacing !== undefined || style.titleColor || style.textColor || style.nameFontSize || style.nameColor || style.titleOffsetY !== undefined || style.countdownNumberColor) && (
+                    <div
+                      style={{
+                        padding: '0.55rem 0.75rem',
+                        background: '#ffffff',
+                        border: '1px solid #d8b4fe',
+                        borderRadius: '0.4rem',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: `${style.verticalGap ?? 8}px`,
+                      }}
+                    >
+                      {sec.id === 'hero' ? (
+                        <>
+                          <div
+                            style={{
+                              fontFamily: style.sectionBodyFont,
+                              fontSize: style.titleFontSize ? `${style.titleFontSize}px` : '1.25rem',
+                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
+                              color: style.titleColor || '#d97706',
+                              fontWeight: 600,
+                              lineHeight: 1.15,
+                            }}
+                          >
+                            Mis 15 años (Título Público)
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: style.sectionFont,
+                              fontSize: style.nameFontSize ? `${style.nameFontSize}px` : '2.3rem',
+                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
+                              color: style.nameColor || '#9333ea',
+                              fontWeight: 700,
+                              lineHeight: 1.15,
+                            }}
+                          >
+                            {eventName || 'Bianca'} (Nombre Interno)
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: style.sectionBodyFont,
+                              fontSize: style.bodyFontSize ? `${style.bodyFontSize}px` : '0.85rem',
+                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
+                              color: style.textColor || '#475569',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            Te espero para compartir una noche inolvidable (Subtítulo)
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div
+                            style={{
+                              fontFamily: style.sectionFont,
+                              fontSize: style.titleFontSize ? `${style.titleFontSize}px` : '1.3rem',
+                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
+                              color: style.titleColor || '#1e293b',
+                              fontWeight: 500,
+                              lineHeight: 1.15,
+                            }}
+                          >
+                            {sec.label}
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: style.sectionBodyFont,
+                              fontSize: style.bodyFontSize ? `${style.bodyFontSize}px` : '0.85rem',
+                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
+                              color: style.textColor || '#475569',
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            Texto de ejemplo con tamaño, colores y separación personalizados para esta tarjeta.
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 5. URLs externas personalizadas para esta sección */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.68rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.15rem' }}>
+                        URL externa de fuente para títulos (opcional):
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://fonts.googleapis.com/css2?family=...&display=swap"
+                        value={style.sectionFontUrl || ''}
+                        onChange={(e) => updateSectionStyle(sec.id, { sectionFontUrl: e.target.value || undefined })}
+                        style={{
+                          width: '100%',
+                          padding: '0.35rem 0.5rem',
+                          border: `1px solid ${style.sectionFontUrl ? '#d8b4fe' : '#cbd5e1'}`,
+                          borderRadius: '0.3rem',
+                          fontSize: '0.72rem',
+                          boxSizing: 'border-box',
+                          background: '#ffffff',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.68rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.15rem' }}>
+                        URL externa de fuente para texto (opcional):
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://fonts.googleapis.com/css2?family=...&display=swap"
+                        value={style.sectionBodyFontUrl || ''}
+                        onChange={(e) => updateSectionStyle(sec.id, { sectionBodyFontUrl: e.target.value || undefined })}
+                        style={{
+                          width: '100%',
+                          padding: '0.35rem 0.5rem',
+                          border: `1px solid ${style.sectionBodyFontUrl ? '#d8b4fe' : '#cbd5e1'}`,
+                          borderRadius: '0.3rem',
+                          fontSize: '0.72rem',
+                          boxSizing: 'border-box',
+                          background: '#ffffff',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
               </div>
             );
           })}
@@ -1311,6 +3491,7 @@ export function DesignTab({
                   imageHeight: undefined,
                   cardWidth: undefined,
                   backgroundSize: undefined,
+                  backgroundSizeMobile: undefined,
                 });
               } else {
                 updateSectionStyle(secId, {
@@ -1334,6 +3515,18 @@ export function DesignTab({
                 ...prev,
                 layout: { ...(prev.layout || {}), generalBackgroundUrl: url || undefined },
               }));
+            } else if (activePicker.type === 'sidebars') {
+              setDesignConfig((prev) => ({
+                ...prev,
+                layout: {
+                  ...(prev.layout || {}),
+                  desktopSidebars: {
+                    ...(prev.layout?.desktopSidebars || {}),
+                    backgroundImageUrl: url || undefined,
+                    style: 'image',
+                  },
+                },
+              }));
             }
             setActivePicker(null);
           }}
@@ -1342,19 +3535,23 @@ export function DesignTab({
             activePicker.type === 'section' && activePicker.sectionId
               ? getSectionStyle(activePicker.sectionId).backgroundImage || ''
               : activePicker.type === 'fluid'
-              ? designConfig.layout?.fluidBackgroundUrl || ''
-              : activePicker.type === 'continuous'
-              ? designConfig.layout?.continuousBackgroundUrl || ''
-              : designConfig.layout?.generalBackgroundUrl || ''
+                ? designConfig.layout?.fluidBackgroundUrl || ''
+                : activePicker.type === 'continuous'
+                  ? designConfig.layout?.continuousBackgroundUrl || ''
+                  : activePicker.type === 'sidebars'
+                    ? designConfig.layout?.desktopSidebars?.backgroundImageUrl || ''
+                    : designConfig.layout?.generalBackgroundUrl || ''
           }
           title={
             activePicker.type === 'section' && activePicker.sectionId
               ? `Fondo de sección: ${SECTIONS_LIST.find((s) => s.id === activePicker.sectionId)?.label || activePicker.sectionId}`
               : activePicker.type === 'fluid'
-              ? 'Fondo para Modo Fluido'
-              : activePicker.type === 'continuous'
-              ? 'Fondo Continuo (Modo Fijo)'
-              : 'Fondo General del Evento'
+                ? 'Fondo para Modo Fluido'
+                : activePicker.type === 'continuous'
+                  ? 'Fondo Continuo (Modo Fijo)'
+                  : activePicker.type === 'sidebars'
+                    ? 'Imagen para Bandas Laterales en Desktop'
+                    : 'Fondo General del Evento'
           }
           purpose="background"
         />

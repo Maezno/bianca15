@@ -9,6 +9,9 @@ interface CountdownTimerProps {
   textColor?: string;
   cardBg?: string;
   borderStyle?: string;
+  noBoxes?: boolean;
+  numberSize?: number;
+  numberColor?: string;
 }
 
 interface TimeRemaining {
@@ -26,6 +29,9 @@ export function CountdownTimer({
   textColor = '#0f172a',
   cardBg = 'rgba(255, 255, 255, 0.05)',
   borderStyle = '1px solid rgba(255, 255, 255, 0.1)',
+  noBoxes = false,
+  numberSize,
+  numberColor,
 }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeRemaining | null>(null);
 
@@ -75,7 +81,7 @@ export function CountdownTimer({
           fontSize: '1.1rem',
         }}
       >
-        ✨ ¡Llegó el gran día! 🎉
+        ¡Llegó el gran día!
       </div>
     );
   }
@@ -104,20 +110,20 @@ export function CountdownTimer({
         <div
           key={unit.label}
           style={{
-            background: cardBg,
-            border: borderStyle,
+            background: noBoxes ? 'transparent' : cardBg,
+            border: noBoxes ? 'none' : borderStyle,
             borderRadius: '0.75rem',
-            padding: '0.75rem 0.25rem',
+            padding: noBoxes ? '0.4rem 0.15rem' : '0.75rem 0.25rem',
             textAlign: 'center',
-            backdropFilter: 'blur(4px)',
+            backdropFilter: noBoxes ? 'none' : 'blur(4px)',
             transition: 'transform 0.2s ease',
           }}
         >
           <div
             style={{
-              fontSize: 'clamp(1.4rem, 4vw, 2rem)',
+              fontSize: numberSize ? `${numberSize}px` : 'clamp(1.4rem, 4vw, 2rem)',
               fontWeight: 800,
-              color: primaryColor,
+              color: numberColor || primaryColor,
               fontVariantNumeric: 'tabular-nums',
               lineHeight: 1.1,
             }}
@@ -125,6 +131,7 @@ export function CountdownTimer({
             {String(unit.value).padStart(2, '0')}
           </div>
           <div
+            data-body="true"
             style={{
               fontSize: '0.65rem',
               letterSpacing: '0.1em',

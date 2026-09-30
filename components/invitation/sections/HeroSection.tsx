@@ -2,6 +2,26 @@ import React from 'react';
 import type { SectionBaseProps } from './types';
 
 export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['hero'];
+
+  // Título Público (ej: "Mis 15 años")
+  const publicTitleColor = sectionStyle?.titleColor || theme.colors.primary;
+  const publicTitleSize = sectionStyle?.titleFontSize
+    ? (typeof sectionStyle.titleFontSize === 'number' ? `${sectionStyle.titleFontSize}px` : sectionStyle.titleFontSize)
+    : undefined;
+
+  // Nombre del Evento (ej: "Bianca")
+  const nameColor = sectionStyle?.nameColor || sectionStyle?.titleColor || theme.colors.text;
+  const nameSize = sectionStyle?.nameFontSize
+    ? (typeof sectionStyle.nameFontSize === 'number' ? `${sectionStyle.nameFontSize}px` : sectionStyle.nameFontSize)
+    : undefined;
+
+  // Subtítulo
+  const subtitleColor = sectionStyle?.textColor || theme.colors.textMuted;
+  const subtitleSize = sectionStyle?.bodyFontSize
+    ? (typeof sectionStyle.bodyFontSize === 'number' ? `${sectionStyle.bodyFontSize}px` : sectionStyle.bodyFontSize)
+    : undefined;
+
   return (
     <header
       style={{
@@ -33,7 +53,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
             marginBottom: '1rem',
           }}
         >
-          <span>💌</span> Invitación para <strong>{guestGroup.name}</strong>
+          Invitación para <strong>{guestGroup.name}</strong>
         </div>
       )}
 
@@ -68,38 +88,57 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
         </div>
       )}
 
+      {/* Contenedor de Título Público y Nombre con soporte de desplazamiento vertical (titleOffsetY) */}
       <div
+        data-heading-container="true"
         style={{
-          fontSize: '0.85rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.25em',
-          color: theme.colors.primary,
-          fontWeight: 700,
-          marginBottom: '0.75rem',
+          transform: sectionStyle?.titleOffsetY !== undefined ? `translateY(${sectionStyle.titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          textAlign: 'center',
+          width: '100%',
         }}
       >
-        {event.title}
-      </div>
+        {/* Título Público */}
+        <div
+          data-public-title="true"
+          style={{
+            fontSize: publicTitleSize || '0.85rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.25em',
+            color: publicTitleColor,
+            fontWeight: 600,
+            marginBottom: '0.75rem',
+            textAlign: 'center',
+          }}
+        >
+          {event.title}
+        </div>
 
-      <h1
-        style={{
-          fontFamily: theme.typography.headingFont,
-          fontSize: 'clamp(2.4rem, 8vw, 3.8rem)',
-          margin: '0.25rem 0 0.85rem 0',
-          color: theme.colors.text,
-          fontWeight: 800,
-          letterSpacing: '-0.02em',
-          lineHeight: 1.15,
-        }}
-      >
-        {event.name}
-      </h1>
+        {/* Nombre del Evento */}
+        <h1
+          data-event-name="true"
+          style={{
+            fontFamily: theme.typography.headingFont,
+            fontSize: nameSize || 'clamp(2.4rem, 8vw, 3.8rem)',
+            margin: '0.25rem 0 0.85rem 0',
+            color: nameColor,
+            fontWeight: 400,
+            WebkitTextStroke: '0px',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.15,
+            textAlign: 'center',
+          }}
+        >
+          {event.name}
+        </h1>
+      </div>
 
       {event.subtitle && (
         <p
+          data-body="true"
           style={{
-            color: theme.colors.textMuted,
-            fontSize: '1.05rem',
+            color: subtitleColor,
+            fontSize: subtitleSize || '1.05rem',
             margin: '0 0 1rem 0',
             fontStyle: 'italic',
             lineHeight: 1.5,

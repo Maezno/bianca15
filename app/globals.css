@@ -1,5 +1,240 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Alice in Wonderland';
+  src: url('/fonts/Alice_in_Wonderland_3.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* ── Reset de márgenes y paddings globales ───────────────────────────────── */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ── Tarjetas de sección de la invitación ────────────────────────────────── */
+/* En modo desktop el ancho de las tarjetas es de 1000px y puede salirse de la pantalla */
+.invitation-card-item {
+  width: 1000px;
+  max-width: 1000px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+  background-size: var(--bg-size-desktop, cover);
+  font-family: var(--card-body-font, inherit);
+  text-align: center;
+}
+
+.invitation-card-item section,
+.invitation-card-item header,
+.invitation-card-item footer,
+.invitation-card-item h1,
+.invitation-card-item h2,
+.invitation-card-item h3,
+.invitation-card-item h4,
+.invitation-card-item p,
+.invitation-card-item [data-heading="true"],
+.invitation-card-item [data-body="true"],
+.invitation-card-item [data-badge="true"],
+.invitation-card-item [data-heading-container="true"] {
+  text-align: center;
+}
+
+.invitation-card-item h1,
+.invitation-card-item h2,
+.invitation-card-item h3,
+.invitation-card-item h4,
+.invitation-card-item [data-heading="true"],
+.invitation-card-item .card-heading,
+.invitation-card-item strong:first-child {
+  font-family: var(--card-heading-font, inherit);
+  font-weight: 500;
+  -webkit-text-stroke: 0 !important;
+  text-rendering: optimizeLegibility;
+}
+
+/* Color personalizado de títulos */
+.invitation-card-item.has-custom-heading-color h1,
+.invitation-card-item.has-custom-heading-color h2,
+.invitation-card-item.has-custom-heading-color h3,
+.invitation-card-item.has-custom-heading-color h4,
+.invitation-card-item.has-custom-heading-color [data-heading="true"],
+.invitation-card-item.has-custom-heading-color .card-heading,
+.invitation-card-item[style*="--card-heading-color"] h1,
+.invitation-card-item[style*="--card-heading-color"] h2,
+.invitation-card-item[style*="--card-heading-color"] h3,
+.invitation-card-item[style*="--card-heading-color"] h4,
+.invitation-card-item[style*="--card-heading-color"] [data-heading="true"],
+.invitation-card-item[style*="--card-heading-color"] .card-heading {
+  color: var(--card-heading-color) !important;
+}
+
+/* Color personalizado de cuerpo / textos */
+.invitation-card-item.has-custom-body-color,
+.invitation-card-item.has-custom-body-color p,
+.invitation-card-item.has-custom-body-color span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]),
+.invitation-card-item.has-custom-body-color [data-body="true"],
+.invitation-card-item.has-custom-body-color .card-body,
+.invitation-card-item.has-custom-body-color label,
+.invitation-card-item[style*="--card-body-color"] p,
+.invitation-card-item[style*="--card-body-color"] span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]),
+.invitation-card-item[style*="--card-body-color"] [data-body="true"],
+.invitation-card-item[style*="--card-body-color"] .card-body,
+.invitation-card-item[style*="--card-body-color"] label {
+  color: var(--card-body-color) !important;
+}
+
+/* Tamaño de títulos personalizado por tarjeta */
+.invitation-card-item.has-custom-heading-size h1,
+.invitation-card-item.has-custom-heading-size h2,
+.invitation-card-item.has-custom-heading-size h3,
+.invitation-card-item.has-custom-heading-size h4,
+.invitation-card-item.has-custom-heading-size [data-heading="true"],
+.invitation-card-item.has-custom-heading-size .card-heading,
+.invitation-card-item.has-custom-heading-size strong:first-child:not([data-badge="true"]),
+.invitation-card-item[style*="--card-heading-size"] h1,
+.invitation-card-item[style*="--card-heading-size"] h2,
+.invitation-card-item[style*="--card-heading-size"] h3,
+.invitation-card-item[style*="--card-heading-size"] h4,
+.invitation-card-item[style*="--card-heading-size"] [data-heading="true"],
+.invitation-card-item[style*="--card-heading-size"] .card-heading,
+.invitation-card-item[style*="--card-heading-size"] strong:first-child:not([data-badge="true"]) {
+  font-size: var(--card-heading-size) !important;
+  line-height: 1.15 !important;
+}
+
+/* Posicionamiento vertical del título de cada tarjeta (altura personalizada) */
+.invitation-card-item.has-custom-title-offset h1,
+.invitation-card-item.has-custom-title-offset h2,
+.invitation-card-item.has-custom-title-offset h3,
+.invitation-card-item.has-custom-title-offset h4,
+.invitation-card-item.has-custom-title-offset [data-heading="true"],
+.invitation-card-item.has-custom-title-offset [data-public-title="true"],
+.invitation-card-item.has-custom-title-offset [data-event-name="true"],
+.invitation-card-item.has-custom-title-offset [data-badge="true"],
+.invitation-card-item.has-custom-title-offset [data-heading-container="true"],
+.invitation-card-item.has-custom-title-offset .card-heading,
+.invitation-card-item[style*="--card-title-offset-y"] h1,
+.invitation-card-item[style*="--card-title-offset-y"] h2,
+.invitation-card-item[style*="--card-title-offset-y"] h3,
+.invitation-card-item[style*="--card-title-offset-y"] h4,
+.invitation-card-item[style*="--card-title-offset-y"] [data-heading="true"],
+.invitation-card-item[style*="--card-title-offset-y"] [data-public-title="true"],
+.invitation-card-item[style*="--card-title-offset-y"] [data-event-name="true"],
+.invitation-card-item[style*="--card-title-offset-y"] [data-badge="true"],
+.invitation-card-item[style*="--card-title-offset-y"] [data-heading-container="true"],
+.invitation-card-item[style*="--card-title-offset-y"] .card-heading {
+  transform: translateY(var(--card-title-offset-y, 0px)) !important;
+  position: relative;
+  text-align: center;
+}
+
+/* Soporte específico e independiente para Título Público y Nombre del Evento */
+.invitation-card-item[style*="--card-public-title-size"] [data-public-title="true"] {
+  font-size: var(--card-public-title-size) !important;
+}
+.invitation-card-item[style*="--card-public-title-color"] [data-public-title="true"] {
+  color: var(--card-public-title-color) !important;
+}
+.invitation-card-item[style*="--card-name-size"] [data-event-name="true"] {
+  font-size: var(--card-name-size) !important;
+}
+.invitation-card-item[style*="--card-name-color"] [data-event-name="true"] {
+  color: var(--card-name-color) !important;
+}
+
+/* Tamaño de cuerpo / párrafos personalizado por tarjeta */
+.invitation-card-item.has-custom-body-size p,
+.invitation-card-item.has-custom-body-size .card-body,
+.invitation-card-item.has-custom-body-size [data-body="true"],
+.invitation-card-item.has-custom-body-size span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]),
+.invitation-card-item[style*="--card-body-size"] p,
+.invitation-card-item[style*="--card-body-size"] .card-body,
+.invitation-card-item[style*="--card-body-size"] [data-body="true"],
+.invitation-card-item[style*="--card-body-size"] span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]) {
+  font-size: var(--card-body-size) !important;
+  line-height: 1.35 !important;
+}
+
+/* Separación vertical entre textos (interlineado y márgenes de bloques) */
+.invitation-card-item[style*="--card-vertical-gap"] p {
+  line-height: calc(1.5 + (var(--card-vertical-gap, 0) / 30)) !important;
+  margin-top: calc(var(--card-vertical-gap, 0) * 0.4px) !important;
+  margin-bottom: calc(var(--card-vertical-gap, 0) * 0.4px) !important;
+}
+
+.invitation-card-item[style*="--card-vertical-gap"] h1,
+.invitation-card-item[style*="--card-vertical-gap"] h2,
+.invitation-card-item[style*="--card-vertical-gap"] h3,
+.invitation-card-item[style*="--card-vertical-gap"] strong:first-child {
+  margin-bottom: calc(var(--card-vertical-gap, 0) * 0.5px) !important;
+}
+
+/* Separación entre palabras (word-spacing) */
+.invitation-card-item[style*="--card-word-spacing"] p,
+.invitation-card-item[style*="--card-word-spacing"] span,
+.invitation-card-item[style*="--card-word-spacing"] h1,
+.invitation-card-item[style*="--card-word-spacing"] h2,
+.invitation-card-item[style*="--card-word-spacing"] h3,
+.invitation-card-item[style*="--card-word-spacing"] strong,
+.invitation-card-item[style*="--card-word-spacing"] div {
+  word-spacing: var(--card-word-spacing) !important;
+}
+
+/* En modo móvil se ajusta al ancho de la pantalla pegado perfectamente a los costados */
+@media (max-width: 768px) {
+  .invitation-card-item {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background-size: var(--bg-size-mobile, var(--bg-size-desktop, cover)) !important;
+  }
+}
+
+/* ── Bandas laterales para modo Desktop (Marco / Enfoque Móvil) ──────────── */
+.desktop-side-band {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .desktop-side-band {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 20;
+    pointer-events: none;
+    box-sizing: border-box;
+    transition: opacity 0.2s ease, backdrop-filter 0.2s ease;
+  }
+
+  .desktop-side-band-left {
+    left: 0;
+    width: calc(50% - (var(--central-width, 480px) / 2));
+  }
+
+  .desktop-side-band-right {
+    right: 0;
+    width: calc(50% - (var(--central-width, 480px) / 2));
+  }
+}
+
 /* ── Scrollbar utilities ─────────────────────────────────────────────────── */
 
 /* Oculta la barra de scroll visualmente pero mantiene la funcionalidad */

@@ -11,6 +11,7 @@ interface ShareSectionProps {
   cardBg?: string;
   borderColor?: string;
   textColor?: string;
+  titleOffsetY?: number;
 }
 
 export function ShareSection({
@@ -22,6 +23,7 @@ export function ShareSection({
   cardBg = 'rgba(255, 255, 255, 0.05)',
   borderColor = 'rgba(255, 255, 255, 0.1)',
   textColor = '#334155',
+  titleOffsetY,
 }: ShareSectionProps) {
   const [copied, setCopied] = useState(false);
 
@@ -77,10 +79,26 @@ export function ShareSection({
         boxSizing: 'border-box',
       }}
     >
-      <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 0.5rem 0', color: textColor }}>
-        Compartir Invitación
-      </h3>
-      <p style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor }}>
+      <div
+        data-heading-container="true"
+        style={{
+          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          textAlign: 'center',
+          width: '100%',
+        }}
+      >
+        <h3
+          data-heading="true"
+          style={{ fontSize: '1.15rem', fontWeight: 500, margin: '0 0 0.5rem 0', color: textColor, textAlign: 'center' }}
+        >
+          Compartir Invitación
+        </h3>
+      </div>
+      <p
+        data-body="true"
+        style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor, textAlign: 'center' }}
+      >
         Guardá o compartí este enlace con tu grupo familiar.
       </p>
 
@@ -104,7 +122,7 @@ export function ShareSection({
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <span>📲</span> Compartir
+          Compartir
         </button>
 
         <button
@@ -124,7 +142,7 @@ export function ShareSection({
             gap: '0.4rem',
           }}
         >
-          {copied ? '✓ ¡Copiado!' : '📋 Copiar Link'}
+          {copied ? '¡Copiado!' : 'Copiar Link'}
         </button>
       </div>
     </div>

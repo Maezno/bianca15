@@ -20,6 +20,8 @@ function formatDateDisplay(dateStr: string): string {
 export function DateSection({ event, theme }: SectionBaseProps) {
   if (!event.date) return null;
 
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['date'];
+  const titleOffsetY = sectionStyle?.titleOffsetY;
   const formattedDate = formatDateDisplay(event.date);
 
   return (
@@ -30,32 +32,23 @@ export function DateSection({ event, theme }: SectionBaseProps) {
         borderRadius: '1.25rem',
         border: `1px solid ${theme.colors.border}`,
         padding: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.25rem',
+        textAlign: 'center',
         boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
           ? 'none'
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
       <div
+        data-heading-container="true"
         style={{
-          fontSize: '2rem',
-          background: `${theme.colors.primary}15`,
-          width: '54px',
-          height: '54px',
-          borderRadius: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
+          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          textAlign: 'center',
+          width: '100%',
         }}
-        aria-hidden="true"
       >
-        📅
-      </div>
-      <div>
-        <strong
+        <span
+          data-badge="true"
           style={{
             display: 'block',
             fontSize: '0.8rem',
@@ -63,36 +56,42 @@ export function DateSection({ event, theme }: SectionBaseProps) {
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             fontWeight: 700,
-            marginBottom: '0.2rem',
+            marginBottom: '0.35rem',
+            textAlign: 'center',
           }}
         >
           FECHA Y HORA
-        </strong>
-        <span
+        </span>
+        <h2
+          data-heading="true"
           style={{
-            fontSize: '1.15rem',
+            fontFamily: theme.typography.headingFont,
+            fontSize: '1.25rem',
             color: theme.colors.text,
-            fontWeight: 700,
-            display: 'block',
+            fontWeight: 500,
+            margin: '0.2rem 0',
             textTransform: 'capitalize',
+            textAlign: 'center',
           }}
         >
           {formattedDate}
-        </span>
-        {event.startTime && (
-          <span
-            style={{
-              fontSize: '0.95rem',
-              color: theme.colors.textMuted,
-              display: 'block',
-              marginTop: '0.15rem',
-              fontWeight: 500,
-            }}
-          >
-            A las {event.startTime} hs
-          </span>
-        )}
+        </h2>
       </div>
+
+      {event.startTime && (
+        <p
+          data-body="true"
+          style={{
+            fontSize: '0.95rem',
+            color: theme.colors.textMuted,
+            margin: '0.35rem 0 0 0',
+            fontWeight: 500,
+            textAlign: 'center',
+          }}
+        >
+          A las {event.startTime} hs
+        </p>
+      )}
     </section>
   );
 }

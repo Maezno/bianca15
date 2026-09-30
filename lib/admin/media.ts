@@ -432,3 +432,119 @@ export async function deleteEventMedia(
     return { success: false, error: message };
   }
 }
+
+const ALLOWED_FONT_EXTENSIONS = ['woff2', 'woff', 'ttf', 'otf'];
+const MAX_FONT_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+/**
+ * Sube un archivo de fuente (.woff2, .woff, .ttf, .otf) asociado a un evento
+ */
+export async function uploadEventFont(
+  formData: FormData
+): Promise<{ success: boolean; fontUrl?: string; fontFamily?: string; format?: string; error?: string }> {
+  const user = await getCurrentAdminUser();
+  if (!user) {
+    return { success: false, error: 'No autorizado. Se requiere inicio de sesión.' };
+  }
+
+  const eventId = formData.get('eventId') as string | null;
+  const file = formData.get('file') as File | null;
+  const customFamilyName = (formData.get('fontFamily') as string | null)?.trim();
+
+  if (!eventId || !file) {
+    return { success: false, error: 'Parámetros insuficientes (eventId o archivo ausente).' };
+  }
+
+  const rawExt = file.name.split('.').pop()?.toLowerCase() || '';
+  if (!ALLOWED_FONT_EXTENSIONS.includes(rawExt)) {
+    return {
+      success: false,
+      error: `Formato de fuente '.${rawExt}' no soportado. Se permiten únicamente .woff2, .woff, .ttf y .otf.`,
+    };
+  }
+
+  if (file.size > MAX_FONT_FILE_SIZE) {
+    return {
+      success: false,
+      error: `El archivo de fuente supera el límite de 10MB (${(file.size / 1024 / 1024).toFixed(2)}MB).`,
+    };
+  }
+
+  // Nombre de la familia tipográfica (limpio, sin caracteres extraños)
+  const inferredName = file.name
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[-_]+/g, ' ')
+    .trim();
+  const fontFamily = customFamilyName || inferredName || 'Fuente Personalizada';
+
+  const fileUuid = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `fnt-${Date.now()}`;
+  const storagePath = `${eventId}/fonts/${fileUuid}.${rawExt}`;
+
+  const mimeMap: Record<string, string> = {
+    woff2: 'font/woff2',
+    woff: 'font/woff',
+    ttf: 'font/ttf',
+    otf: 'font/otf',
+  };
+  const mime = mimeMap[rawExt] || 'application/octet-stream';
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    // Almacenamiento local
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    LOCAL_MEDIA_BUFFERS.set(storagePath, { buffer, mime });
+
+    try {
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'event-assets', eventId, 'fonts');
+      await fs.promises.mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, `${fileUuid}.${rawExt}`);
+      await fs.promises.writeFile(filePath, buffer);
+    } catch (fsErr) {
+      console.warn('Advertencia al escribir fuente en disco local:', fsErr);
+    }
+
+    const publicUrl = `/api/uploads/event-assets/${storagePath}`;
+    return {
+      success: true,
+      fontUrl: publicUrl,
+      fontFamily,
+      format: rawExt === 'ttf' ? 'truetype' : rawExt === 'otf' ? 'opentype' : rawExt,
+    };
+  }
+
+  try {
+    const supabase = await createClient();
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const { error: uploadError } = await supabase.storage
+      .from('event-assets')
+      .upload(storagePath, buffer, {
+        contentType: mime,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      return { success: false, error: `Error en Storage al subir fuente: ${uploadError.message}` };
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('event-assets')
+      .getPublicUrl(storagePath);
+
+    return {
+      success: true,
+      fontUrl: urlData.publicUrl,
+      fontFamily,
+      format: rawExt === 'ttf' ? 'truetype' : rawExt === 'otf' ? 'opentype' : rawExt,
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Error inesperado al subir la fuente.';
+    return { success: false, error: message };
+  }
+}
+

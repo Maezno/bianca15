@@ -4,6 +4,9 @@ import type { SectionBaseProps } from './types';
 export function ScheduleSection({ event, theme }: SectionBaseProps) {
   if (!event.schedule || event.schedule.length === 0) return null;
 
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['schedule'];
+  const titleOffsetY = sectionStyle?.titleOffsetY;
+
   return (
     <section
       aria-label="Cronograma del evento"
@@ -12,30 +15,46 @@ export function ScheduleSection({ event, theme }: SectionBaseProps) {
         borderRadius: '1.25rem',
         border: `1px solid ${theme.colors.border}`,
         padding: '1.75rem',
+        textAlign: 'center',
         boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
           ? 'none'
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+      <div
+        data-heading-container="true"
+        style={{
+          textAlign: 'center',
+          marginBottom: '1.25rem',
+          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          width: '100%',
+        }}
+      >
         <span
+          data-badge="true"
           style={{
+            display: 'block',
             fontSize: '0.8rem',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             color: theme.colors.primary,
             fontWeight: 700,
+            marginBottom: '0.35rem',
+            textAlign: 'center',
           }}
         >
-          ⏰ CRONOGRAMA
+          CRONOGRAMA
         </span>
         <h2
+          data-heading="true"
           style={{
             fontFamily: theme.typography.headingFont,
             fontSize: '1.35rem',
             color: theme.colors.text,
-            margin: '0.35rem 0 0 0',
-            fontWeight: 700,
+            margin: '0.2rem 0 0 0',
+            fontWeight: 500,
+            textAlign: 'center',
           }}
         >
           Momentos Especiales
@@ -62,7 +81,7 @@ export function ScheduleSection({ event, theme }: SectionBaseProps) {
                 color: '#ffffff',
                 padding: '0.35rem 0.65rem',
                 borderRadius: '0.5rem',
-                fontWeight: 800,
+                fontWeight: 600,
                 fontSize: '0.85rem',
                 whiteSpace: 'nowrap',
                 letterSpacing: '0.05em',
@@ -70,12 +89,12 @@ export function ScheduleSection({ event, theme }: SectionBaseProps) {
             >
               {item.time} hs
             </div>
-            <div>
-              <strong style={{ display: 'block', fontSize: '0.95rem', color: theme.colors.text }}>
+            <div style={{ textAlign: 'left', flex: 1 }}>
+              <strong data-body="true" style={{ display: 'block', fontSize: '0.95rem', color: theme.colors.text }}>
                 {item.title}
               </strong>
               {item.description && (
-                <span style={{ fontSize: '0.85rem', color: theme.colors.textMuted, display: 'block', marginTop: '0.15rem' }}>
+                <span data-body="true" style={{ fontSize: '0.85rem', color: theme.colors.textMuted, display: 'block', marginTop: '0.15rem' }}>
                   {item.description}
                 </span>
               )}

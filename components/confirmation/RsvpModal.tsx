@@ -194,12 +194,20 @@ export function RsvpModal({
           <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
             <div
               style={{
-                fontSize: '3.5rem',
-                marginBottom: '1rem',
-                animation: 'bounce 0.5s ease',
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: mode === 'attend' ? '#dcfce7' : '#f1f5f9',
+                color: mode === 'attend' ? '#16a34a' : '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '2rem',
+                margin: '0 auto 1rem auto',
+                fontWeight: 700,
               }}
             >
-              {mode === 'attend' ? '🎉' : '💌'}
+              {mode === 'attend' ? '✓' : '—'}
             </div>
             <h3
               style={{
@@ -304,7 +312,7 @@ export function RsvpModal({
                   transition: 'all 0.15s ease',
                 }}
               >
-                ✨ Sí, asistiré
+                Sí, asistiré
               </button>
               <button
                 type="button"
@@ -367,7 +375,6 @@ export function RsvpModal({
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    <span style={{ fontSize: '1.5rem' }}>👤</span>
                     Individual
                   </button>
 
@@ -395,7 +402,6 @@ export function RsvpModal({
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    <span style={{ fontSize: '1.5rem' }}>👨‍👩‍👧‍👦</span>
                     Familia / Grupo
                   </button>
                 </div>
@@ -541,9 +547,10 @@ export function RsvpModal({
                               justifyContent: 'center',
                               fontSize: '1rem',
                               lineHeight: 1,
+                              fontWeight: 700,
                             }}
                           >
-                            🗑️
+                            ✕
                           </button>
                         )}
                       </div>

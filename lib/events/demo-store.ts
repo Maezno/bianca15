@@ -29,7 +29,7 @@ const INITIAL_EVENTS: EventRow[] = [
     gifts_text: 'Tu presencia es nuestro mejor regalo. Si deseás hacernos un presente, podés colaborar con nuestra alcancía.',
     memoroo_url: 'https://memoroo.app/e/bianca15',
     memoroo_qr_url: 'https://memoroo.app/qr/bianca15.png',
-    cover_image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop',
+    cover_image: null,
     schedule: [
       { id: '1', time: '21:00', title: 'Recepción', description: 'Cocktail de bienvenida' },
       { id: '2', time: '22:00', title: 'Entrada de Bianca', description: 'Momento emotivo' },
@@ -85,6 +85,14 @@ const INITIAL_EVENTS: EventRow[] = [
           footer: 250,
         },
         transparentSections: true,
+        desktopSidebars: {
+          enabled: true,
+          style: 'black',
+          centralWidth: 480,
+          color: '#000000',
+          blurAmount: 16,
+          opacity: 0.5,
+        },
       },
     },
     whatsapp_template: null,

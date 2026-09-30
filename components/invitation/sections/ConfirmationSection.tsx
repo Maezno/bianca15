@@ -13,6 +13,8 @@ export function ConfirmationSection({
 }: SectionBaseProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'attend' | 'decline'>('attend');
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['confirmation'];
+  const titleOffsetY = sectionStyle?.titleOffsetY;
 
   const openAttendModal = () => {
     setModalMode('attend');
@@ -35,35 +37,50 @@ export function ConfirmationSection({
           borderRadius: '1.25rem',
           border: `1px solid ${theme.colors.border}`,
           padding: '2rem 1.5rem',
+          textAlign: 'center',
           boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
             ? 'none'
             : '0 8px 30px rgba(0, 0, 0, 0.08)',
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <div
+          data-heading-container="true"
+          style={{
+            textAlign: 'center',
+            marginBottom: '1.5rem',
+            transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+            transition: 'transform 0.15s ease',
+            width: '100%',
+          }}
+        >
           <span
+            data-badge="true"
             style={{
+              display: 'block',
               fontSize: '0.8rem',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
               color: theme.colors.primary,
               fontWeight: 700,
+              textAlign: 'center',
             }}
           >
             CONFIRMACIÓN DE ASISTENCIA
           </span>
           <h2
+            data-heading="true"
             style={{
               fontFamily: theme.typography.headingFont,
               fontSize: '1.5rem',
               color: theme.colors.text,
               margin: '0.35rem 0 0.5rem 0',
               fontWeight: 700,
+              textAlign: 'center',
             }}
           >
             {guestGroup.name}
           </h2>
-          <p style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0 }}>
+          <p data-body="true" style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0, textAlign: 'center' }}>
             {guestGroup.maxGuests === 1
               ? 'Tenés 1 lugar reservado.'
               : `Tienen ${guestGroup.maxGuests} lugares reservados.`}
@@ -115,44 +132,56 @@ export function ConfirmationSection({
           }}
         />
 
-        <div style={{ fontSize: '2.75rem', marginBottom: '0.75rem' }} aria-hidden="true">
-          💌
+        <div
+          data-heading-container="true"
+          style={{
+            transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+            transition: 'transform 0.15s ease',
+            textAlign: 'center',
+            width: '100%',
+          }}
+        >
+          <span
+            data-badge="true"
+            style={{
+              display: 'inline-block',
+              fontSize: '0.8rem',
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: theme.colors.primary,
+              fontWeight: 700,
+              marginBottom: '0.35rem',
+              textAlign: 'center',
+            }}
+          >
+            CONFIRMACIÓN DE ASISTENCIA
+          </span>
+
+          <h2
+            data-heading="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: '1.65rem',
+              color: theme.colors.text,
+              margin: '0.25rem 0 0.75rem 0',
+              fontWeight: 500,
+              lineHeight: 1.25,
+              textAlign: 'center',
+            }}
+          >
+            ¿Vas a acompañarme?
+          </h2>
         </div>
 
-        <span
-          style={{
-            display: 'inline-block',
-            fontSize: '0.8rem',
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            color: theme.colors.primary,
-            fontWeight: 700,
-            marginBottom: '0.35rem',
-          }}
-        >
-          CONFIRMACIÓN DE ASISTENCIA
-        </span>
-
-        <h2
-          style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: '1.65rem',
-            color: theme.colors.text,
-            margin: '0.25rem 0 0.75rem 0',
-            fontWeight: 800,
-            lineHeight: 1.25,
-          }}
-        >
-          ¿Vas a acompañarme?
-        </h2>
-
         <p
+          data-body="true"
           style={{
             fontSize: '0.95rem',
             color: theme.colors.textMuted,
             maxWidth: '430px',
             margin: '0 auto 1.75rem auto',
             lineHeight: 1.6,
+            textAlign: 'center',
           }}
         >
           Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.
@@ -196,7 +225,7 @@ export function ConfirmationSection({
               e.currentTarget.style.filter = 'none';
             }}
           >
-            <span>✨</span> Sí, asistiré
+            Sí, asistiré
           </button>
 
           <button

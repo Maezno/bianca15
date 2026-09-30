@@ -4,6 +4,9 @@ import type { SectionBaseProps } from './types';
 export function WelcomeSection({ event, theme }: SectionBaseProps) {
   if (!event.welcomeText) return null;
 
+  const sectionStyle = event.designConfig?.layout?.sectionStyles?.['welcome'];
+  const titleOffsetY = sectionStyle?.titleOffsetY;
+
   return (
     <section
       aria-label="Mensaje de bienvenida"
@@ -18,20 +21,29 @@ export function WelcomeSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">
-        ✨
-      </span>
-      <p
+      <div
+        data-heading-container="true"
         style={{
-          color: theme.colors.text,
-          fontSize: '1.05rem',
-          lineHeight: 1.7,
-          margin: 0,
-          fontStyle: 'italic',
+          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+          textAlign: 'center',
+          width: '100%',
         }}
       >
-        &ldquo;{event.welcomeText}&rdquo;
-      </p>
+        <p
+          data-body="true"
+          style={{
+            color: theme.colors.text,
+            fontSize: '1.05rem',
+            lineHeight: 1.7,
+            margin: 0,
+            fontStyle: 'italic',
+            textAlign: 'center',
+          }}
+        >
+          &ldquo;{event.welcomeText}&rdquo;
+        </p>
+      </div>
     </section>
   );
 }

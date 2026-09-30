@@ -12,7 +12,7 @@ interface PreviewPanelProps {
 
 const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
   hero: { label: 'Portada (Hero)', icon: '👑' },
-  welcome: { label: 'Bienvenida', icon: '✨' },
+  welcome: { label: 'Bienvenida', icon: '' },
   countdown: { label: 'Cuenta Regresiva', icon: '⏳' },
   date: { label: 'Fecha y Hora', icon: '📅' },
   location: { label: 'Ubicación', icon: '📍' },

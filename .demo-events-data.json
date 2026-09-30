@@ -2,7 +2,7 @@
   {
     "id": "11111111-1111-1111-1111-111111111111",
     "slug": "bianca-15",
-    "name": "Bianca - 15 años",
+    "name": "Bianca",
     "title": "Mis 15 años",
     "subtitle": "Te invito a compartir una noche inolvidable",
     "welcome_text": "Hay momentos en la vida que son mágicos e inolvidables. Gracias por acompañarme a celebrar mis 15 años.",
@@ -20,7 +20,7 @@
     "gifts_text": "Tu presencia es nuestro mejor regalo. Si deseás hacernos un presente, podés colaborar con nuestra alcancía.",
     "memoroo_url": "https://memoroo.app/e/bianca15",
     "memoroo_qr_url": "https://memoroo.app/qr/bianca15.png",
-    "cover_image": "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop",
+    "cover_image": null,
     "schedule": [
       {
         "id": "1",
@@ -51,8 +51,8 @@
       "order": [
         "hero",
         "welcome",
-        "countdown",
         "date",
+        "countdown",
         "location",
         "schedule",
         "dress_code",
@@ -68,7 +68,7 @@
         "countdown": true,
         "date": true,
         "location": true,
-        "schedule": true,
+        "schedule": false,
         "dress_code": true,
         "gifts": true,
         "confirmation": true,
@@ -87,8 +87,8 @@
         "accent": "#dc2626"
       },
       "typography": {
-        "headingFont": "Playfair Display, Georgia, serif",
-        "bodyFont": "Inter, system-ui, sans-serif"
+        "headingFont": "'Alice in Wonderland', cursive",
+        "bodyFont": "DM Serif Display, Georgia, serif"
       },
       "layout": {
         "mode": "fixed",
@@ -96,10 +96,10 @@
         "sectionGap": 0,
         "contentAlignment": "center",
         "sectionHeights": {
-          "hero": 785,
-          "welcome": 266,
-          "countdown": 537,
-          "date": 430,
+          "hero": 564,
+          "welcome": 432,
+          "countdown": 524,
+          "date": 572,
           "location": 594,
           "schedule": 595,
           "dress_code": 410,
@@ -110,30 +110,76 @@
         },
         "transparentSections": true,
         "backgroundAttachment": "fixed",
-        "continuousBackgroundUrl": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/4f088aad-6df9-4471-888f-9eaea7752775.webp",
+        "continuousBackgroundUrl": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/abfaa834-4ede-4ef2-98c8-9d07dbc633f6.webp",
         "sectionStyles": {
           "hero": {
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/92dc4fb2-1f97-4045-8885-90bc866fa762.webp",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/147e27dd-0f4b-4c53-87a7-106b2d92d540.webp",
             "noBorder": true,
             "noBackground": true,
-            "backgroundSize": "125% auto"
+            "backgroundSize": "contain",
+            "backgroundSizeMobile": "140% auto",
+            "sectionFont": "'Alice in Wonderland', cursive",
+            "sectionBodyFont": "'Alice in Wonderland', cursive",
+            "verticalGap": 10,
+            "titleFontSize": 21,
+            "bodyFontSize": 31,
+            "letterSpacing": 1,
+            "nameFontSize": 151,
+            "titleColor": "#fee286",
+            "nameColor": "#ffffff",
+            "textColor": "#ffffff",
+            "wordSpacing": -2
           },
           "welcome": {
             "noBorder": true,
             "noBackground": true,
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/2a803bbc-6c09-4054-8cbd-8fca12043bcd.webp",
-            "backgroundSize": "125%"
+            "backgroundSize": "55% auto",
+            "backgroundSizeMobile": "115% auto",
+            "titleFontSize": 37,
+            "bodyFontSize": 29,
+            "titleColor": "#0f172a",
+            "textColor": "#7a0505"
           },
           "countdown": {
             "noBorder": true,
-            "noBackground": true
+            "noBackground": true,
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/422b5a7e-14a7-467f-b422-dfb34a2585b1.webp",
+            "backgroundSize": "70% auto",
+            "sectionFont": "'Alice in Wonderland', cursive",
+            "sectionBodyFont": "'Alice in Wonderland', cursive",
+            "backgroundSizeMobile": "120% auto",
+            "titleFontSize": 33,
+            "bodyFontSize": 24,
+            "letterSpacing": 1,
+            "verticalGap": 20,
+            "countdownNoBoxes": false,
+            "countdownNumberSize": 68
+          },
+          "date": {
+            "sectionBodyFont": "'Alice in Wonderland', cursive",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/26332c3e-8f5b-4aea-b0b9-2d232a3d679b.webp",
+            "backgroundSize": "75% auto",
+            "backgroundSizeMobile": "150% auto",
+            "noBorder": true,
+            "noBackground": true,
+            "titleFontSize": 30,
+            "bodyFontSize": 26,
+            "verticalGap": 10,
+            "wordSpacing": 4
           }
+        },
+        "desktopSidebars": {
+          "style": "blur",
+          "blurAmount": 4,
+          "opacity": 0.55,
+          "centralWidth": 480
         }
       }
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-09-29T18:23:38.719Z"
+    "updated_at": "2026-09-30T02:54:03.033Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",

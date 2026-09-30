@@ -289,7 +289,6 @@ export function ConfirmationForm({
     if (ec.status === 'confirmed') {
       return (
         <div style={card}>
-          <p style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '0.5rem' }}>❤️</p>
           <h2 style={{ ...heading, color: '#166534' }}>Ya confirmaste tu asistencia</h2>
           <p style={{ ...subtext, marginBottom: '0.5rem' }}>
             <strong>{groupName}</strong>
@@ -334,7 +333,6 @@ export function ConfirmationForm({
     if (ec.status === 'declined') {
       return (
         <div style={card}>
-          <p style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '0.5rem' }}>🤍</p>
           <h2 style={{ ...heading, color: '#374151' }}>
             Actualmente indicaste que no podrás asistir
           </h2>
@@ -347,7 +345,7 @@ export function ConfirmationForm({
             }}
             type="button"
           >
-            SÍ, AHORA VOY 🎉
+            SÍ, AHORA VOY
           </button>
         </div>
       );
@@ -363,10 +361,10 @@ export function ConfirmationForm({
         <p style={{ ...subtext, color: '#9333ea', fontWeight: 600 }}>{eventTitle}</p>
         <div style={{ marginTop: '1.5rem' }}>
           <button style={btn('primary')} onClick={handleAttendanceYes} type="button">
-            SÍ, VOY A ESTAR 🎉
+            SÍ, VOY A ESTAR
           </button>
           <button style={btn('secondary')} onClick={handleAttendanceNo} type="button">
-            NO PODRÉ ASISTIR 🤍
+            NO PODRÉ ASISTIR
           </button>
         </div>
         <ErrorBanner />
@@ -378,7 +376,6 @@ export function ConfirmationForm({
   if (step === 'confirm_no') {
     return (
       <div style={card}>
-        <p style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '0.75rem' }}>🤍</p>
         <h2 style={heading}>¿Estás seguro de que no podrás acompañarme?</h2>
         <p style={subtext}>Sentiremos mucho no tenerte.</p>
         <div style={{ marginTop: '1rem' }}>
@@ -692,7 +689,7 @@ export function ConfirmationForm({
           </p>
           <div style={divider} />
           <p style={{ ...labelStyle, marginBottom: '0.25rem' }}>Asistencia</p>
-          <p style={{ color: '#374151', marginBottom: '0.75rem' }}>✅ Sí, asistiré</p>
+          <p style={{ color: '#374151', marginBottom: '0.75rem' }}>Sí, asistiré</p>
 
           <p style={{ ...labelStyle, marginBottom: '0.25rem' }}>Personas</p>
           <p style={{ color: '#374151', marginBottom: '0.75rem' }}>
@@ -758,12 +755,11 @@ export function ConfirmationForm({
   if (step === 'success') {
     return (
       <div style={{ ...card, textAlign: 'center' }}>
-        <p style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎉</p>
-        <h2 style={{ ...heading, color: '#166534' }}>¡CONFIRMADO!</h2>
+        <h2 style={{ ...heading, color: '#166534', marginTop: '1rem' }}>¡CONFIRMADO!</h2>
         <p style={{ color: '#374151', fontSize: '1rem', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           Gracias por acompañarme en una noche tan especial.
         </p>
-        <p style={{ color: '#9333ea', fontWeight: 600 }}>Nos vemos en mis 15. ❤️</p>
+        <p style={{ color: '#9333ea', fontWeight: 600 }}>Nos vemos en mis 15.</p>
         <div style={divider} />
         <p style={{ color: '#6b7280', fontSize: '0.85rem' }}>
           {count === 1 ? '1 persona confirmada.' : `${count} personas confirmadas.`}
@@ -776,8 +772,7 @@ export function ConfirmationForm({
   if (step === 'declined_success') {
     return (
       <div style={{ ...card, textAlign: 'center' }}>
-        <p style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>❤️</p>
-        <h2 style={{ ...heading, color: '#374151' }}>Gracias por avisarnos</h2>
+        <h2 style={{ ...heading, color: '#374151', marginTop: '1rem' }}>Gracias por avisarnos</h2>
         <p style={{ color: '#6b7280', fontSize: '1rem', lineHeight: 1.6 }}>
           Sentiremos mucho que no puedas acompañarnos.
         </p>

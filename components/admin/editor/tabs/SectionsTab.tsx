@@ -11,7 +11,7 @@ interface SectionsTabProps {
 
 const SECTION_METADATA: Record<string, { label: string; icon: string; description: string }> = {
   hero: { label: 'Portada (Hero)', icon: '👑', description: 'Nombre, título del evento y botón principal' },
-  welcome: { label: 'Bienvenida', icon: '✨', description: 'Mensaje especial o palabras de los anfitriones' },
+  welcome: { label: 'Bienvenida', icon: '', description: 'Mensaje especial o palabras de los anfitriones' },
   countdown: { label: 'Cuenta Regresiva', icon: '⏳', description: 'Contador dinámico de días, horas y minutos' },
   date: { label: 'Fecha y Hora', icon: '📅', description: 'Día, hora de inicio y coordenadas temporales' },
   location: { label: 'Ubicación y Mapas', icon: '📍', description: 'Nombre del salón, dirección y enlaces a Maps/Waze' },

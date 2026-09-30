@@ -86,7 +86,7 @@ export interface CreateEventInput {
   giftsText?: string;
   memorooUrl?: string;
   memorooQrUrl?: string;
-  coverImage?: string;
+  coverImage?: string | null;
   schedule?: import('@/types/event').ScheduleItem[];
   designConfig?: import('@/types/event').EventDesignConfig;
   sectionConfig?: import('@/types/event').EventSectionConfig;

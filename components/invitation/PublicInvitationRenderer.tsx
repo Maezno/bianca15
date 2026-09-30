@@ -8,6 +8,49 @@ import type { TemplateTheme } from '@/templates/types';
 import type { ExistingConfirmation } from '@/lib/confirmations/types';
 import { getActiveSections } from '@/templates/theme-resolver';
 import { SectionErrorBoundary } from '@/components/common/SectionErrorBoundary';
+
+/**
+ * Mapa de fuentes predefinidas: font-family stack → URL de Google Fonts CSS.
+ * Permite cargar automáticamente las fuentes del selector sin URL manual.
+ */
+const PREDEFINED_FONT_URLS: Record<string, string> = {
+  'Great Vibes, cursive': 'https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap',
+  'Alex Brush, cursive': 'https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap',
+  'Pinyon Script, cursive': 'https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap',
+  'Tangerine, cursive': 'https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap',
+  'Dancing Script, cursive': 'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap',
+  'Parisienne, cursive': 'https://fonts.googleapis.com/css2?family=Parisienne&display=swap',
+  'Italianno, cursive': 'https://fonts.googleapis.com/css2?family=Italianno&display=swap',
+  'Cormorant Garamond, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap',
+  'Playfair Display, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap',
+  'Cinzel, serif': 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap',
+  'EB Garamond, Georgia, serif': 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap',
+  'Libre Baskerville, Georgia, serif': 'https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap',
+  'DM Serif Display, Georgia, serif': 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap',
+  'Cardo, serif': 'https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&display=swap',
+  'Montserrat, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Raleway, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Josefin Sans, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap',
+  'Lato, sans-serif': 'https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400&display=swap',
+  'Poppins, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Nunito, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+  'Open Sans, system-ui, sans-serif': 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap',
+};
+
+/** Inyecta en el <head> la hoja de estilos de Google Fonts para una fuente predefinida si existe */
+function ensurePredefinedFontLoaded(fontFamily: string): void {
+  if (typeof window === 'undefined') return;
+  const url = PREDEFINED_FONT_URLS[fontFamily];
+  if (!url) return;
+  const id = `gf-${fontFamily.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`;
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = url;
+  document.head.appendChild(link);
+}
+
 import {
   HeroSection,
   WelcomeSection,
@@ -254,6 +297,7 @@ function InteractiveSectionResizer({
 interface SectionCardItemProps {
   sectionId: string;
   sectionStyle?: SectionStyle;
+  sectionTheme?: TemplateTheme;
   sectionElement: React.ReactNode;
   isFixed: boolean;
   currentSectionHeight: number;
@@ -267,6 +311,7 @@ interface SectionCardItemProps {
 function SectionCardItem({
   sectionId,
   sectionStyle,
+  sectionTheme,
   sectionElement,
   isFixed,
   currentSectionHeight,
@@ -313,15 +358,73 @@ function SectionCardItem({
     ? (sectionStyle.imageWidth / sectionStyle.imageHeight)
     : (naturalDimensions && naturalDimensions.height > 0 ? (naturalDimensions.width / naturalDimensions.height) : null);
 
-  // Estilos de fondo: cover o 100% auto para llenar el ancho completo del div
-  const bgSize = sectionStyle?.backgroundSize || 'cover';
+  // Estilos de fondo: escala diferenciada Desktop / Móvil
+  const bgSizeDesktop = sectionStyle?.backgroundSize || 'cover';
+  const bgSizeMobile = sectionStyle?.backgroundSizeMobile || bgSizeDesktop;
   const bgPos = sectionStyle?.backgroundPosition || 'center';
-  const bgImageStyle = hasBgImage ? {
+  const bgImageStyle = hasBgImage ? ({
     backgroundImage: `url("${sectionStyle?.backgroundImage}")`,
-    backgroundSize: bgSize,
     backgroundPosition: bgPos,
     backgroundRepeat: 'no-repeat' as const,
-  } : {};
+    '--bg-size-desktop': bgSizeDesktop,
+    '--bg-size-mobile': bgSizeMobile,
+    backgroundSize: bgSizeDesktop,
+  } as React.CSSProperties) : {};
+
+  // Variables tipográficas, de color y de espaciado de la tarjeta
+  const cardHeadingSize = sectionStyle?.titleFontSize
+    ? (typeof sectionStyle.titleFontSize === 'number' ? `${sectionStyle.titleFontSize}px` : sectionStyle.titleFontSize)
+    : undefined;
+
+  const cardBodySize = sectionStyle?.bodyFontSize
+    ? (typeof sectionStyle.bodyFontSize === 'number' ? `${sectionStyle.bodyFontSize}px` : sectionStyle.bodyFontSize)
+    : undefined;
+
+  const cardHeadingColor = sectionStyle?.titleColor || undefined;
+  const cardBodyColor = sectionStyle?.textColor || undefined;
+
+  const cardNameSize = sectionStyle?.nameFontSize
+    ? (typeof sectionStyle.nameFontSize === 'number' ? `${sectionStyle.nameFontSize}px` : sectionStyle.nameFontSize)
+    : undefined;
+  const cardNameColor = sectionStyle?.nameColor || undefined;
+  const cardPublicTitleSize = sectionStyle?.titleFontSize
+    ? (typeof sectionStyle.titleFontSize === 'number' ? `${sectionStyle.titleFontSize}px` : sectionStyle.titleFontSize)
+    : undefined;
+  const cardPublicTitleColor = sectionStyle?.titleColor || undefined;
+
+  const cardVerticalGap = sectionStyle?.verticalGap !== undefined ? `${sectionStyle.verticalGap}px` : undefined;
+  const cardWordSpacing = sectionStyle?.wordSpacing !== undefined ? `${sectionStyle.wordSpacing}px` : undefined;
+  const cardPaddingX = sectionStyle?.horizontalPadding !== undefined ? `${sectionStyle.horizontalPadding}px` : '1rem';
+  const cardTitleOffsetY = sectionStyle?.titleOffsetY !== undefined ? `${sectionStyle.titleOffsetY}px` : undefined;
+  const cardTextAlign = sectionStyle?.textAlign || 'center';
+
+  const cardTypographyStyles: React.CSSProperties = {
+    fontFamily: sectionTheme?.typography.bodyFont,
+    '--card-heading-font': sectionTheme?.typography.headingFont,
+    '--card-body-font': sectionTheme?.typography.bodyFont,
+    '--card-heading-size': cardHeadingSize,
+    '--card-body-size': cardBodySize,
+    '--card-heading-color': cardHeadingColor,
+    '--card-body-color': cardBodyColor,
+    '--card-name-size': cardNameSize,
+    '--card-name-color': cardNameColor,
+    '--card-public-title-size': cardPublicTitleSize,
+    '--card-public-title-color': cardPublicTitleColor,
+    '--card-vertical-gap': cardVerticalGap,
+    '--card-word-spacing': cardWordSpacing,
+    '--card-title-offset-y': cardTitleOffsetY,
+    '--card-text-align': cardTextAlign,
+    textAlign: cardTextAlign,
+  } as React.CSSProperties;
+
+  const cardClasses = [
+    'invitation-card-item',
+    cardHeadingSize ? 'has-custom-heading-size' : '',
+    cardBodySize ? 'has-custom-body-size' : '',
+    cardHeadingColor ? 'has-custom-heading-color' : '',
+    cardBodyColor ? 'has-custom-body-color' : '',
+    cardTitleOffsetY ? 'has-custom-title-offset' : '',
+  ].filter(Boolean).join(' ');
 
   if (!isFixed) {
     return (
@@ -335,14 +438,17 @@ function SectionCardItem({
           alignItems: 'center',
           boxSizing: 'border-box',
           overflow: 'visible',
+          margin: 0,
+          padding: 0,
         }}
       >
-        {/* Div de la tarjeta: abarca de punta a punta (100%) sin límites de 420px para que el fondo corte solo por la pantalla */}
+        {/* Div de la tarjeta: 1000px en desktop, 100% en móvil pegado a los costados */}
         <div
+          className={cardClasses}
           style={{
-            width: '100%',
             position: 'relative',
             boxSizing: 'border-box',
+            ...cardTypographyStyles,
             ...(hasBgImage
               ? {
                   ...bgImageStyle,
@@ -357,7 +463,7 @@ function SectionCardItem({
               : {}),
           }}
         >
-          <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', padding: '0 1rem', boxSizing: 'border-box' }}>
+          <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', paddingLeft: cardPaddingX, paddingRight: cardPaddingX, boxSizing: 'border-box' }}>
             {sectionElement}
           </div>
         </div>
@@ -377,7 +483,8 @@ function SectionCardItem({
         flexDirection: 'column',
         justifyContent: contentAlign === 'top' ? 'flex-start' : 'center',
         alignItems: 'center',
-        padding: hasBgImage ? '1.25rem 0' : '1.25rem 1rem',
+        padding: 0,
+        margin: 0,
         position: 'relative',
         transition: 'box-shadow 0.2s ease',
         overflow: 'visible',
@@ -386,10 +493,10 @@ function SectionCardItem({
           : undefined,
       }}
     >
-      {/* Div de la tarjeta: abarca el 100% de punta a punta, el tamaño del fondo se controla con el slider */}
+      {/* Div de la tarjeta: 1000px en desktop, 100% en móvil pegado a los costados */}
       <div
+        className={cardClasses}
         style={{
-          width: '100%',
           height: hasBgImage ? '100%' : 'auto',
           position: 'relative',
           display: 'flex',
@@ -397,10 +504,11 @@ function SectionCardItem({
           justifyContent: 'center',
           alignItems: 'center',
           boxSizing: 'border-box',
+          ...cardTypographyStyles,
           ...(hasBgImage ? bgImageStyle : {}),
         }}
       >
-        <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', padding: '0 1rem', boxSizing: 'border-box' }}>
+        <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', paddingLeft: cardPaddingX, paddingRight: cardPaddingX, boxSizing: 'border-box' }}>
           {sectionElement}
         </div>
       </div>
@@ -452,10 +560,41 @@ export function PublicInvitationRenderer({
   const sectionProps = { event, theme: resolvedTheme, guestGroup, existingConfirmation };
   const sectionStyles = layout?.sectionStyles || {};
 
-  // Inyectar fuente personalizada si está configurada
+  // Inyectar fuentes subidas por el usuario (@font-face)
+  const uploadedFonts = event.designConfig?.typography?.uploadedFonts;
+  useEffect(() => {
+    if (!uploadedFonts || uploadedFonts.length === 0) {
+      const existingStyle = document.getElementById('user-uploaded-fonts');
+      if (existingStyle) existingStyle.remove();
+      return;
+    }
+    let styleEl = document.getElementById('user-uploaded-fonts') as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'user-uploaded-fonts';
+      document.head.appendChild(styleEl);
+    }
+    const fontFaces = uploadedFonts
+      .map((f) => {
+        const formatStr = f.format ? ` format('${f.format}')` : '';
+        return `@font-face { font-family: '${f.name}'; src: url('${f.url}')${formatStr}; font-display: swap; }`;
+      })
+      .join('\n');
+    styleEl.textContent = fontFaces;
+    return () => {
+      const el = document.getElementById('user-uploaded-fonts');
+      if (el) el.remove();
+    };
+  }, [uploadedFonts]);
+
+  // Inyectar fuente personalizada global si está configurada
   const customFontUrl = event.designConfig?.typography?.customFontUrl;
   useEffect(() => {
-    if (!customFontUrl) return;
+    if (!customFontUrl) {
+      const existingLink = document.getElementById('custom-font-link');
+      if (existingLink) existingLink.remove();
+      return;
+    }
     const existingLink = document.getElementById('custom-font-link');
     if (existingLink) existingLink.remove();
     const link = document.createElement('link');
@@ -469,19 +608,68 @@ export function PublicInvitationRenderer({
     };
   }, [customFontUrl]);
 
+  // Inyectar fuentes personalizadas por sección (URLs externas para títulos y textos)
+  useEffect(() => {
+    // Limpiar fuentes de sección previas
+    document.querySelectorAll('[data-section-font]').forEach((el) => el.remove());
+
+    const injectedUrls = new Set<string>();
+    if (customFontUrl) injectedUrls.add(customFontUrl); // no duplicar la global
+
+    Object.entries(sectionStyles).forEach(([secId, style]) => {
+      const urls = [style.sectionFontUrl, style.sectionBodyFontUrl].filter(Boolean) as string[];
+      urls.forEach((url, idx) => {
+        if (!injectedUrls.has(url)) {
+          injectedUrls.add(url);
+          const link = document.createElement('link');
+          link.setAttribute('data-section-font', `${secId}-${idx}`);
+          link.rel = 'stylesheet';
+          link.href = url;
+          document.head.appendChild(link);
+        }
+      });
+    });
+
+    return () => {
+      document.querySelectorAll('[data-section-font]').forEach((el) => el.remove());
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(sectionStyles), customFontUrl]);
+
+  // Cargar automáticamente las fuentes predefinidas de Google (theme global + por sección)
+  useEffect(() => {
+    ensurePredefinedFontLoaded(theme.typography.headingFont);
+    ensurePredefinedFontLoaded(theme.typography.bodyFont);
+    Object.values(sectionStyles).forEach((style) => {
+      if (style.sectionFont) ensurePredefinedFontLoaded(style.sectionFont);
+      if (style.sectionBodyFont) ensurePredefinedFontLoaded(style.sectionBodyFont);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.typography.headingFont, theme.typography.bodyFont, JSON.stringify(sectionStyles)]);
+
   /** Resuelve el theme final para una sección aplicando sus overrides individuales */
   const resolveSectionTheme = (sectionId: string, style?: SectionStyle) => {
-    if (!style || (!style.noBackground && !style.noBorder && !style.backgroundImage)) return resolvedTheme;
+    const hasColorOverrides = style && (style.noBackground || style.noBorder || style.backgroundImage);
+    const hasHeadingFontOverride = style?.sectionFont;
+    const hasBodyFontOverride = style?.sectionBodyFont;
+
+    if (!hasColorOverrides && !hasHeadingFontOverride && !hasBodyFontOverride) return resolvedTheme;
+
     return {
       ...resolvedTheme,
-      colors: {
+      colors: hasColorOverrides ? {
         ...resolvedTheme.colors,
-        ...(style.noBackground || style.backgroundImage ? { surface: 'transparent' } : {}),
-        ...(style.noBorder || style.noBackground ? { border: 'transparent' } : {}),
-      },
-      styles: {
+        ...(style!.noBackground || style!.backgroundImage ? { surface: 'transparent' } : {}),
+        ...(style!.noBorder || style!.noBackground ? { border: 'transparent' } : {}),
+      } : resolvedTheme.colors,
+      styles: hasColorOverrides ? {
         ...(resolvedTheme.styles || {}),
-        ...(style.noBackground || style.backgroundImage ? { cardShadow: 'none' } : {}),
+        ...(style!.noBackground || style!.backgroundImage ? { cardShadow: 'none' } : {}),
+      } : resolvedTheme.styles,
+      typography: {
+        ...resolvedTheme.typography,
+        ...(hasHeadingFontOverride ? { headingFont: style!.sectionFont! } : {}),
+        ...(hasBodyFontOverride ? { bodyFont: style!.sectionBodyFont! } : {}),
       },
     };
   };
@@ -500,6 +688,49 @@ export function PublicInvitationRenderer({
       : `url("${effectiveBgImage}") top center / cover no-repeat, ${theme.colors.background}`
     : theme.colors.background;
 
+  // Configuración de bandas laterales en desktop (Primera opción)
+  const sidebarsConfig = layout?.desktopSidebars;
+  const sidebarsEnabled = sidebarsConfig?.enabled ?? true;
+  const sidebarsStyle = sidebarsConfig?.style || 'black';
+  const centralWidth = sidebarsConfig?.centralWidth || 480;
+  const sidebarsColor = sidebarsConfig?.color || '#000000';
+  const blurAmount = sidebarsConfig?.blurAmount !== undefined ? sidebarsConfig.blurAmount : 16;
+  const blurOpacity = sidebarsConfig?.opacity !== undefined ? sidebarsConfig.opacity : 0.5;
+  const sidebarsBgImage = sidebarsConfig?.backgroundImageUrl;
+
+  const bandBaseStyle: React.CSSProperties = {
+    ...(sidebarsStyle === 'transparent'
+      ? {
+          background: 'transparent',
+          pointerEvents: 'none',
+        }
+      : {}),
+    ...(sidebarsStyle === 'black'
+      ? {
+          backgroundColor: sidebarsColor,
+          boxShadow: '0 0 30px rgba(0, 0, 0, 0.6)',
+        }
+      : {}),
+    ...(sidebarsStyle === 'blur'
+      ? {
+          backdropFilter: `blur(${blurAmount}px)`,
+          WebkitBackdropFilter: `blur(${blurAmount}px)`,
+          backgroundColor: `rgba(0, 0, 0, ${blurOpacity})`,
+          borderLeft: '1px solid rgba(255, 255, 255, 0.12)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 0 25px rgba(0, 0, 0, 0.4)',
+        }
+      : {}),
+    ...(sidebarsStyle === 'image' && sidebarsBgImage
+      ? {
+          backgroundImage: `url("${sidebarsBgImage}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          boxShadow: '0 0 25px rgba(0, 0, 0, 0.5)',
+        }
+      : {}),
+  };
+
   return (
     <div
       style={{
@@ -507,7 +738,8 @@ export function PublicInvitationRenderer({
         background: isBgFixed ? theme.colors.background : scrollBackgroundStyle,
         color: theme.colors.text,
         fontFamily: theme.typography.bodyFont,
-        padding: isFixed ? '0' : '2rem 0',
+        padding: 0,
+        margin: 0,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -515,8 +747,24 @@ export function PublicInvitationRenderer({
         overflowX: 'hidden',
         boxSizing: 'border-box',
         width: '100%',
-      }}
+        '--central-width': `${centralWidth}px`,
+      } as React.CSSProperties}
     >
+      {/* Bandas laterales para modo Desktop (Marco / Enfoque Móvil) */}
+      {sidebarsEnabled && (
+        <>
+          <div
+            className="desktop-side-band desktop-side-band-left"
+            aria-hidden="true"
+            style={bandBaseStyle}
+          />
+          <div
+            className="desktop-side-band desktop-side-band-right"
+            aria-hidden="true"
+            style={bandBaseStyle}
+          />
+        </>
+      )}
       {/* Fondo fijo de punta a punta en altura (Wallpaper que cubre todo el viewport y no se corta al hacer scroll) */}
       {effectiveBgImage && isBgFixed && (
         <div
@@ -549,6 +797,8 @@ export function PublicInvitationRenderer({
           flexDirection: 'column',
           alignItems: 'center',
           gap: `${sectionGap}px`,
+          padding: 0,
+          margin: 0,
           boxSizing: 'border-box',
         }}
       >
@@ -586,6 +836,7 @@ export function PublicInvitationRenderer({
               key={sectionId}
               sectionId={sectionId}
               sectionStyle={sectionStyle}
+              sectionTheme={sectionTheme}
               sectionElement={sectionElement}
               isFixed={isFixed}
               currentSectionHeight={currentSectionHeight}
