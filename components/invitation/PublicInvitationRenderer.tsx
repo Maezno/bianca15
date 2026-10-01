@@ -360,7 +360,7 @@ function SectionCardItem({
 
   // Estilos de fondo: escala diferenciada Desktop / Móvil
   const bgSizeDesktop = sectionStyle?.backgroundSize || 'cover';
-  const bgSizeMobile = sectionStyle?.backgroundSizeMobile || bgSizeDesktop;
+  const bgSizeMobile = sectionStyle?.backgroundSizeMobile || '100% auto';
   const bgPos = sectionStyle?.backgroundPosition || 'center';
   const bgImageStyle = hasBgImage ? ({
     backgroundImage: `url("${sectionStyle?.backgroundImage}")`,

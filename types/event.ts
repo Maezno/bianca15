@@ -131,6 +131,30 @@ export interface SectionStyle {
    * Alineación de textos en la tarjeta ('left' | 'center' | 'right'). Por defecto 'center'.
    */
   textAlign?: 'left' | 'center' | 'right';
+  /**
+   * Si es false, oculta el botón de Google Maps en la tarjeta de ubicación.
+   */
+  showMapsButton?: boolean;
+  /**
+   * Si es false, oculta el botón de Waze en la tarjeta de ubicación.
+   */
+  showWazeButton?: boolean;
+  /**
+   * Color de fondo personalizado para el botón de Google Maps.
+   */
+  mapsButtonBg?: string;
+  /**
+   * Color de texto personalizado para el botón de Google Maps.
+   */
+  mapsButtonTextColor?: string;
+  /**
+   * Color de fondo personalizado para el botón de Waze.
+   */
+  wazeButtonBg?: string;
+  /**
+   * Color de texto personalizado para el botón de Waze.
+   */
+  wazeButtonTextColor?: string;
 }
 
 export type DesktopSidebarsStyle = 'black' | 'blur' | 'transparent' | 'image';

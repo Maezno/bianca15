@@ -65,17 +65,21 @@ body {
 }
 
 /* Color personalizado de títulos */
-.invitation-card-item.has-custom-heading-color h1,
+.invitation-card-item.has-custom-heading-color h1:not([data-event-name="true"]),
 .invitation-card-item.has-custom-heading-color h2,
 .invitation-card-item.has-custom-heading-color h3,
 .invitation-card-item.has-custom-heading-color h4,
 .invitation-card-item.has-custom-heading-color [data-heading="true"],
+.invitation-card-item.has-custom-heading-color [data-badge="true"],
+.invitation-card-item.has-custom-heading-color [data-public-title="true"],
 .invitation-card-item.has-custom-heading-color .card-heading,
-.invitation-card-item[style*="--card-heading-color"] h1,
+.invitation-card-item[style*="--card-heading-color"] h1:not([data-event-name="true"]),
 .invitation-card-item[style*="--card-heading-color"] h2,
 .invitation-card-item[style*="--card-heading-color"] h3,
 .invitation-card-item[style*="--card-heading-color"] h4,
 .invitation-card-item[style*="--card-heading-color"] [data-heading="true"],
+.invitation-card-item[style*="--card-heading-color"] [data-badge="true"],
+.invitation-card-item[style*="--card-heading-color"] [data-public-title="true"],
 .invitation-card-item[style*="--card-heading-color"] .card-heading {
   color: var(--card-heading-color) !important;
 }
@@ -83,12 +87,12 @@ body {
 /* Color personalizado de cuerpo / textos */
 .invitation-card-item.has-custom-body-color,
 .invitation-card-item.has-custom-body-color p,
-.invitation-card-item.has-custom-body-color span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]),
+.invitation-card-item.has-custom-body-color span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]):not([data-public-title="true"]),
 .invitation-card-item.has-custom-body-color [data-body="true"],
 .invitation-card-item.has-custom-body-color .card-body,
 .invitation-card-item.has-custom-body-color label,
 .invitation-card-item[style*="--card-body-color"] p,
-.invitation-card-item[style*="--card-body-color"] span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]),
+.invitation-card-item[style*="--card-body-color"] span:not([aria-hidden]):not([data-badge="true"]):not([data-heading="true"]):not([data-public-title="true"]),
 .invitation-card-item[style*="--card-body-color"] [data-body="true"],
 .invitation-card-item[style*="--card-body-color"] .card-body,
 .invitation-card-item[style*="--card-body-color"] label {
@@ -96,18 +100,20 @@ body {
 }
 
 /* Tamaño de títulos personalizado por tarjeta */
-.invitation-card-item.has-custom-heading-size h1,
+.invitation-card-item.has-custom-heading-size h1:not([data-event-name="true"]),
 .invitation-card-item.has-custom-heading-size h2,
 .invitation-card-item.has-custom-heading-size h3,
 .invitation-card-item.has-custom-heading-size h4,
 .invitation-card-item.has-custom-heading-size [data-heading="true"],
+.invitation-card-item.has-custom-heading-size [data-public-title="true"],
 .invitation-card-item.has-custom-heading-size .card-heading,
 .invitation-card-item.has-custom-heading-size strong:first-child:not([data-badge="true"]),
-.invitation-card-item[style*="--card-heading-size"] h1,
+.invitation-card-item[style*="--card-heading-size"] h1:not([data-event-name="true"]),
 .invitation-card-item[style*="--card-heading-size"] h2,
 .invitation-card-item[style*="--card-heading-size"] h3,
 .invitation-card-item[style*="--card-heading-size"] h4,
 .invitation-card-item[style*="--card-heading-size"] [data-heading="true"],
+.invitation-card-item[style*="--card-heading-size"] [data-public-title="true"],
 .invitation-card-item[style*="--card-heading-size"] .card-heading,
 .invitation-card-item[style*="--card-heading-size"] strong:first-child:not([data-badge="true"]) {
   font-size: var(--card-heading-size) !important;
@@ -115,27 +121,14 @@ body {
 }
 
 /* Posicionamiento vertical del título de cada tarjeta (altura personalizada) */
-.invitation-card-item.has-custom-title-offset h1,
-.invitation-card-item.has-custom-title-offset h2,
-.invitation-card-item.has-custom-title-offset h3,
-.invitation-card-item.has-custom-title-offset h4,
-.invitation-card-item.has-custom-title-offset [data-heading="true"],
-.invitation-card-item.has-custom-title-offset [data-public-title="true"],
-.invitation-card-item.has-custom-title-offset [data-event-name="true"],
-.invitation-card-item.has-custom-title-offset [data-badge="true"],
 .invitation-card-item.has-custom-title-offset [data-heading-container="true"],
-.invitation-card-item.has-custom-title-offset .card-heading,
-.invitation-card-item[style*="--card-title-offset-y"] h1,
-.invitation-card-item[style*="--card-title-offset-y"] h2,
-.invitation-card-item[style*="--card-title-offset-y"] h3,
-.invitation-card-item[style*="--card-title-offset-y"] h4,
-.invitation-card-item[style*="--card-title-offset-y"] [data-heading="true"],
-.invitation-card-item[style*="--card-title-offset-y"] [data-public-title="true"],
-.invitation-card-item[style*="--card-title-offset-y"] [data-event-name="true"],
-.invitation-card-item[style*="--card-title-offset-y"] [data-badge="true"],
 .invitation-card-item[style*="--card-title-offset-y"] [data-heading-container="true"],
-.invitation-card-item[style*="--card-title-offset-y"] .card-heading {
+.invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) [data-heading="true"],
+.invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) [data-heading="true"],
+.invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) .card-heading,
+.invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) .card-heading {
   transform: translateY(var(--card-title-offset-y, 0px)) !important;
+  margin-bottom: calc(max(0px, var(--card-title-offset-y, 0px) * 0.5)) !important;
   position: relative;
   text-align: center;
 }
@@ -201,7 +194,7 @@ body {
     margin-right: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    background-size: var(--bg-size-mobile, var(--bg-size-desktop, cover)) !important;
+    background-size: var(--bg-size-mobile, 100% auto) !important;
   }
 }
 

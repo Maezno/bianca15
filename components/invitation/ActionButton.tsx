@@ -12,6 +12,8 @@ export interface ActionButtonProps {
   variant?: ActionButtonVariant;
   primaryColor?: string;
   textColor?: string;
+  customBg?: string;
+  customColor?: string;
   fullWidth?: boolean;
   target?: string;
   rel?: string;
@@ -26,6 +28,8 @@ export function ActionButton({
   variant = 'primary',
   primaryColor = '#9333ea',
   textColor = '#ffffff',
+  customBg,
+  customColor,
   fullWidth = false,
   target,
   rel,
@@ -49,6 +53,16 @@ export function ActionButton({
       width: fullWidth ? '100%' : 'auto',
       textAlign: 'center',
     };
+
+    if (customBg) {
+      return {
+        ...base,
+        background: customBg,
+        color: customColor || textColor,
+        border: 'none',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+      };
+    }
 
     switch (variant) {
       case 'primary':

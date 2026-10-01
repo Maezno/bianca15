@@ -35,7 +35,7 @@ export function DressCodeSection({ event, theme }: SectionBaseProps) {
           style={{
             display: 'block',
             fontSize: '0.8rem',
-            color: theme.colors.primary,
+            color: sectionStyle?.titleColor || theme.colors.primary,
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             fontWeight: 700,
@@ -50,7 +50,7 @@ export function DressCodeSection({ event, theme }: SectionBaseProps) {
           style={{
             fontFamily: theme.typography.headingFont,
             fontSize: '1.25rem',
-            color: theme.colors.text,
+            color: sectionStyle?.titleColor || theme.colors.text,
             fontWeight: 500,
             margin: '0.2rem 0',
             textAlign: 'center',

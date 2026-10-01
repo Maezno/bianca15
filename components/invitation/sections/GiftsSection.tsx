@@ -35,7 +35,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
           style={{
             display: 'block',
             fontSize: '0.8rem',
-            color: theme.colors.primary,
+            color: sectionStyle?.titleColor || theme.colors.primary,
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             fontWeight: 700,
@@ -50,7 +50,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
           style={{
             fontFamily: theme.typography.headingFont,
             fontSize: '1.35rem',
-            color: theme.colors.text,
+            color: sectionStyle?.titleColor || theme.colors.text,
             margin: '0.25rem 0 0.5rem 0',
             fontWeight: 500,
             textAlign: 'center',

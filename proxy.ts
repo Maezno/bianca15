@@ -3,22 +3,27 @@ import type { NextRequest } from 'next/server';
 
 /**
  * proxy.ts
- * La app es completamente privada.
- * Todas las rutas requieren la cookie `admin-session`, excepto:
+ * Las rutas públicas (invitación, confirmación, etc.) no requieren inicio de sesión.
+ * Solo las rutas administrativas (/admin/*) requieren la cookie `admin-session`, excepto:
  *  - /admin/login  (pantalla de login)
  *  - /api/auth/*   (endpoints de login/logout)
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rutas públicas: login y API de autenticación
+  // Solo las rutas /admin requieren autenticación
+  if (!pathname.startsWith('/admin')) {
+    return NextResponse.next();
+  }
+
+  // Rutas administrativas públicas: login y API de autenticación
   const isPublic =
     pathname === '/admin/login' ||
     pathname.startsWith('/api/auth/');
 
   if (isPublic) return NextResponse.next();
 
-  // Verificar sesión
+  // Verificar sesión administrativa
   const allCookies = request.cookies.getAll();
   const hasAuth = allCookies.some(
     (c) =>
@@ -37,8 +42,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Aplica a todas las rutas excepto archivos estáticos y _next
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot|css|js)).*)',
-  ],
+  // Aplica únicamente a las rutas administrativas
+  matcher: ['/admin/:path*'],
 };

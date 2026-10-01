@@ -131,6 +131,25 @@ export function DesignTab({
     }));
   };
 
+  // Estado para colapsar/minimizar las opciones de diseño de cada tarjeta
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+
+  const toggleCard = (id: string) => {
+    setExpandedCards((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const expandAllCards = () => {
+    const all: Record<string, boolean> = {};
+    SECTIONS_LIST.forEach((s) => {
+      all[s.id] = true;
+    });
+    setExpandedCards(all);
+  };
+
+  const collapseAllCards = () => {
+    setExpandedCards({});
+  };
+
   // Estado para el MediaPicker (sección, fluido, continuo, general o bandas laterales)
   const [activePicker, setActivePicker] = useState<{
     type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars';
@@ -1859,17 +1878,56 @@ export function DesignTab({
 
       {/* ─── ESTILOS INDIVIDUALES POR SECCIÓN ─── */}
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.75rem', padding: '1.25rem' }}>
-        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#14532d', marginBottom: '0.25rem' }}>
-          🖼️ Fondos, Fuentes y Estilos Individuales por Sección
-        </label>
-        <p style={{ fontSize: '0.8rem', color: '#166534', margin: '0 0 1rem 0' }}>
-          Cada tarjeta puede tener su propia imagen de fondo, fuente tipográfica y opciones de apariencia independientes del resto.
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#14532d', marginBottom: '0.15rem' }}>
+              🖼️ Fondos, Fuentes y Estilos Individuales por Sección
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#166534', margin: 0 }}>
+              Personalizá cada tarjeta de forma independiente. Podés minimizar las opciones para trabajar más cómodo.
+            </p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <button
+              type="button"
+              onClick={collapseAllCards}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '0.35rem',
+                border: '1px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#475569',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              ▲ Minimizar todas
+            </button>
+            <button
+              type="button"
+              onClick={expandAllCards}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '0.35rem',
+                border: '1px solid #86efac',
+                background: '#dcfce7',
+                color: '#15803d',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              ▼ Desplegar todas
+            </button>
+          </div>
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {SECTIONS_LIST.map((sec) => {
             const style = getSectionStyle(sec.id);
             const hasBg = !!style.backgroundImage;
+            const isCardExpanded = Boolean(expandedCards[sec.id]);
             const hasFont = !!(
               style.sectionFont ||
               style.sectionBodyFont ||
@@ -1887,7 +1945,11 @@ export function DesignTab({
               style.textColor ||
               style.nameFontSize !== undefined ||
               style.nameColor ||
-              style.titleOffsetY !== undefined
+              style.titleOffsetY !== undefined ||
+              style.showMapsButton !== undefined ||
+              style.showWazeButton !== undefined ||
+              style.mapsButtonBg ||
+              style.wazeButtonBg
             );
             const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont;
             return (
@@ -1900,74 +1962,70 @@ export function DesignTab({
                   padding: '0.65rem 0.85rem',
                 }}
               >
-                {/* Fila superior: label + botones */}
+                {/* Fila superior: label + badges + botones */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1e293b', flexShrink: 0 }}>
-                    {sec.label}
-                  </span>
+                  <div
+                    onClick={() => toggleCard(sec.id)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', userSelect: 'none', flexShrink: 0 }}
+                    title={isCardExpanded ? 'Clic para minimizar' : 'Clic para desplegar opciones'}
+                  >
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
+                      {sec.label}
+                    </span>
+                    {hasBg && (
+                      <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        🖼️ Con fondo
+                      </span>
+                    )}
+                    {style.noBackground && (
+                      <span style={{ fontSize: '0.65rem', background: '#fef3c7', color: '#92400e', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        Sin fondo
+                      </span>
+                    )}
+                    {style.noBorder && (
+                      <span style={{ fontSize: '0.65rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        Sin borde
+                      </span>
+                    )}
+                    {hasFont && (
+                      <span style={{ fontSize: '0.65rem', background: '#f3e8ff', color: '#7e22ce', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        🔤 Personalizada
+                      </span>
+                    )}
+                  </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {/* Toggle sin fondo y sombra */}
-                    <label
-                      title="Quitar el color de fondo y la sombra de esta tarjeta"
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBackground ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                    {/* Botón desplegar / minimizar opciones */}
+                    <button
+                      type="button"
+                      onClick={() => toggleCard(sec.id)}
+                      title={isCardExpanded ? 'Minimizar opciones de esta tarjeta' : 'Desplegar opciones de esta tarjeta'}
+                      style={{
+                        padding: '0.28rem 0.65rem',
+                        borderRadius: '0.35rem',
+                        border: '1px solid',
+                        borderColor: isCardExpanded ? '#bbf7d0' : '#cbd5e1',
+                        background: isCardExpanded ? '#f0fdf4' : '#ffffff',
+                        color: isCardExpanded ? '#15803d' : '#334155',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                      }}
                     >
-                      <input
-                        type="checkbox"
-                        checked={style.noBackground === true}
-                        onChange={(e) => updateSectionStyle(sec.id, { noBackground: e.target.checked || undefined })}
-                        style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
-                      />
-                      Sin fondo
-                    </label>
-
-                    {/* Toggle sin borde */}
-                    <label
-                      title="Quitar el borde de esta tarjeta"
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBorder ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={style.noBorder === true}
-                        onChange={(e) => updateSectionStyle(sec.id, { noBorder: e.target.checked || undefined })}
-                        style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
-                      />
-                      Sin borde
-                    </label>
-
-                    {/* Toggle específico para Cuenta Regresiva: Quitar cuadros de fondo */}
-                    {sec.id === 'countdown' && (
-                      <label
-                        title="Ocultar los cuadros de fondo de los números en la cuenta regresiva (deja los números transparentes)"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.3rem',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color: style.countdownNoBoxes ? '#7e22ce' : '#64748b',
-                          cursor: 'pointer',
-                          userSelect: 'none',
-                          background: style.countdownNoBoxes ? '#f3e8ff' : '#ffffff',
-                          padding: '0.2rem 0.45rem',
-                          borderRadius: '0.3rem',
-                          border: `1px solid ${style.countdownNoBoxes ? '#d8b4fe' : '#cbd5e1'}`,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={style.countdownNoBoxes === true}
-                          onChange={(e) => updateSectionStyle('countdown', { countdownNoBoxes: e.target.checked || undefined })}
-                          style={{ width: '14px', height: '14px', accentColor: '#9333ea', cursor: 'pointer' }}
-                        />
-                        ⏳ Quitar cuadros de números
-                      </label>
-                    )}
+                      {isCardExpanded ? '▲ Minimizar' : '▼ Opciones de diseño'}
+                    </button>
 
                     {/* Botón imagen de fondo */}
                     <button
                       type="button"
-                      onClick={() => setActivePicker({ type: 'section', sectionId: sec.id })}
+                      onClick={() => {
+                        setExpandedCards((prev) => ({ ...prev, [sec.id]: true }));
+                        setActivePicker({ type: 'section', sectionId: sec.id });
+                      }}
                       title="Seleccionar imagen de fondo para esta tarjeta"
                       style={{
                         padding: '0.28rem 0.6rem',
@@ -1982,7 +2040,7 @@ export function DesignTab({
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {hasBg ? '🖼️ Cambiar fondo' : '🖼️ + Fondo'}
+                      {hasBg ? '🖼️ Fondo' : '🖼️ + Fondo'}
                     </button>
 
                     {/* Botón limpiar todo */}
@@ -2009,243 +2067,288 @@ export function DesignTab({
                   </div>
                 </div>
 
-                {/* Miniatura y controles de adaptación del div y tamaño de fondo */}
-                {hasBg && (
-                  <div
-                    style={{
-                      marginTop: '0.6rem',
-                      padding: '0.6rem',
-                      borderRadius: '0.5rem',
-                      background: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {isCardExpanded && (
+                  <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                    {/* Toggles rápidos de tarjeta */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', padding: '0.4rem 0.6rem', background: '#f8fafc', borderRadius: '0.35rem', border: '1px solid #e2e8f0' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Ajustes rápidos:</span>
+                      <label
+                        title="Quitar el color de fondo y la sombra de esta tarjeta"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBackground ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.noBackground === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { noBackground: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
+                        />
+                        Sin fondo ni sombra
+                      </label>
+                      <label
+                        title="Quitar el borde de esta tarjeta"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBorder ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.noBorder === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { noBorder: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
+                        />
+                        Sin borde
+                      </label>
+                      {sec.id === 'countdown' && (
+                        <label
+                          title="Ocultar los cuadros de fondo de los números en la cuenta regresiva"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.countdownNoBoxes ? '#7e22ce' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={style.countdownNoBoxes === true}
+                            onChange={(e) => updateSectionStyle('countdown', { countdownNoBoxes: e.target.checked || undefined })}
+                            style={{ width: '14px', height: '14px', accentColor: '#9333ea', cursor: 'pointer' }}
+                          />
+                          ⏳ Quitar cuadros de números
+                        </label>
+                      )}
+                    </div>
+
+                    {/* Miniatura y controles de adaptación del div y tamaño de fondo */}
+                    {hasBg && (
                       <div
                         style={{
-                          width: '56px',
-                          height: '36px',
-                          borderRadius: '0.35rem',
-                          backgroundImage: `url("${style.backgroundImage}")`,
-                          backgroundSize: style.backgroundSize || 'contain',
-                          backgroundPosition: 'center',
-                          backgroundRepeat: 'no-repeat',
-                          backgroundColor: '#e2e8f0',
-                          border: '1px solid #86efac',
-                          flexShrink: 0,
-                        }}
-                      />
-                      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
-                        <span style={{ fontSize: '0.72rem', color: '#1e293b', fontWeight: 600, wordBreak: 'break-all' }}>
-                          {style.backgroundImage?.split('/').pop()}
-                        </span>
-                        {style.imageWidth && style.imageHeight && (
-                          <span style={{ fontSize: '0.65rem', color: '#64748b' }}>
-                            Original: {style.imageWidth} × {style.imageHeight} px
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => updateSectionStyle(sec.id, {
-                          backgroundImage: undefined,
-                          backgroundSize: undefined,
-                          backgroundSizeMobile: undefined,
-                          cardWidth: undefined,
-                          imageWidth: undefined,
-                          imageHeight: undefined,
-                        })}
-                        title="Quitar imagen de fondo"
-                        style={{
-                          padding: '0.2rem 0.45rem',
-                          borderRadius: '0.25rem',
-                          border: '1px solid #fca5a5',
-                          background: '#fef2f2',
-                          color: '#b91c1c',
-                          fontSize: '0.68rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
+                          padding: '0.6rem',
+                          borderRadius: '0.5rem',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem',
                         }}
                       >
-                        ✕ Quitar
-                      </button>
-                    </div>
-
-                    {/* Controles de escala independientes: Desktop y Móvil */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px dashed #cbd5e1' }}>
-
-                      {/* 1. CONTROL PARA MODO DESKTOP */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#ffffff', padding: '0.5rem 0.65rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            🖥️ Escala Desktop (1000px)
-                          </span>
-                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #bfdbfe' }}>
-                            {style.backgroundSize || 'cover'}
-                          </span>
-                        </div>
-
-                        {/* Botones rápidos Desktop */}
-                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                          {[
-                            { label: 'Cubrir', value: 'cover' },
-                            { label: '100% Ancho', value: '100% auto' },
-                            { label: '120%', value: '120% auto' },
-                            { label: '150%', value: '150% auto' },
-                            { label: 'Contener', value: 'contain' },
-                          ].map((preset) => {
-                            const isActive = (style.backgroundSize || 'cover') === preset.value;
-                            return (
-                              <button
-                                key={preset.value}
-                                type="button"
-                                onClick={() => updateSectionStyle(sec.id, { backgroundSize: preset.value, cardWidth: undefined })}
-                                style={{
-                                  padding: '0.18rem 0.45rem',
-                                  borderRadius: '0.25rem',
-                                  border: '1px solid',
-                                  borderColor: isActive ? '#3b82f6' : '#cbd5e1',
-                                  background: isActive ? '#3b82f6' : '#ffffff',
-                                  color: isActive ? '#ffffff' : '#334155',
-                                  fontSize: '0.68rem',
-                                  fontWeight: isActive ? 700 : 500,
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                {preset.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Slider Desktop */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                          <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Slider:</span>
-                          <input
-                            type="range"
-                            min="50"
-                            max="300"
-                            step="5"
-                            value={
-                              style.backgroundSize && /^\d+/.test(style.backgroundSize)
-                                ? parseInt(style.backgroundSize, 10)
-                                : 100
-                            }
-                            onChange={(e) => {
-                              updateSectionStyle(sec.id, { backgroundSize: `${e.target.value}% auto`, cardWidth: undefined });
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div
+                            style={{
+                              width: '56px',
+                              height: '36px',
+                              borderRadius: '0.35rem',
+                              backgroundImage: `url("${style.backgroundImage}")`,
+                              backgroundSize: style.backgroundSize || 'contain',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundColor: '#e2e8f0',
+                              border: '1px solid #86efac',
+                              flexShrink: 0,
                             }}
-                            style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
                           />
-                          <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
-                            {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 2. CONTROL PARA MODO MÓVIL */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#faf5ff', padding: '0.5rem 0.65rem', borderRadius: '0.4rem', border: '1px solid #e9d5ff' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b21a8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                              📱 Escala Móvil (Pantalla chica)
+                          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: '0.72rem', color: '#1e293b', fontWeight: 600, wordBreak: 'break-all' }}>
+                              {style.backgroundImage?.split('/').pop()}
                             </span>
-                            {style.backgroundSizeMobile && (
-                              <button
-                                type="button"
-                                onClick={() => updateSectionStyle(sec.id, { backgroundSizeMobile: undefined })}
-                                title="Restablecer y usar el mismo valor que en Desktop"
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: '#9333ea',
-                                  fontSize: '0.65rem',
-                                  cursor: 'pointer',
-                                  textDecoration: 'underline',
-                                  padding: 0,
-                                }}
-                              >
-                                (Igualar a Desktop)
-                              </button>
+                            {style.imageWidth && style.imageHeight && (
+                              <span style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                                Original: {style.imageWidth} × {style.imageHeight} px
+                              </span>
                             )}
                           </div>
-                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', background: '#f3e8ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #d8b4fe' }}>
-                            {style.backgroundSizeMobile || (style.backgroundSize ? `${style.backgroundSize} (heredado)` : 'cover')}
-                          </span>
-                        </div>
-
-                        {/* Botones rápidos Móvil */}
-                        <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                          {[
-                            { label: '100% Ancho', value: '100% auto' },
-                            { label: '110%', value: '110% auto' },
-                            { label: '120%', value: '120% auto' },
-                            { label: '140%', value: '140% auto' },
-                            { label: 'Cubrir', value: 'cover' },
-                            { label: 'Contener', value: 'contain' },
-                          ].map((preset) => {
-                            const effectiveMobile = style.backgroundSizeMobile || style.backgroundSize || 'cover';
-                            const isActive = effectiveMobile === preset.value;
-                            return (
-                              <button
-                                key={preset.value}
-                                type="button"
-                                onClick={() => updateSectionStyle(sec.id, { backgroundSizeMobile: preset.value })}
-                                style={{
-                                  padding: '0.18rem 0.45rem',
-                                  borderRadius: '0.25rem',
-                                  border: '1px solid',
-                                  borderColor: isActive ? '#9333ea' : '#d8b4fe',
-                                  background: isActive ? '#9333ea' : '#ffffff',
-                                  color: isActive ? '#ffffff' : '#6b21a8',
-                                  fontSize: '0.68rem',
-                                  fontWeight: isActive ? 700 : 500,
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                {preset.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        {/* Slider Móvil */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                          <span style={{ fontSize: '0.68rem', color: '#7e22ce', whiteSpace: 'nowrap' }}>Slider:</span>
-                          <input
-                            type="range"
-                            min="50"
-                            max="300"
-                            step="5"
-                            value={
-                              style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
-                                ? parseInt(style.backgroundSizeMobile, 10)
-                                : style.backgroundSize && /^\d+/.test(style.backgroundSize)
-                                  ? parseInt(style.backgroundSize, 10)
-                                  : 100
-                            }
-                            onChange={(e) => {
-                              updateSectionStyle(sec.id, { backgroundSizeMobile: `${e.target.value}% auto` });
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, {
+                              backgroundImage: undefined,
+                              backgroundSize: undefined,
+                              backgroundSizeMobile: undefined,
+                              cardWidth: undefined,
+                              imageWidth: undefined,
+                              imageHeight: undefined,
+                            })}
+                            title="Quitar imagen de fondo"
+                            style={{
+                              padding: '0.2rem 0.45rem',
+                              borderRadius: '0.25rem',
+                              border: '1px solid #fca5a5',
+                              background: '#fef2f2',
+                              color: '#b91c1c',
+                              fontSize: '0.68rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
                             }}
-                            style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
-                          />
-                          <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
-                            {style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
-                              ? `${parseInt(style.backgroundSizeMobile, 10)}%`
-                              : style.backgroundSize && /^\d+/.test(style.backgroundSize)
-                                ? `${parseInt(style.backgroundSize, 10)}%`
-                                : '100%'}
-                          </span>
+                          >
+                            ✕ Quitar
+                          </button>
+                        </div>
+
+                        {/* Controles de escala independientes: Móvil (prioridad) y Desktop */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px dashed #cbd5e1' }}>
+
+                          {/* 1. CONTROL PARA MODO MÓVIL (PRIORIDAD) */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#faf5ff', padding: '0.6rem 0.75rem', borderRadius: '0.45rem', border: '1px solid #d8b4fe' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#6b21a8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                  📱 Escala Móvil (Prioridad - Vista Principal)
+                                </span>
+                                <span style={{ fontSize: '0.65rem', color: '#9333ea', background: '#f3e8ff', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                                  Recomendado
+                                </span>
+                              </div>
+                              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', background: '#f3e8ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #d8b4fe' }}>
+                                {style.backgroundSizeMobile || '100% auto'}
+                              </span>
+                            </div>
+
+                            {/* Botones rápidos Móvil */}
+                            <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                              {[
+                                { label: '100% Ancho', value: '100% auto' },
+                                { label: '110%', value: '110% auto' },
+                                { label: '120%', value: '120% auto' },
+                                { label: '140%', value: '140% auto' },
+                                { label: 'Cubrir', value: 'cover' },
+                                { label: 'Contener', value: 'contain' },
+                              ].map((preset) => {
+                                const effectiveMobile = style.backgroundSizeMobile || '100% auto';
+                                const isActive = effectiveMobile === preset.value;
+                                return (
+                                  <button
+                                    key={preset.value}
+                                    type="button"
+                                    onClick={() => updateSectionStyle(sec.id, { backgroundSizeMobile: preset.value })}
+                                    style={{
+                                      padding: '0.18rem 0.45rem',
+                                      borderRadius: '0.25rem',
+                                      border: '1px solid',
+                                      borderColor: isActive ? '#9333ea' : '#d8b4fe',
+                                      background: isActive ? '#9333ea' : '#ffffff',
+                                      color: isActive ? '#ffffff' : '#6b21a8',
+                                      fontSize: '0.68rem',
+                                      fontWeight: isActive ? 700 : 500,
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Slider Móvil */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
+                              <span style={{ fontSize: '0.68rem', color: '#7e22ce', whiteSpace: 'nowrap' }}>Slider:</span>
+                              <input
+                                type="range"
+                                min="50"
+                                max="300"
+                                step="5"
+                                value={
+                                  style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
+                                    ? parseInt(style.backgroundSizeMobile, 10)
+                                    : 100
+                                }
+                                onChange={(e) => {
+                                  updateSectionStyle(sec.id, { backgroundSizeMobile: `${e.target.value}% auto` });
+                                }}
+                                style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
+                              />
+                              <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                                {style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
+                                  ? `${parseInt(style.backgroundSizeMobile, 10)}%`
+                                  : '100%'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* 2. CONTROL PARA MODO DESKTOP (INDEPENDIENTE) */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#f8fafc', padding: '0.55rem 0.75rem', borderRadius: '0.45rem', border: '1px solid #e2e8f0' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                🖥️ Escala Desktop (Pantallas Grandes)
+                              </span>
+                              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '0.1rem 0.45rem', borderRadius: '0.25rem', border: '1px solid #bfdbfe' }}>
+                                {style.backgroundSize || 'cover'}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                              Solo afecta la pantalla de escritorio (+768px). No modifica la versión móvil.
+                            </span>
+
+                            {/* Botones rápidos Desktop */}
+                            <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                              {[
+                                { label: 'Cubrir', value: 'cover' },
+                                { label: '100% Ancho', value: '100% auto' },
+                                { label: '120%', value: '120% auto' },
+                                { label: '150%', value: '150% auto' },
+                                { label: 'Contener', value: 'contain' },
+                              ].map((preset) => {
+                                const isActive = (style.backgroundSize || 'cover') === preset.value;
+                                return (
+                                  <button
+                                    key={preset.value}
+                                    type="button"
+                                    onClick={() => {
+                                      const patch: Record<string, unknown> = {
+                                        backgroundSize: preset.value,
+                                        cardWidth: undefined,
+                                      };
+                                      if (!style.backgroundSizeMobile) {
+                                        patch.backgroundSizeMobile = '100% auto';
+                                      }
+                                      updateSectionStyle(sec.id, patch);
+                                    }}
+                                    style={{
+                                      padding: '0.18rem 0.45rem',
+                                      borderRadius: '0.25rem',
+                                      border: '1px solid',
+                                      borderColor: isActive ? '#3b82f6' : '#cbd5e1',
+                                      background: isActive ? '#3b82f6' : '#ffffff',
+                                      color: isActive ? '#ffffff' : '#334155',
+                                      fontSize: '0.68rem',
+                                      fontWeight: isActive ? 700 : 500,
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {preset.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Slider Desktop */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
+                              <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Slider:</span>
+                              <input
+                                type="range"
+                                min="50"
+                                max="300"
+                                step="5"
+                                value={
+                                  style.backgroundSize && /^\d+/.test(style.backgroundSize)
+                                    ? parseInt(style.backgroundSize, 10)
+                                    : 100
+                                }
+                                onChange={(e) => {
+                                  const patch: Record<string, unknown> = {
+                                    backgroundSize: `${e.target.value}% auto`,
+                                    cardWidth: undefined,
+                                  };
+                                  if (!style.backgroundSizeMobile) {
+                                    patch.backgroundSizeMobile = '100% auto';
+                                  }
+                                  updateSectionStyle(sec.id, patch);
+                                }}
+                                style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
+                              />
+                              <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                                {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
+                              </span>
+                            </div>
+                          </div>
+
                         </div>
                       </div>
+                    )}
 
-                    </div>
-                  </div>
-                )}
                 {/* Selector de Fuentes por Sección (Títulos y Cuerpo) */}
                 <div
                   style={{
@@ -3106,15 +3209,15 @@ export function DesignTab({
                     </div>
                   </div>
 
-                  {/* 4. Posición Vertical del Título (Acomodar en altura) */}
+                  {/* 4. Altura / Separación del Título respecto al Cuerpo */}
                   <div style={{ background: '#f8fafc', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
-                        ↕️ Altura / Posición Vertical del Título
+                        ↕️ Altura / Separación del Título respecto al Cuerpo
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                         <span style={{ fontSize: '0.7rem', fontWeight: 700, color: style.titleOffsetY ? '#2563eb' : '#64748b' }}>
-                          {style.titleOffsetY !== undefined ? (style.titleOffsetY === 0 ? 'Centrado (0px)' : `${style.titleOffsetY > 0 ? `+${style.titleOffsetY}` : style.titleOffsetY}px`) : 'Normal (0px)'}
+                          {style.titleOffsetY !== undefined ? (style.titleOffsetY === 0 ? 'Normal (0px)' : `${style.titleOffsetY > 0 ? `+${style.titleOffsetY}` : style.titleOffsetY}px`) : 'Normal (0px)'}
                         </span>
                         {style.titleOffsetY !== undefined && (
                           <button
@@ -3122,21 +3225,21 @@ export function DesignTab({
                             onClick={() => updateSectionStyle(sec.id, { titleOffsetY: undefined })}
                             style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                           >
-                            (centrar)
+                            (restablecer)
                           </button>
                         )}
                       </div>
                     </div>
 
-                    {/* Presets rápidos de altura */}
+                    {/* Presets intuitivos de separación */}
                     <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                       {[
-                        { label: 'Arriba (-60px)', val: -60 },
-                        { label: 'Arriba (-30px)', val: -30 },
+                        { label: 'Pegado (-40px)', val: -40 },
+                        { label: 'Cercano (-20px)', val: -20 },
                         { label: 'Normal (0px)', val: 0 },
-                        { label: 'Abajo (+30px)', val: 30 },
-                        { label: 'Abajo (+60px)', val: 60 },
-                        { label: 'Abajo (+100px)', val: 100 },
+                        { label: 'Separado (+20px)', val: 20 },
+                        { label: 'Más abajo (+40px)', val: 40 },
+                        { label: 'Amplio (+70px)', val: 70 },
                       ].map((b) => (
                         <button
                           key={b.val}
@@ -3161,10 +3264,10 @@ export function DesignTab({
 
                     {/* Slider continuo de altura */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
-                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>-150px</span>
+                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>-100px</span>
                       <input
                         type="range"
-                        min="-150"
+                        min="-100"
                         max="150"
                         step="2"
                         value={style.titleOffsetY ?? 0}
@@ -3342,6 +3445,143 @@ export function DesignTab({
                     </div>
                   )}
 
+                  {/* Opciones especiales para Ubicación (Botones Maps y Waze) */}
+                  {sec.id === 'location' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', background: '#f0fdf4', padding: '0.65rem', borderRadius: '0.4rem', border: '1px solid #bbf7d0' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#166534' }}>
+                        📍 Botones de Navegación (Google Maps & Waze)
+                      </span>
+
+                      {/* Botón Google Maps */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', padding: '0.45rem', background: '#ffffff', borderRadius: '0.35rem', border: '1px solid #dcfce7' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', fontWeight: 600, color: '#14532d', cursor: 'pointer', userSelect: 'none' }}>
+                            <input
+                              type="checkbox"
+                              checked={style.showMapsButton !== false}
+                              onChange={(e) => updateSectionStyle(sec.id, { showMapsButton: e.target.checked })}
+                              style={{ accentColor: '#16a34a', cursor: 'pointer' }}
+                            />
+                            Mostrar botón de Google Maps
+                          </label>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.showMapsButton !== false ? '#16a34a' : '#94a3b8' }}>
+                            {style.showMapsButton !== false ? 'Activo' : 'Oculto'}
+                          </span>
+                        </div>
+
+                        {style.showMapsButton !== false && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 600 }}>Color de fondo:</span>
+                            <input
+                              type="color"
+                              value={style.mapsButtonBg || '#16a34a'}
+                              onChange={(e) => updateSectionStyle(sec.id, { mapsButtonBg: e.target.value })}
+                              style={{ width: '28px', height: '22px', padding: 0, border: '1px solid #86efac', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                              title="Color de fondo del botón Maps"
+                            />
+                            <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                              {[
+                                { color: '#16a34a', title: 'Verde Maps' },
+                                { color: '#2563eb', title: 'Azul' },
+                                { color: '#0f172a', title: 'Negro Elegante' },
+                                { color: '#c5a028', title: 'Dorado' },
+                                { color: '#7c3aed', title: 'Violeta' },
+                              ].map((c) => (
+                                <button
+                                  key={c.color}
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { mapsButtonBg: c.color })}
+                                  title={c.title}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '3px',
+                                    background: c.color,
+                                    border: style.mapsButtonBg === c.color ? '2px solid #14532d' : '1px solid #cbd5e1',
+                                    cursor: 'pointer',
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            {style.mapsButtonBg && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { mapsButtonBg: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#16a34a', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (predeterminado)
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Botón Waze */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', padding: '0.45rem', background: '#ffffff', borderRadius: '0.35rem', border: '1px solid #dcfce7' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', fontWeight: 600, color: '#14532d', cursor: 'pointer', userSelect: 'none' }}>
+                            <input
+                              type="checkbox"
+                              checked={style.showWazeButton !== false}
+                              onChange={(e) => updateSectionStyle(sec.id, { showWazeButton: e.target.checked })}
+                              style={{ accentColor: '#0284c7', cursor: 'pointer' }}
+                            />
+                            Mostrar botón de Waze
+                          </label>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.showWazeButton !== false ? '#0284c7' : '#94a3b8' }}>
+                            {style.showWazeButton !== false ? 'Activo' : 'Oculto'}
+                          </span>
+                        </div>
+
+                        {style.showWazeButton !== false && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 600 }}>Color de fondo:</span>
+                            <input
+                              type="color"
+                              value={style.wazeButtonBg || '#0284c7'}
+                              onChange={(e) => updateSectionStyle(sec.id, { wazeButtonBg: e.target.value })}
+                              style={{ width: '28px', height: '22px', padding: 0, border: '1px solid #7dd3fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                              title="Color de fondo del botón Waze"
+                            />
+                            <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap' }}>
+                              {[
+                                { color: '#0284c7', title: 'Azul Waze' },
+                                { color: '#0ea5e9', title: 'Celeste' },
+                                { color: '#0f172a', title: 'Negro Elegante' },
+                                { color: '#c5a028', title: 'Dorado' },
+                                { color: '#16a34a', title: 'Verde' },
+                              ].map((c) => (
+                                <button
+                                  key={c.color}
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { wazeButtonBg: c.color })}
+                                  title={c.title}
+                                  style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '3px',
+                                    background: c.color,
+                                    border: style.wazeButtonBg === c.color ? '2px solid #0369a1' : '1px solid #cbd5e1',
+                                    cursor: 'pointer',
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            {style.wazeButtonBg && (
+                              <button
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { wazeButtonBg: undefined })}
+                                style={{ background: 'none', border: 'none', color: '#0284c7', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                              >
+                                (predeterminado)
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 5. Preview en vivo de la tipografía, colores y tamaños configurados */}
                   {(style.sectionFont || style.sectionBodyFont || style.titleFontSize || style.bodyFontSize || style.verticalGap !== undefined || style.wordSpacing !== undefined || style.titleColor || style.textColor || style.nameFontSize || style.nameColor || style.titleOffsetY !== undefined || style.countdownNumberColor) && (
                     <div
@@ -3469,10 +3709,11 @@ export function DesignTab({
                     </div>
                   </div>
                 </div>
-
               </div>
-            );
-          })}
+            )}
+          </div>
+        );
+      })}
         </div>
       </div>
 

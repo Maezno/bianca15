@@ -36,7 +36,7 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
           style={{
             display: 'block',
             fontSize: '0.8rem',
-            color: theme.colors.primary,
+            color: sectionStyle?.titleColor || theme.colors.primary,
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             fontWeight: 700,
@@ -51,7 +51,7 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
           style={{
             fontFamily: theme.typography.headingFont,
             fontSize: '1.25rem',
-            color: theme.colors.text,
+            color: sectionStyle?.titleColor || theme.colors.text,
             fontWeight: 500,
             margin: '0.2rem 0',
             lineHeight: 1.3,
@@ -77,7 +77,8 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
         </p>
       )}
 
-      {(event.mapsUrl || event.wazeUrl) && (
+      {((sectionStyle?.showMapsButton !== false && event.mapsUrl) ||
+        (sectionStyle?.showWazeButton !== false && event.wazeUrl)) && (
         <div
           style={{
             display: 'flex',
@@ -87,21 +88,25 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
             flexWrap: 'wrap',
           }}
         >
-          {event.mapsUrl && (
+          {sectionStyle?.showMapsButton !== false && event.mapsUrl && (
             <ActionButton
               label="Google Maps"
               href={event.mapsUrl}
               variant="primary"
               primaryColor={theme.colors.primary}
               textColor="#ffffff"
+              customBg={sectionStyle?.mapsButtonBg}
+              customColor={sectionStyle?.mapsButtonTextColor}
             />
           )}
-          {event.wazeUrl && (
+          {sectionStyle?.showWazeButton !== false && event.wazeUrl && (
             <ActionButton
               label="Waze"
               href={event.wazeUrl}
               variant="outline"
               primaryColor={theme.colors.primary}
+              customBg={sectionStyle?.wazeButtonBg}
+              customColor={sectionStyle?.wazeButtonTextColor}
             />
           )}
         </div>

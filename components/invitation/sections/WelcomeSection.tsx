@@ -33,7 +33,7 @@ export function WelcomeSection({ event, theme }: SectionBaseProps) {
         <p
           data-body="true"
           style={{
-            color: theme.colors.text,
+            color: sectionStyle?.titleColor || sectionStyle?.textColor || theme.colors.text,
             fontSize: '1.05rem',
             lineHeight: 1.7,
             margin: 0,

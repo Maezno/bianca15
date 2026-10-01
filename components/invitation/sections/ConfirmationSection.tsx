@@ -60,7 +60,7 @@ export function ConfirmationSection({
               fontSize: '0.8rem',
               letterSpacing: '0.15em',
               textTransform: 'uppercase',
-              color: theme.colors.primary,
+              color: sectionStyle?.titleColor || theme.colors.primary,
               fontWeight: 700,
               textAlign: 'center',
             }}
@@ -72,7 +72,7 @@ export function ConfirmationSection({
             style={{
               fontFamily: theme.typography.headingFont,
               fontSize: '1.5rem',
-              color: theme.colors.text,
+              color: sectionStyle?.titleColor || theme.colors.text,
               margin: '0.35rem 0 0.5rem 0',
               fontWeight: 700,
               textAlign: 'center',
@@ -148,7 +148,7 @@ export function ConfirmationSection({
               fontSize: '0.8rem',
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              color: theme.colors.primary,
+              color: sectionStyle?.titleColor || theme.colors.primary,
               fontWeight: 700,
               marginBottom: '0.35rem',
               textAlign: 'center',
@@ -162,7 +162,7 @@ export function ConfirmationSection({
             style={{
               fontFamily: theme.typography.headingFont,
               fontSize: '1.65rem',
-              color: theme.colors.text,
+              color: sectionStyle?.titleColor || theme.colors.text,
               margin: '0.25rem 0 0.75rem 0',
               fontWeight: 500,
               lineHeight: 1.25,
