@@ -16,7 +16,8 @@ export function ShareSection({ event, theme, guestGroup }: SectionBaseProps) {
         btnColor="#ffffff"
         cardBg={theme.colors.surface}
         borderColor={theme.colors.border}
-        textColor={theme.colors.text}
+        textColor={sectionStyle?.textColor || theme.colors.text}
+        titleColor={sectionStyle?.titleColor}
         titleOffsetY={titleOffsetY}
       />
     </section>

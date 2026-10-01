@@ -19,8 +19,8 @@ export function FooterSection({ event, theme }: SectionBaseProps) {
       <div
         data-heading-container="true"
         style={{
-          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-          transition: 'transform 0.15s ease',
+          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+          transition: 'margin-bottom 0.15s ease',
           textAlign: 'center',
           width: '100%',
         }}
@@ -29,10 +29,10 @@ export function FooterSection({ event, theme }: SectionBaseProps) {
           data-heading="true"
           style={{
             fontFamily: theme.typography.headingFont,
-            color: theme.colors.primary,
+            color: sectionStyle?.titleColor || theme.colors.primary,
             letterSpacing: '0.2em',
             fontWeight: 700,
-            margin: '0 0 0.5rem 0',
+            margin: 0,
             textTransform: 'uppercase',
             textAlign: 'center',
           }}

@@ -7,7 +7,7 @@ interface PreviewPanelProps {
   slug: string;
   refreshKey: number;
   liveData?: Partial<PublicEvent>;
-  onUpdateSectionHeight?: (sectionId: string, height: number) => void;
+  onUpdateSectionHeight?: (sectionId: string, height: number, isMobile?: boolean) => void;
 }
 
 const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
@@ -102,9 +102,14 @@ export function PreviewPanel({
     liveData?.sectionConfig?.order || Object.keys(SECTION_LABELS);
   const layout = liveData?.designConfig?.layout;
   const isFixed = layout?.mode === 'fixed';
-  const defaultHeight = layout?.sectionHeight || 700;
+  const isMobile = device === 'mobile';
+  const defaultHeight = isMobile
+    ? (layout?.sectionHeightMobile ?? layout?.sectionHeight ?? 700)
+    : (layout?.sectionHeight || 700);
   const currentSelectedHeight = selectedSection
-    ? layout?.sectionHeights?.[selectedSection] || defaultHeight
+    ? (isMobile
+        ? (layout?.sectionHeightsMobile?.[selectedSection] ?? layout?.sectionHeightMobile ?? layout?.sectionHeights?.[selectedSection] ?? defaultHeight)
+        : (layout?.sectionHeights?.[selectedSection] || defaultHeight))
     : defaultHeight;
 
   return (
@@ -223,32 +228,33 @@ export function PreviewPanel({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.3rem',
-                background: '#faf5ff',
+                background: isMobile ? '#faf5ff' : '#eff6ff',
                 padding: '0.2rem 0.5rem',
                 borderRadius: '0.4rem',
-                border: '1px solid #e9d5ff',
+                border: `1px solid ${isMobile ? '#e9d5ff' : '#bfdbfe'}`,
               }}
             >
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7e22ce' }}>
-                ↕ {currentSelectedHeight}px
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isMobile ? '#7e22ce' : '#1d4ed8' }}>
+                {isMobile ? '📱' : '🖥️'} {currentSelectedHeight}px
               </span>
               <button
                 type="button"
                 onClick={() =>
                   onUpdateSectionHeight(
                     selectedSection,
-                    Math.max(250, currentSelectedHeight - 50)
+                    Math.max(200, currentSelectedHeight - 50),
+                    isMobile
                   )
                 }
-                title="Reducir 50px"
+                title={`Reducir 50px (${isMobile ? 'Móvil' : 'Desktop'})`}
                 style={{
                   padding: '0.15rem 0.4rem',
                   fontSize: '0.72rem',
                   fontWeight: 700,
                   background: '#ffffff',
-                  border: '1px solid #d8b4fe',
+                  border: `1px solid ${isMobile ? '#d8b4fe' : '#93c5fd'}`,
                   borderRadius: '0.25rem',
-                  color: '#6b21a8',
+                  color: isMobile ? '#6b21a8' : '#1d4ed8',
                   cursor: 'pointer',
                 }}
               >
@@ -259,18 +265,19 @@ export function PreviewPanel({
                 onClick={() =>
                   onUpdateSectionHeight(
                     selectedSection,
-                    Math.min(2500, currentSelectedHeight + 50)
+                    Math.min(2500, currentSelectedHeight + 50),
+                    isMobile
                   )
                 }
-                title="Aumentar 50px"
+                title={`Aumentar 50px (${isMobile ? 'Móvil' : 'Desktop'})`}
                 style={{
                   padding: '0.15rem 0.4rem',
                   fontSize: '0.72rem',
                   fontWeight: 700,
                   background: '#ffffff',
-                  border: '1px solid #d8b4fe',
+                  border: `1px solid ${isMobile ? '#d8b4fe' : '#93c5fd'}`,
                   borderRadius: '0.25rem',
-                  color: '#6b21a8',
+                  color: isMobile ? '#6b21a8' : '#1d4ed8',
                   cursor: 'pointer',
                 }}
               >

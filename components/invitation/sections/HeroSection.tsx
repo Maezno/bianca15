@@ -92,8 +92,8 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
       <div
         data-heading-container="true"
         style={{
-          transform: sectionStyle?.titleOffsetY !== undefined ? `translateY(${sectionStyle.titleOffsetY}px)` : undefined,
-          transition: 'transform 0.15s ease',
+          marginBottom: sectionStyle?.titleOffsetY !== undefined ? `${Math.max(0, 14 + sectionStyle.titleOffsetY)}px` : '1rem',
+          transition: 'margin-bottom 0.15s ease',
           textAlign: 'center',
           width: '100%',
         }}

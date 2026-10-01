@@ -55,20 +55,39 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
   }, [isPreview]);
 
   const handleUpdateSectionHeight = (sectionId: string, newHeight: number) => {
-    const clamped = Math.max(250, Math.min(2500, Math.round(newHeight)));
-    setEvent((prev) => ({
-      ...prev,
-      designConfig: {
-        ...(prev.designConfig || {}),
-        layout: {
-          ...(prev.designConfig?.layout || {}),
-          sectionHeights: {
-            ...(prev.designConfig?.layout?.sectionHeights || {}),
-            [sectionId]: clamped,
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const clamped = Math.max(200, Math.min(2500, Math.round(newHeight)));
+    setEvent((prev) => {
+      const layout = prev.designConfig?.layout || {};
+      if (isMobile) {
+        return {
+          ...prev,
+          designConfig: {
+            ...(prev.designConfig || {}),
+            layout: {
+              ...layout,
+              sectionHeightsMobile: {
+                ...(layout.sectionHeightsMobile || {}),
+                [sectionId]: clamped,
+              },
+            },
+          },
+        };
+      }
+      return {
+        ...prev,
+        designConfig: {
+          ...(prev.designConfig || {}),
+          layout: {
+            ...layout,
+            sectionHeights: {
+              ...(layout.sectionHeights || {}),
+              [sectionId]: clamped,
+            },
           },
         },
-      },
-    }));
+      };
+    });
 
     // Notificar al editor principal para sincronizar formulario y guardado
     try {
@@ -78,6 +97,7 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
             type: 'UPDATE_SECTION_HEIGHT',
             sectionId,
             height: clamped,
+            isMobile,
           },
           '*'
         );

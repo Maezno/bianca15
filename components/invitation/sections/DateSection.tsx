@@ -41,8 +41,8 @@ export function DateSection({ event, theme }: SectionBaseProps) {
       <div
         data-heading-container="true"
         style={{
-          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-          transition: 'transform 0.15s ease',
+          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+          transition: 'margin-bottom 0.15s ease',
           textAlign: 'center',
           width: '100%',
         }}

@@ -118,7 +118,7 @@ function InteractiveSectionResizer({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const delta = moveEvent.clientY - startYRef.current;
-      const newH = Math.max(250, Math.min(2500, Math.round(startHeightRef.current + delta)));
+      const newH = Math.max(200, Math.min(2500, Math.round(startHeightRef.current + delta)));
       onUpdateHeight(sectionId, newH);
     };
 
@@ -160,7 +160,7 @@ function InteractiveSectionResizer({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onUpdateHeight(sectionId, Math.max(250, currentHeight - 50));
+            onUpdateHeight(sectionId, Math.max(200, currentHeight - 50));
           }}
           title="Reducir 50px"
           style={{
@@ -180,7 +180,7 @@ function InteractiveSectionResizer({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onUpdateHeight(sectionId, Math.max(250, currentHeight - 10));
+            onUpdateHeight(sectionId, Math.max(200, currentHeight - 10));
           }}
           title="Reducir 10px"
           style={{
@@ -301,11 +301,13 @@ interface SectionCardItemProps {
   sectionElement: React.ReactNode;
   isFixed: boolean;
   currentSectionHeight: number;
+  mobileSectionHeight: number;
   contentAlign: 'center' | 'top';
   isSelected: boolean;
   isInteractivePreview?: boolean;
   onUpdateSectionHeight?: (sectionId: string, height: number) => void;
   defaultHeight: number;
+  defaultHeightMobile?: number;
 }
 
 function SectionCardItem({
@@ -315,13 +317,23 @@ function SectionCardItem({
   sectionElement,
   isFixed,
   currentSectionHeight,
+  mobileSectionHeight,
   contentAlign,
   isSelected,
   isInteractivePreview,
   onUpdateSectionHeight,
   defaultHeight,
+  defaultHeightMobile,
 }: SectionCardItemProps) {
   const [naturalDimensions, setNaturalDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+
+  useEffect(() => {
+    const updateMobile = () => setIsMobileScreen(window.innerWidth <= 768);
+    updateMobile();
+    window.addEventListener('resize', updateMobile);
+    return () => window.removeEventListener('resize', updateMobile);
+  }, []);
 
   useEffect(() => {
     if (!sectionStyle?.backgroundImage) {
@@ -477,6 +489,7 @@ function SectionCardItem({
       style={{
         height: `${currentSectionHeight}px`,
         maxHeight: `${currentSectionHeight}px`,
+        '--section-height-mobile': `${mobileSectionHeight}px`,
         width: '100%',
         boxSizing: 'border-box',
         display: 'flex',
@@ -491,7 +504,7 @@ function SectionCardItem({
         boxShadow: isSelected
           ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
           : undefined,
-      }}
+      } as React.CSSProperties}
     >
       {/* Div de la tarjeta: 1000px en desktop, 100% en móvil pegado a los costados */}
       <div
@@ -516,8 +529,8 @@ function SectionCardItem({
       {isInteractivePreview && onUpdateSectionHeight && (
         <InteractiveSectionResizer
           sectionId={sectionId}
-          currentHeight={currentSectionHeight}
-          defaultHeight={defaultHeight}
+          currentHeight={isMobileScreen ? mobileSectionHeight : currentSectionHeight}
+          defaultHeight={isMobileScreen ? (defaultHeightMobile ?? defaultHeight) : defaultHeight}
           isSelected={isSelected}
           onUpdateHeight={onUpdateSectionHeight}
         />
@@ -540,6 +553,7 @@ export function PublicInvitationRenderer({
   const layout = event.designConfig?.layout;
   const isFixed = layout?.mode === 'fixed';
   const defaultHeight = layout?.sectionHeight || 700;
+  const defaultHeightMobile = layout?.sectionHeightMobile ?? defaultHeight;
   const sectionGap = layout?.sectionGap !== undefined ? layout.sectionGap : (isFixed ? 0 : 32);
   const continuousBg = layout?.continuousBackgroundUrl;
   const fluidBg = layout?.fluidBackgroundUrl;
@@ -829,6 +843,7 @@ export function PublicInvitationRenderer({
           }
 
           const currentSectionHeight = layout?.sectionHeights?.[sectionId] || defaultHeight;
+          const mobileSectionHeight = layout?.sectionHeightsMobile?.[sectionId] ?? (layout?.sectionHeightMobile ?? currentSectionHeight);
           const isSelected = selectedSectionId === sectionId;
 
           return (
@@ -840,11 +855,13 @@ export function PublicInvitationRenderer({
               sectionElement={sectionElement}
               isFixed={isFixed}
               currentSectionHeight={currentSectionHeight}
+              mobileSectionHeight={mobileSectionHeight}
               contentAlign={contentAlign}
               isSelected={isSelected}
               isInteractivePreview={isInteractivePreview}
               onUpdateSectionHeight={onUpdateSectionHeight}
               defaultHeight={defaultHeight}
+              defaultHeightMobile={defaultHeightMobile}
             />
           );
         })}

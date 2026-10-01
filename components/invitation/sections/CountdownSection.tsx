@@ -21,9 +21,8 @@ export function CountdownSection({ event, theme }: SectionBaseProps) {
         data-heading-container="true"
         style={{
           textAlign: 'center',
-          marginBottom: '1rem',
-          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-          transition: 'transform 0.15s ease',
+          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 16 + titleOffsetY)}px` : '1rem',
+          transition: 'margin-bottom 0.15s ease',
         }}
       >
         <h2

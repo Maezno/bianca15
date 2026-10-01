@@ -11,6 +11,7 @@ interface ShareSectionProps {
   cardBg?: string;
   borderColor?: string;
   textColor?: string;
+  titleColor?: string;
   titleOffsetY?: number;
 }
 
@@ -23,6 +24,7 @@ export function ShareSection({
   cardBg = 'rgba(255, 255, 255, 0.05)',
   borderColor = 'rgba(255, 255, 255, 0.1)',
   textColor = '#334155',
+  titleColor,
   titleOffsetY,
 }: ShareSectionProps) {
   const [copied, setCopied] = useState(false);
@@ -82,15 +84,15 @@ export function ShareSection({
       <div
         data-heading-container="true"
         style={{
-          transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-          transition: 'transform 0.15s ease',
+          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+          transition: 'margin-bottom 0.15s ease',
           textAlign: 'center',
           width: '100%',
         }}
       >
         <h3
           data-heading="true"
-          style={{ fontSize: '1.15rem', fontWeight: 500, margin: '0 0 0.5rem 0', color: textColor, textAlign: 'center' }}
+          style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, color: titleColor || textColor, textAlign: 'center' }}
         >
           Compartir Invitación
         </h3>

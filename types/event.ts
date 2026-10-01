@@ -178,8 +178,14 @@ export interface DesktopSidebarsConfig {
 
 export interface EventLayoutConfig {
   mode?: "fluid" | "fixed";
+  /** Altura fija global de cada sección en DESKTOP (px) */
   sectionHeight?: number;
+  /** Alturas fijas individuales de cada sección en DESKTOP (px), sobrescriben sectionHeight */
   sectionHeights?: Record<string, number>;
+  /** Altura fija global de cada sección en MÓVIL (px). Si no se define, hereda sectionHeight */
+  sectionHeightMobile?: number;
+  /** Alturas fijas individuales de cada sección en MÓVIL (px), sobrescriben sectionHeightMobile */
+  sectionHeightsMobile?: Record<string, number>;
   sectionGap?: number;
   continuousBackgroundUrl?: string;
   /** URL de imagen de fondo específica para navegación en Modo Fluido (independiente) */

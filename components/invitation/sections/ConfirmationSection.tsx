@@ -47,9 +47,8 @@ export function ConfirmationSection({
           data-heading-container="true"
           style={{
             textAlign: 'center',
-            marginBottom: '1.5rem',
-            transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-            transition: 'transform 0.15s ease',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 24 + titleOffsetY)}px` : '1.5rem',
+            transition: 'margin-bottom 0.15s ease',
             width: '100%',
           }}
         >
@@ -135,8 +134,8 @@ export function ConfirmationSection({
         <div
           data-heading-container="true"
           style={{
-            transform: titleOffsetY !== undefined ? `translateY(${titleOffsetY}px)` : undefined,
-            transition: 'transform 0.15s ease',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+            transition: 'margin-bottom 0.15s ease',
             textAlign: 'center',
             width: '100%',
           }}

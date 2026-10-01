@@ -103,24 +103,39 @@ export function EventEditor({ initialData }: EventEditorProps) {
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'UPDATE_SECTION_HEIGHT' && e.data?.sectionId) {
-        handleUpdateSectionHeight(e.data.sectionId, e.data.height);
+        handleUpdateSectionHeight(e.data.sectionId, e.data.height, Boolean(e.data.isMobile));
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  const handleUpdateSectionHeight = (sectionId: string, height: number) => {
-    setDesignConfig((prev) => ({
-      ...prev,
-      layout: {
-        ...(prev.layout || {}),
-        sectionHeights: {
-          ...(prev.layout?.sectionHeights || {}),
-          [sectionId]: height,
+  const handleUpdateSectionHeight = (sectionId: string, height: number, isMobile?: boolean) => {
+    setDesignConfig((prev) => {
+      const layout = prev.layout || {};
+      if (isMobile) {
+        return {
+          ...prev,
+          layout: {
+            ...layout,
+            sectionHeightsMobile: {
+              ...(layout.sectionHeightsMobile || {}),
+              [sectionId]: height,
+            },
+          },
+        };
+      }
+      return {
+        ...prev,
+        layout: {
+          ...layout,
+          sectionHeights: {
+            ...(layout.sectionHeights || {}),
+            [sectionId]: height,
+          },
         },
-      },
-    }));
+      };
+    });
     setIsDirty(true);
   };
 

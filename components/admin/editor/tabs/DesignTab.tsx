@@ -1801,9 +1801,56 @@ export function DesignTab({
                 📏 Alturas individuales por sección
               </label>
               <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0 0 0.75rem 0' }}>
-                Ajustá la altura de cada sección acá o interactivamente arrastrando desde el previsualizador.
+                Las alturas de <strong>Desktop</strong> y <strong>Móvil</strong> son independientes. Ajustá ambas para que cada vista se vea perfecta.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.6rem' }}>
+
+              {/* Altura global de móvil */}
+              <div style={{ marginBottom: '0.85rem', padding: '0.6rem 0.75rem', background: '#faf5ff', borderRadius: '0.4rem', border: '1px solid #d8b4fe', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#6b21a8', display: 'block' }}>
+                    📱 Alto global en Móvil (Fallback)
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: '#7e22ce' }}>
+                    Si no definís el alto móvil de cada sección, se usa este valor. Por defecto hereda el alto Desktop.
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <input
+                    type="number"
+                    min={200}
+                    max={1400}
+                    placeholder={(designConfig.layout?.sectionHeight || 700).toString()}
+                    value={designConfig.layout?.sectionHeightMobile ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                      setDesignConfig((prev) => ({
+                        ...prev,
+                        layout: { ...(prev.layout || {}), sectionHeightMobile: val },
+                      }));
+                    }}
+                    style={{ width: '72px', padding: '0.35rem 0.5rem', border: '1px solid #d8b4fe', borderRadius: '0.3rem', fontSize: '0.82rem', textAlign: 'right', background: designConfig.layout?.sectionHeightMobile ? '#faf5ff' : '#fff' }}
+                  />
+                  <span style={{ fontSize: '0.72rem', color: '#7e22ce', fontWeight: 600 }}>px</span>
+                  {designConfig.layout?.sectionHeightMobile && (
+                    <button
+                      type="button"
+                      onClick={() => setDesignConfig((prev) => ({ ...prev, layout: { ...(prev.layout || {}), sectionHeightMobile: undefined } }))}
+                      style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.68rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                    >
+                      (auto)
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Cabecera de columnas */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', gap: '0.4rem', alignItems: 'center', padding: '0.25rem 0.6rem', background: '#f1f5f9', borderRadius: '0.3rem', marginBottom: '0.4rem' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Sección</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textAlign: 'center' }}>🖥️ Desktop</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', textAlign: 'center' }}>📱 Móvil</span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {[
                   { id: 'hero', label: '👑 Hero / Portada' },
                   { id: 'welcome', label: '✨ Bienvenida' },
@@ -1820,24 +1867,29 @@ export function DesignTab({
                 ].map((sec) => {
                   const customH = designConfig.layout?.sectionHeights?.[sec.id];
                   const displayH = customH || designConfig.layout?.sectionHeight || 700;
+                  const customHMobile = designConfig.layout?.sectionHeightsMobile?.[sec.id];
+                  const hasCustomMobile = customHMobile !== undefined;
                   return (
                     <div
                       key={sec.id}
                       style={{
-                        display: 'flex',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 110px 110px',
+                        gap: '0.4rem',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.4rem 0.6rem',
-                        background: customH ? '#faf5ff' : '#f8fafc',
+                        padding: '0.35rem 0.6rem',
+                        background: (customH || hasCustomMobile) ? '#faf5ff' : '#f8fafc',
                         border: '1px solid',
-                        borderColor: customH ? '#d8b4fe' : '#e2e8f0',
+                        borderColor: (customH || hasCustomMobile) ? '#d8b4fe' : '#e2e8f0',
                         borderRadius: '0.35rem',
                       }}
                     >
-                      <span style={{ fontSize: '0.78rem', color: '#1e293b', fontWeight: 500 }}>
+                      <span style={{ fontSize: '0.76rem', color: '#1e293b', fontWeight: 500 }}>
                         {sec.label}
                       </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+
+                      {/* Control Desktop */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
                         <input
                           type="number"
                           min={250}
@@ -1857,21 +1909,74 @@ export function DesignTab({
                             }));
                           }}
                           style={{
-                            width: '65px',
-                            padding: '0.25rem 0.4rem',
-                            border: '1px solid #cbd5e1',
+                            width: '62px',
+                            padding: '0.2rem 0.35rem',
+                            border: `1px solid ${customH ? '#2563eb' : '#cbd5e1'}`,
                             borderRadius: '0.25rem',
                             fontSize: '0.75rem',
                             textAlign: 'right',
+                            background: customH ? '#eff6ff' : '#fff',
+                            color: customH ? '#1d4ed8' : '#334155',
+                            fontWeight: customH ? 700 : 400,
                           }}
                         />
-                        <span style={{ fontSize: '0.7rem', color: '#64748b' }}>px</span>
+                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>px</span>
+                      </div>
+
+                      {/* Control Móvil */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
+                        <input
+                          type="number"
+                          min={200}
+                          max={1400}
+                          placeholder={displayH.toString()}
+                          value={customHMobile ?? ''}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                            setDesignConfig((prev) => ({
+                              ...prev,
+                              layout: {
+                                ...(prev.layout || {}),
+                                sectionHeightsMobile: {
+                                  ...(prev.layout?.sectionHeightsMobile || {}),
+                                  [sec.id]: val as number,
+                                },
+                              },
+                            }));
+                          }}
+                          onBlur={(e) => {
+                            // Si se borró el campo, eliminar la key para no guardar undefined
+                            if (e.target.value === '') {
+                              setDesignConfig((prev) => {
+                                const updated = { ...(prev.layout?.sectionHeightsMobile || {}) };
+                                delete updated[sec.id];
+                                return { ...prev, layout: { ...(prev.layout || {}), sectionHeightsMobile: updated } };
+                              });
+                            }
+                          }}
+                          style={{
+                            width: '62px',
+                            padding: '0.2rem 0.35rem',
+                            border: `1px solid ${hasCustomMobile ? '#9333ea' : '#d8b4fe'}`,
+                            borderRadius: '0.25rem',
+                            fontSize: '0.75rem',
+                            textAlign: 'right',
+                            background: hasCustomMobile ? '#faf5ff' : '#fff',
+                            color: hasCustomMobile ? '#7e22ce' : '#94a3b8',
+                            fontWeight: hasCustomMobile ? 700 : 400,
+                          }}
+                        />
+                        <span style={{ fontSize: '0.65rem', color: '#7e22ce' }}>px</span>
                       </div>
                     </div>
                   );
                 })}
               </div>
+              <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '0.5rem 0 0 0' }}>
+                💡 Los campos de Móvil vacíos heredan el fallback global o el alto Desktop de cada sección.
+              </p>
             </div>
+
           </div>
         )}
       </div>

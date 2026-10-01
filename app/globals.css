@@ -120,17 +120,18 @@ body {
   line-height: 1.15 !important;
 }
 
-/* Posicionamiento vertical del título de cada tarjeta (altura personalizada) */
+/* Posicionamiento vertical y separación del título de cada tarjeta respecto al cuerpo */
 .invitation-card-item.has-custom-title-offset [data-heading-container="true"],
 .invitation-card-item[style*="--card-title-offset-y"] [data-heading-container="true"],
 .invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) [data-heading="true"],
 .invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) [data-heading="true"],
 .invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) .card-heading,
 .invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) .card-heading {
-  transform: translateY(var(--card-title-offset-y, 0px)) !important;
-  margin-bottom: calc(max(0px, var(--card-title-offset-y, 0px) * 0.5)) !important;
+  margin-bottom: calc(0.75rem + max(-14px, var(--card-title-offset-y, 0px))) !important;
+  transform: none !important;
   position: relative;
   text-align: center;
+  transition: margin-bottom 0.15s ease;
 }
 
 /* Soporte específico e independiente para Título Público y Nombre del Evento */
@@ -195,6 +196,12 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
     background-size: var(--bg-size-mobile, 100% auto) !important;
+  }
+
+  /* En modo fijo, si hay --section-height-mobile definido, sobrescribe el alto del wrapper */
+  [id^="section-"][style*="--section-height-mobile"] {
+    height: var(--section-height-mobile) !important;
+    max-height: var(--section-height-mobile) !important;
   }
 }
 
