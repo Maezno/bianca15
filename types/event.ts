@@ -156,6 +156,14 @@ export interface SectionStyle {
    */
   wazeButtonTextColor?: string;
   /**
+   * Si es true, oculta el título de la tarjeta dejando solo el cuerpo/contenido.
+   */
+  hideTitle?: boolean;
+  /**
+   * Si es true, oculta el subtítulo de la tarjeta dejando solo el título y/o cuerpo.
+   */
+  hideSubtitle?: boolean;
+  /**
    * Si es true, oculta títulos y textos de la tarjeta para usar una imagen
    * que ya incluye el contenido visual.
    */

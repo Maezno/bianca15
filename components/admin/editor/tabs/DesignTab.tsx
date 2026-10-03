@@ -2260,6 +2260,30 @@ export function DesignTab({
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', padding: '0.4rem 0.6rem', background: '#f8fafc', borderRadius: '0.35rem', border: '1px solid #e2e8f0' }}>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Ajustes rápidos:</span>
                       <label
+                        title="Desactivar/ocultar solo el título principal de esta tarjeta"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.hideTitle ? '#be123c' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.hideTitle === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { hideTitle: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#e11d48', cursor: 'pointer' }}
+                        />
+                        🚫 Ocultar título
+                      </label>
+                      <label
+                        title="Desactivar/ocultar solo el subtítulo o texto secundario de esta tarjeta"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.hideSubtitle ? '#be123c' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.hideSubtitle === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { hideSubtitle: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#e11d48', cursor: 'pointer' }}
+                        />
+                        🚫 Ocultar subtítulo
+                      </label>
+                      <label
                         title="Quitar el color de fondo y la sombra de esta tarjeta"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.noBackground ? '#15803d' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
                       >
@@ -2284,7 +2308,7 @@ export function DesignTab({
                         Sin borde
                       </label>
                       <label
-                        title="Oculta títulos y textos para usar una imagen que ya incluye el contenido"
+                        title="Oculta todo el contenido textual para usar una tarjeta puramente visual"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.hideText ? '#be123c' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
                       >
                         <input
@@ -2293,7 +2317,7 @@ export function DesignTab({
                           onChange={(e) => updateSectionStyle(sec.id, { hideText: e.target.checked || undefined })}
                           style={{ width: '14px', height: '14px', accentColor: '#e11d48', cursor: 'pointer' }}
                         />
-                        Ocultar texto (usar imagen completa)
+                        Ocultar todo el texto
                       </label>
                       {sec.id === 'countdown' && (
                         <label

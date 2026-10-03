@@ -17,7 +17,7 @@
     "maps_url": "https://maps.google.com/?q=Salon+Las+Camelias",
     "waze_url": "https://waze.com/ul?q=Salon+Las+Camelias",
     "dress_code": "Elegante Sport / Formal",
-    "gifts_text": "Tu presencia es nuestro mejor regalo. Si deseás hacernos un presente, podés colaborar con nuestra alcancía.",
+    "gifts_text": "alias.bianca",
     "memoroo_url": "https://memoroo.app/e/bianca15",
     "memoroo_qr_url": "https://memoroo.app/qr/bianca15.png",
     "cover_image": null,
@@ -144,20 +144,24 @@
           "countdown": {
             "noBorder": true,
             "noBackground": true,
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/02f70e31-74e6-4aa4-9bc8-f66290ac0daa.webp",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/cc5d42c3-589c-4611-a900-3e5fd40384fc.webp",
             "backgroundSize": "120% auto",
             "sectionFont": "'Alice in Wonderland', cursive",
             "sectionBodyFont": "'Alice in Wonderland', cursive",
             "titleFontSize": 24,
             "bodyFontSize": 15,
             "letterSpacing": 1,
-            "verticalGap": 12,
+            "verticalGap": 10,
             "countdownNoBoxes": true,
-            "countdownNumberSize": 46,
+            "countdownNumberSize": 64,
             "countdownNumberColor": "#ffffff",
             "textColor": "#ffffff",
             "titleColor": "#ffffff",
-            "wordSpacing": 1
+            "wordSpacing": 1,
+            "backgroundSizeMobile": "120% auto",
+            "titleOffsetY": 6,
+            "contentOffsetY": -4,
+            "contentOffsetX": 2
           },
           "date": {
             "sectionBodyFont": "'Alice in Wonderland', cursive",
@@ -179,18 +183,32 @@
             "verticalGap": 12,
             "wordSpacing": -2,
             "titleOffsetY": -16,
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/b0e79c8e-0dcb-4d37-8bf6-8bf56fc36b93.webp",
-            "backgroundSize": "120% auto",
-            "backgroundSizeMobile": "170% auto",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/3c2e09d6-9c5c-43eb-a087-3aac06aff59d.webp",
+            "backgroundSize": "125% auto",
+            "backgroundSizeMobile": "130% auto",
             "titleColor": "#ffffff",
-            "textColor": "#ffffff"
+            "textColor": "#ffffff",
+            "contentOffsetX": 42,
+            "contentOffsetY": 6,
+            "showMapsButton": true,
+            "showWazeButton": true
           },
           "dress_code": {
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/7f9790e8-8efe-4ef3-91f7-0e7d8147f340.webp",
             "backgroundSize": "75% auto",
             "noBackground": true,
             "noBorder": true,
-            "backgroundSizeMobile": "100% auto"
+            "backgroundSizeMobile": "120% auto",
+            "hideTitle": true,
+            "hideSubtitle": true,
+            "hideText": true
+          },
+          "gifts": {
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/f67987e1-2047-42be-a636-84f9ff35c2e1.webp",
+            "backgroundSize": "120% auto",
+            "hideTitle": true,
+            "hideSubtitle": true,
+            "backgroundSizeMobile": "145% auto"
           }
         },
         "desktopSidebars": {
@@ -200,14 +218,15 @@
           "centralWidth": 590
         },
         "sectionHeightsMobile": {
-          "dress_code": 571,
-          "hero": 521
+          "dress_code": 654,
+          "hero": 521,
+          "gifts": 559
         }
       }
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-10-02T23:22:43.600Z"
+    "updated_at": "2026-10-03T06:57:31.967Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",

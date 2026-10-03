@@ -358,12 +358,16 @@ export async function updateEvent(
   // Siempre actualizamos el demo store para persistencia y soporte inmediato
   updateDemoEvent(input);
 
-  if (input.slug) {
-    safeRevalidatePath(`/invitacion/${input.slug}`);
+  try {
+    if (input.slug) {
+      safeRevalidatePath(`/invitacion/${input.slug}`);
+    }
+    safeRevalidatePath(`/admin/events/${input.id}/editor`);
+    safeRevalidatePath(`/admin/events/${input.id}`);
+    safeRevalidatePath('/admin/events');
+  } catch {
+    // Ignorar si falla la revalidación en contexto de cliente
   }
-  safeRevalidatePath(`/admin/events/${input.id}/editor`);
-  safeRevalidatePath(`/admin/events/${input.id}`);
-  safeRevalidatePath('/admin/events');
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

@@ -409,6 +409,8 @@ function SectionCardItem({
   const cardPaddingX = sectionStyle?.horizontalPadding !== undefined ? `${sectionStyle.horizontalPadding}px` : '1rem';
   const cardTitleOffsetY = sectionStyle?.titleOffsetY !== undefined ? `${sectionStyle.titleOffsetY}px` : undefined;
   const cardTextAlign = sectionStyle?.textAlign || 'center';
+  const hideCardTitle = sectionStyle?.hideTitle === true;
+  const hideCardSubtitle = sectionStyle?.hideSubtitle === true;
   const hideCardText = sectionStyle?.hideText === true;
   const contentOffsetX = sectionStyle?.contentOffsetX ?? 0;
   const contentOffsetY = sectionStyle?.contentOffsetY ?? 0;
@@ -440,6 +442,8 @@ function SectionCardItem({
     cardHeadingColor ? 'has-custom-heading-color' : '',
     cardBodyColor ? 'has-custom-body-color' : '',
     cardTitleOffsetY ? 'has-custom-title-offset' : '',
+    hideCardTitle ? 'hide-card-title' : '',
+    hideCardSubtitle ? 'hide-card-subtitle' : '',
     hideCardText ? 'hide-card-text' : '',
   ].filter(Boolean).join(' ');
 
@@ -762,6 +766,17 @@ export function PublicInvitationRenderer({
       : {}),
   };
 
+  // Parallax sutil para el fondo general/fijo
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    if (!isBgFixed || !effectiveBgImage) return;
+    const handleScroll = () => {
+      setScrollY(window.scrollY || document.documentElement.scrollTop || 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isBgFixed, effectiveBgImage]);
+
   return (
     <div
       style={{
@@ -796,23 +811,26 @@ export function PublicInvitationRenderer({
           />
         </>
       )}
-      {/* Fondo fijo de punta a punta en altura (Wallpaper que cubre todo el viewport y no se corta al hacer scroll) */}
+      {/* Fondo fijo de punta a punta en altura con efecto Parallax sutil */}
       {effectiveBgImage && isBgFixed && (
         <div
           aria-hidden="true"
           style={{
             position: 'fixed',
-            top: 0,
+            top: '-5%',
             left: 0,
             right: 0,
-            bottom: 0,
+            bottom: '-5%',
             width: '100%',
-            height: '100%',
-            minHeight: '100dvh',
+            height: '110%',
+            minHeight: '110dvh',
             backgroundImage: `url("${effectiveBgImage}")`,
             backgroundPosition: 'center center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
+            transform: `translate3d(0, ${scrollY * -0.12}px, 0)`,
+            willChange: 'transform',
+            transition: 'transform 0.05s linear',
             zIndex: 0,
             pointerEvents: 'none',
           }}

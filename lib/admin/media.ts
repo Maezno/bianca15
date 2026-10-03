@@ -98,7 +98,7 @@ export async function getEventMedia(eventId: string): Promise<AdminEventMedia[]>
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return LOCAL_MEDIA_STORE.get(eventId) || [];
+    return getLocalDiskAndStoreMedia(eventId);
   }
 
   try {
@@ -121,7 +121,7 @@ export async function getEventMedia(eventId: string): Promise<AdminEventMedia[]>
 
     if (error || !mediaList) {
       console.warn('Fallback a store local al consultar event_media:', error?.message);
-      return LOCAL_MEDIA_STORE.get(eventId) || [];
+      return getLocalDiskAndStoreMedia(eventId);
     }
 
     return mediaList.map((row: EventMediaRow) => {
@@ -147,8 +147,57 @@ export async function getEventMedia(eventId: string): Promise<AdminEventMedia[]>
     });
   } catch (err) {
     console.error('Error al obtener medios del evento:', err);
-    return LOCAL_MEDIA_STORE.get(eventId) || [];
+    return getLocalDiskAndStoreMedia(eventId);
   }
+}
+
+/**
+ * Helper para obtener imágenes tanto de la memoria local como del sistema de archivos (public/uploads/event-assets/[eventId]).
+ */
+function getLocalDiskAndStoreMedia(eventId: string): AdminEventMedia[] {
+  const inMemory = LOCAL_MEDIA_STORE.get(eventId) || [];
+  const diskMedia: AdminEventMedia[] = [];
+
+  try {
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'event-assets', eventId);
+    if (fs.existsSync(uploadDir)) {
+      const files = fs.readdirSync(uploadDir);
+      for (const file of files) {
+        if (file === 'fonts') continue;
+        const filePath = path.join(uploadDir, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()) {
+          const storagePath = `${eventId}/${file}`;
+          const publicUrl = `/api/uploads/event-assets/${storagePath}`;
+          
+          // Si ya existe en memoria, no duplicar
+          if (!inMemory.some((m) => m.storagePath === storagePath || m.publicUrl === publicUrl)) {
+            const ext = file.split('.').pop()?.toLowerCase() || 'webp';
+            const mimeType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
+            diskMedia.push({
+              id: file.replace(/\.[^/.]+$/, ''),
+              eventId,
+              storagePath,
+              publicUrl,
+              fileName: file,
+              mimeType,
+              fileSize: stats.size,
+              width: 1200,
+              height: 800,
+              createdAt: stats.birthtime.toISOString(),
+              isCover: false,
+              isUsed: false,
+              usedIn: [],
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error al leer imágenes de disco local:', err);
+  }
+
+  return [...inMemory, ...diskMedia];
 }
 
 /**

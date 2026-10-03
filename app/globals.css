@@ -121,17 +121,34 @@ body {
 }
 
 /* Posicionamiento vertical y separación del título de cada tarjeta respecto al cuerpo */
-.invitation-card-item.has-custom-title-offset [data-heading-container="true"],
-.invitation-card-item[style*="--card-title-offset-y"] [data-heading-container="true"],
-.invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) [data-heading="true"],
-.invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) [data-heading="true"],
-.invitation-card-item.has-custom-title-offset:not(:has([data-heading-container="true"])) .card-heading,
-.invitation-card-item[style*="--card-title-offset-y"]:not(:has([data-heading-container="true"])) .card-heading {
-  margin-bottom: calc(0.75rem + max(-14px, var(--card-title-offset-y, 0px))) !important;
-  transform: none !important;
+.invitation-card-item [data-heading-container="true"],
+.invitation-card-item [data-heading="true"],
+.invitation-card-item .card-heading {
+  margin-bottom: calc(0.75rem + var(--card-title-offset-y, 0px)) !important;
   position: relative;
-  text-align: center;
+  text-align: var(--card-text-align, center);
   transition: margin-bottom 0.15s ease;
+}
+
+/* Ocultar solo el título de la tarjeta */
+.invitation-card-item.hide-card-title [data-heading-container="true"],
+.invitation-card-item.hide-card-title [data-heading="true"],
+.invitation-card-item.hide-card-title [data-public-title="true"],
+.invitation-card-item.hide-card-title [data-event-name="true"],
+.invitation-card-item.hide-card-title .card-heading,
+.invitation-card-item.hide-card-title h1,
+.invitation-card-item.hide-card-title h2,
+.invitation-card-item.hide-card-title h3,
+.invitation-card-item.hide-card-title h4 {
+  display: none !important;
+}
+
+/* Ocultar solo el subtítulo / texto secundario de la tarjeta */
+.invitation-card-item.hide-card-subtitle [data-badge="true"],
+.invitation-card-item.hide-card-subtitle .card-subtitle,
+.invitation-card-item.hide-card-subtitle header p,
+.invitation-card-item.hide-card-subtitle [data-heading-container="true"] p {
+  display: none !important;
 }
 
 /* Soporte específico e independiente para Título Público y Nombre del Evento */
