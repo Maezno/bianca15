@@ -146,7 +146,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
               display: 'block',
             }}
           />
-          <span style={{ fontSize: '0.78rem', color: theme.colors.textMuted, marginTop: '0.5rem', display: 'block', textAlign: 'center' }}>
+          <span data-card-copy="true" style={{ fontSize: '0.78rem', color: theme.colors.textMuted, marginTop: '0.5rem', display: 'block', textAlign: 'center' }}>
             Escaneá con tu celular para subir fotos
           </span>
         </div>
@@ -163,6 +163,8 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
             textColor="#ffffff"
             target="_blank"
             rel="noopener noreferrer"
+            backgroundImage={sectionStyle?.buttonBackgroundImage}
+            hideLabel={Boolean(sectionStyle?.hideButtonLabel && sectionStyle?.buttonBackgroundImage)}
           />
         </div>
       )}

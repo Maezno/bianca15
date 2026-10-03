@@ -186,6 +186,22 @@ body {
   word-spacing: var(--card-word-spacing) !important;
 }
 
+/* Ocultar textos de la tarjeta (la imagen de fondo ya incluye el contenido) */
+.invitation-card-item.hide-card-text [data-heading-container="true"],
+.invitation-card-item.hide-card-text [data-heading="true"],
+.invitation-card-item.hide-card-text [data-body="true"],
+.invitation-card-item.hide-card-text [data-badge="true"],
+.invitation-card-item.hide-card-text [data-public-title="true"],
+.invitation-card-item.hide-card-text [data-event-name="true"],
+.invitation-card-item.hide-card-text [data-card-copy="true"],
+.invitation-card-item.hide-card-text h1,
+.invitation-card-item.hide-card-text h2,
+.invitation-card-item.hide-card-text h3,
+.invitation-card-item.hide-card-text h4,
+.invitation-card-item.hide-card-text p {
+  display: none !important;
+}
+
 /* En modo móvil se ajusta al ancho de la pantalla pegado perfectamente a los costados */
 @media (max-width: 768px) {
   .invitation-card-item {

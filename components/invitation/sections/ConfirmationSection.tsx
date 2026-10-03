@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { SectionBaseProps } from './types';
 import { ConfirmationForm } from '@/components/confirmation/ConfirmationForm';
 import { RsvpModal } from '@/components/confirmation/RsvpModal';
+import { ActionButton } from '@/components/invitation/ActionButton';
 
 export function ConfirmationSection({
   event,
@@ -196,62 +197,28 @@ export function ConfirmationSection({
             margin: '0 auto',
           }}
         >
-          <button
-            type="button"
+          <ActionButton
+            label="Sí, asistiré"
             onClick={openAttendModal}
-            style={{
-              padding: '0.95rem 1.5rem',
-              borderRadius: '999px',
-              border: 'none',
-              backgroundColor: theme.colors.primary,
-              color: '#ffffff',
-              fontSize: '1.05rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              boxShadow: `0 6px 20px ${theme.colors.primary}45`,
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.filter = 'brightness(1.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.filter = 'none';
-            }}
-          >
-            Sí, asistiré
-          </button>
-
-          <button
-            type="button"
+            variant="primary"
+            primaryColor={theme.colors.primary}
+            textColor="#ffffff"
+            fullWidth
+            backgroundImage={sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+            hideLabel={Boolean(
+              sectionStyle?.hideButtonLabel &&
+              (sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage)
+            )}
+          />
+          <ActionButton
+            label="No podré asistir"
             onClick={openDeclineModal}
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '999px',
-              border: `1px solid ${theme.colors.border}`,
-              backgroundColor: 'transparent',
-              color: theme.colors.textMuted,
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'background-color 0.15s ease, color 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = `${theme.colors.text}10`;
-              e.currentTarget.style.color = theme.colors.text;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = theme.colors.textMuted;
-            }}
-          >
-            No podré asistir
-          </button>
+            variant="outline"
+            primaryColor={theme.colors.primary}
+            fullWidth
+            backgroundImage={sectionStyle?.declineButtonBackgroundImage}
+            hideLabel={Boolean(sectionStyle?.hideButtonLabel && sectionStyle?.declineButtonBackgroundImage)}
+          />
         </div>
       </section>
 

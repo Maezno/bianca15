@@ -39,6 +39,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
     >
       {guestGroup && (
         <div
+          data-card-copy="true"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -149,6 +150,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
       )}
 
       <div
+        data-card-copy="true"
         style={{
           width: '50px',
           height: '2px',

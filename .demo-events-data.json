@@ -96,13 +96,13 @@
         "sectionGap": 0,
         "contentAlignment": "center",
         "sectionHeights": {
-          "hero": 564,
-          "welcome": 432,
+          "hero": 709,
+          "welcome": 364,
           "countdown": 524,
-          "date": 572,
+          "date": 611,
           "location": 594,
           "schedule": 595,
-          "dress_code": 410,
+          "dress_code": 1123,
           "gifts": 487,
           "confirmation": 613,
           "share": 347,
@@ -184,19 +184,30 @@
             "backgroundSizeMobile": "170% auto",
             "titleColor": "#ffffff",
             "textColor": "#ffffff"
+          },
+          "dress_code": {
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/7f9790e8-8efe-4ef3-91f7-0e7d8147f340.webp",
+            "backgroundSize": "75% auto",
+            "noBackground": true,
+            "noBorder": true,
+            "backgroundSizeMobile": "100% auto"
           }
         },
         "desktopSidebars": {
           "style": "blur",
           "blurAmount": 4,
           "opacity": 0.55,
-          "centralWidth": 480
+          "centralWidth": 590
+        },
+        "sectionHeightsMobile": {
+          "dress_code": 571,
+          "hero": 521
         }
       }
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-09-30T23:16:47.840Z"
+    "updated_at": "2026-10-02T23:22:43.600Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",

@@ -97,6 +97,8 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
               textColor="#ffffff"
               customBg={sectionStyle?.mapsButtonBg}
               customColor={sectionStyle?.mapsButtonTextColor}
+              backgroundImage={sectionStyle?.mapsButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+              hideLabel={Boolean(sectionStyle?.hideButtonLabel && (sectionStyle?.mapsButtonBackgroundImage || sectionStyle?.buttonBackgroundImage))}
             />
           )}
           {sectionStyle?.showWazeButton !== false && event.wazeUrl && (
@@ -107,6 +109,8 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
               primaryColor={theme.colors.primary}
               customBg={sectionStyle?.wazeButtonBg}
               customColor={sectionStyle?.wazeButtonTextColor}
+              backgroundImage={sectionStyle?.wazeButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+              hideLabel={Boolean(sectionStyle?.hideButtonLabel && (sectionStyle?.wazeButtonBackgroundImage || sectionStyle?.buttonBackgroundImage))}
             />
           )}
         </div>

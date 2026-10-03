@@ -74,6 +74,75 @@ function injectUploadedFontsInEditor(fonts?: Array<{ name: string; url: string; 
     .join('\n');
 }
 
+function ButtonImageRow({
+  label,
+  url,
+  onPick,
+  onClear,
+}: {
+  label: string;
+  url?: string;
+  onPick: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+      <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 600 }}>{label}</span>
+      {url && (
+        <div
+          title={url.split('/').pop()}
+          style={{
+            width: '52px',
+            height: '28px',
+            borderRadius: '0.3rem',
+            backgroundImage: `url("${url}")`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundColor: '#f1f5f9',
+            border: '1px solid #cbd5e1',
+            flexShrink: 0,
+          }}
+        />
+      )}
+      <button
+        type="button"
+        onClick={onPick}
+        style={{
+          padding: '0.18rem 0.5rem',
+          borderRadius: '0.3rem',
+          border: '1px solid',
+          borderColor: url ? '#16a34a' : '#cbd5e1',
+          background: url ? '#dcfce7' : '#ffffff',
+          color: url ? '#14532d' : '#334155',
+          fontSize: '0.68rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}
+      >
+        {url ? 'Cambiar PNG' : 'Elegir PNG'}
+      </button>
+      {url && (
+        <button
+          type="button"
+          onClick={onClear}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#b91c1c',
+            fontSize: '0.65rem',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: 0,
+          }}
+        >
+          Quitar
+        </button>
+      )}
+    </div>
+  );
+}
+
 interface DesignTabProps {
   designConfig: EventDesignConfig;
   setDesignConfig: React.Dispatch<React.SetStateAction<EventDesignConfig>>;
@@ -152,7 +221,7 @@ export function DesignTab({
 
   // Estado para el MediaPicker (sección, fluido, continuo, general o bandas laterales)
   const [activePicker, setActivePicker] = useState<{
-    type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars';
+    type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars' | 'button' | 'mapsButton' | 'wazeButton' | 'confirmButton' | 'declineButton';
     sectionId?: string;
   } | null>(null);
 
@@ -2051,12 +2120,20 @@ export function DesignTab({
               style.nameFontSize !== undefined ||
               style.nameColor ||
               style.titleOffsetY !== undefined ||
+              style.contentOffsetX !== undefined ||
+              style.contentOffsetY !== undefined ||
+              style.hideText ||
+              style.buttonBackgroundImage ||
+              style.mapsButtonBackgroundImage ||
+              style.wazeButtonBackgroundImage ||
+              style.confirmButtonBackgroundImage ||
+              style.declineButtonBackgroundImage ||
               style.showMapsButton !== undefined ||
               style.showWazeButton !== undefined ||
               style.mapsButtonBg ||
               style.wazeButtonBg
             );
-            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont;
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.buttonBackgroundImage;
             return (
               <div
                 key={sec.id}
@@ -2090,6 +2167,11 @@ export function DesignTab({
                     {style.noBorder && (
                       <span style={{ fontSize: '0.65rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
                         Sin borde
+                      </span>
+                    )}
+                    {style.hideText && (
+                      <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        Sin texto
                       </span>
                     )}
                     {hasFont && (
@@ -2200,6 +2282,18 @@ export function DesignTab({
                           style={{ width: '14px', height: '14px', accentColor: '#16a34a', cursor: 'pointer' }}
                         />
                         Sin borde
+                      </label>
+                      <label
+                        title="Oculta títulos y textos para usar una imagen que ya incluye el contenido"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.hideText ? '#be123c' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={style.hideText === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { hideText: e.target.checked || undefined })}
+                          style={{ width: '14px', height: '14px', accentColor: '#e11d48', cursor: 'pointer' }}
+                        />
+                        Ocultar texto (usar imagen completa)
                       </label>
                       {sec.id === 'countdown' && (
                         <label
@@ -3417,6 +3511,108 @@ export function DesignTab({
                         );
                       })}
                     </div>
+                  </div>
+
+                  {/* Posición libre del texto en la tarjeta */}
+                  <div style={{ background: '#eff6ff', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1e3a8a' }}>
+                        🎯 Posición del texto en la tarjeta
+                      </span>
+                      {(style.contentOffsetX !== undefined || style.contentOffsetY !== undefined) && (
+                        <button
+                          type="button"
+                          onClick={() => updateSectionStyle(sec.id, { contentOffsetX: undefined, contentOffsetY: undefined })}
+                          style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                        >
+                          (centrar)
+                        </button>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '0.65rem', color: '#1d4ed8' }}>
+                      Mové el bloque de texto a cualquier parte de la sección. 0 / 0 es el centro.
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '72px' }}>
+                        Horizontal
+                      </span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>-200</span>
+                      <input
+                        type="range"
+                        min="-200"
+                        max="200"
+                        step="2"
+                        value={style.contentOffsetX ?? 0}
+                        onChange={(e) => updateSectionStyle(sec.id, { contentOffsetX: parseInt(e.target.value, 10) })}
+                        style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                      />
+                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>+200</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '48px', textAlign: 'right' }}>
+                        {style.contentOffsetX ?? 0}px
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '72px' }}>
+                        Vertical
+                      </span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>-200</span>
+                      <input
+                        type="range"
+                        min="-200"
+                        max="200"
+                        step="2"
+                        value={style.contentOffsetY ?? 0}
+                        onChange={(e) => updateSectionStyle(sec.id, { contentOffsetY: parseInt(e.target.value, 10) })}
+                        style={{ flex: 1, accentColor: '#1d4ed8', cursor: 'pointer', height: '4px' }}
+                      />
+                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>+200</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '48px', textAlign: 'right' }}>
+                        {style.contentOffsetY ?? 0}px
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Fondo PNG de botones */}
+                  <div style={{ background: '#fff7ed', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #fed7aa', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9a3412' }}>
+                      🖼️ Fondo PNG de botones
+                    </span>
+                    <span style={{ fontSize: '0.65rem', color: '#c2410c' }}>
+                      Reemplazá el color de fondo del botón por una imagen (PNG o WebP).
+                    </span>
+                    <ButtonImageRow
+                      label={sec.id === 'location' ? 'Botones de esta tarjeta' : 'Botón de esta tarjeta'}
+                      url={style.buttonBackgroundImage}
+                      onPick={() => setActivePicker({ type: 'button', sectionId: sec.id })}
+                      onClear={() => updateSectionStyle(sec.id, { buttonBackgroundImage: undefined })}
+                    />
+                    {sec.id === 'confirmation' && (
+                      <>
+                        <ButtonImageRow
+                          label="Botón «Sí, asistiré»"
+                          url={style.confirmButtonBackgroundImage}
+                          onPick={() => setActivePicker({ type: 'confirmButton', sectionId: sec.id })}
+                          onClear={() => updateSectionStyle(sec.id, { confirmButtonBackgroundImage: undefined })}
+                        />
+                        <ButtonImageRow
+                          label="Botón «No podré asistir»"
+                          url={style.declineButtonBackgroundImage}
+                          onPick={() => setActivePicker({ type: 'declineButton', sectionId: sec.id })}
+                          onClear={() => updateSectionStyle(sec.id, { declineButtonBackgroundImage: undefined })}
+                        />
+                      </>
+                    )}
+                    {(style.buttonBackgroundImage || style.mapsButtonBackgroundImage || style.wazeButtonBackgroundImage || style.confirmButtonBackgroundImage || style.declineButtonBackgroundImage) && (
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', fontWeight: 600, color: '#9a3412', cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                          type="checkbox"
+                          checked={style.hideButtonLabel === true}
+                          onChange={(e) => updateSectionStyle(sec.id, { hideButtonLabel: e.target.checked || undefined })}
+                          style={{ accentColor: '#ea580c', cursor: 'pointer' }}
+                        />
+                        Ocultar texto del botón (el PNG ya lo incluye)
+                      </label>
+                    )}
                   </div>
 
                   {/* Opciones especiales para Cuenta Regresiva */}

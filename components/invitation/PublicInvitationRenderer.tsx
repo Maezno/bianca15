@@ -409,6 +409,10 @@ function SectionCardItem({
   const cardPaddingX = sectionStyle?.horizontalPadding !== undefined ? `${sectionStyle.horizontalPadding}px` : '1rem';
   const cardTitleOffsetY = sectionStyle?.titleOffsetY !== undefined ? `${sectionStyle.titleOffsetY}px` : undefined;
   const cardTextAlign = sectionStyle?.textAlign || 'center';
+  const hideCardText = sectionStyle?.hideText === true;
+  const contentOffsetX = sectionStyle?.contentOffsetX ?? 0;
+  const contentOffsetY = sectionStyle?.contentOffsetY ?? 0;
+  const hasContentOffset = contentOffsetX !== 0 || contentOffsetY !== 0;
 
   const cardTypographyStyles: React.CSSProperties = {
     fontFamily: sectionTheme?.typography.bodyFont,
@@ -436,7 +440,20 @@ function SectionCardItem({
     cardHeadingColor ? 'has-custom-heading-color' : '',
     cardBodyColor ? 'has-custom-body-color' : '',
     cardTitleOffsetY ? 'has-custom-title-offset' : '',
+    hideCardText ? 'hide-card-text' : '',
   ].filter(Boolean).join(' ');
+
+  const innerContentStyle: React.CSSProperties = {
+    width: '100%',
+    maxWidth: 'min(560px, 100vw)',
+    paddingLeft: cardPaddingX,
+    paddingRight: cardPaddingX,
+    boxSizing: 'border-box',
+    position: 'relative',
+    zIndex: 1,
+    transform: hasContentOffset ? `translate(${contentOffsetX}px, ${contentOffsetY}px)` : undefined,
+    transition: 'transform 0.15s ease',
+  };
 
   if (!isFixed) {
     return (
@@ -475,7 +492,7 @@ function SectionCardItem({
               : {}),
           }}
         >
-          <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', paddingLeft: cardPaddingX, paddingRight: cardPaddingX, boxSizing: 'border-box' }}>
+          <div style={innerContentStyle}>
             {sectionElement}
           </div>
         </div>
@@ -521,7 +538,7 @@ function SectionCardItem({
           ...(hasBgImage ? bgImageStyle : {}),
         }}
       >
-        <div style={{ width: '100%', maxWidth: 'min(560px, 100vw)', paddingLeft: cardPaddingX, paddingRight: cardPaddingX, boxSizing: 'border-box' }}>
+        <div style={innerContentStyle}>
           {sectionElement}
         </div>
       </div>

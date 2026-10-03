@@ -60,7 +60,7 @@ export function ScheduleSection({ event, theme }: SectionBaseProps) {
         </h2>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div data-card-copy="true" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {event.schedule.map((item, idx) => (
           <div
             key={item.id || idx}

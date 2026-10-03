@@ -155,6 +155,45 @@ export interface SectionStyle {
    * Color de texto personalizado para el botón de Waze.
    */
   wazeButtonTextColor?: string;
+  /**
+   * Si es true, oculta títulos y textos de la tarjeta para usar una imagen
+   * que ya incluye el contenido visual.
+   */
+  hideText?: boolean;
+  /**
+   * Desplazamiento horizontal de todo el contenido de texto (px).
+   * Negativo = izquierda, positivo = derecha.
+   */
+  contentOffsetX?: number;
+  /**
+   * Desplazamiento vertical de todo el contenido de texto (px).
+   * Negativo = arriba, positivo = abajo.
+   */
+  contentOffsetY?: number;
+  /**
+   * Imagen PNG/WebP usada como fondo de los botones de la sección.
+   */
+  buttonBackgroundImage?: string;
+  /**
+   * Si es true, oculta la etiqueta de texto del botón (útil cuando el PNG ya la incluye).
+   */
+  hideButtonLabel?: boolean;
+  /**
+   * Imagen de fondo específica para el botón de Google Maps.
+   */
+  mapsButtonBackgroundImage?: string;
+  /**
+   * Imagen de fondo específica para el botón de Waze.
+   */
+  wazeButtonBackgroundImage?: string;
+  /**
+   * Imagen de fondo específica para el botón de confirmar asistencia.
+   */
+  confirmButtonBackgroundImage?: string;
+  /**
+   * Imagen de fondo específica para el botón de declinar asistencia.
+   */
+  declineButtonBackgroundImage?: string;
 }
 
 export type DesktopSidebarsStyle = 'black' | 'blur' | 'transparent' | 'image';

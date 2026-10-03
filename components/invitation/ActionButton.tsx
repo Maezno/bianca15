@@ -14,6 +14,8 @@ export interface ActionButtonProps {
   textColor?: string;
   customBg?: string;
   customColor?: string;
+  backgroundImage?: string;
+  hideLabel?: boolean;
   fullWidth?: boolean;
   target?: string;
   rel?: string;
@@ -30,6 +32,8 @@ export function ActionButton({
   textColor = '#ffffff',
   customBg,
   customColor,
+  backgroundImage,
+  hideLabel = false,
   fullWidth = false,
   target,
   rel,
@@ -40,9 +44,9 @@ export function ActionButton({
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '0.5rem',
-      padding: '0.65rem 1.25rem',
-      borderRadius: '99px',
+      gap: hideLabel ? 0 : '0.5rem',
+      padding: backgroundImage ? (hideLabel ? '0.85rem 1.75rem' : '0.7rem 1.4rem') : '0.65rem 1.25rem',
+      borderRadius: backgroundImage ? '0.75rem' : '99px',
       fontSize: '0.875rem',
       fontWeight: 700,
       textDecoration: 'none',
@@ -51,8 +55,23 @@ export function ActionButton({
       border: 'none',
       boxSizing: 'border-box',
       width: fullWidth ? '100%' : 'auto',
+      minWidth: backgroundImage ? '140px' : undefined,
+      minHeight: backgroundImage ? '44px' : undefined,
       textAlign: 'center',
     };
+
+    if (backgroundImage) {
+      return {
+        ...base,
+        backgroundColor: 'transparent',
+        backgroundImage: `url("${backgroundImage}")`,
+        backgroundSize: '100% 100%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        color: customColor || textColor,
+        boxShadow: 'none',
+      };
+    }
 
     if (customBg) {
       return {
@@ -104,8 +123,8 @@ export function ActionButton({
         style={getStyles()}
         aria-label={ariaLabel || label}
       >
-        {icon && <span aria-hidden="true">{icon}</span>}
-        <span>{label}</span>
+        {!hideLabel && icon && <span aria-hidden="true">{icon}</span>}
+        {!hideLabel && <span>{label}</span>}
       </a>
     );
   }
@@ -117,8 +136,8 @@ export function ActionButton({
       style={getStyles()}
       aria-label={ariaLabel || label}
     >
-      {icon && <span aria-hidden="true">{icon}</span>}
-      <span>{label}</span>
+      {!hideLabel && icon && <span aria-hidden="true">{icon}</span>}
+      {!hideLabel && <span>{label}</span>}
     </button>
   );
 }
