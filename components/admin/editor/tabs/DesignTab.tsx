@@ -2280,8 +2280,10 @@ export function DesignTab({
                   background: hasAnyStyle ? '#ffffff' : '#f8fafc',
                   border: `1px solid ${hasAnyStyle ? '#86efac' : '#e2e8f0'}`,
                   borderRadius: '0.5rem',
-                  padding: '0.65rem 0.85rem',
+                  padding: '0.6rem 0.65rem',
                   scrollMarginTop: '80px',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
                 }}
               >
                 {/* Fila superior: label + badges */}
@@ -2562,7 +2564,7 @@ export function DesignTab({
                         ))}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                         <input
                           type="range"
                           min="0"
@@ -2570,7 +2572,7 @@ export function DesignTab({
                           step="4"
                           value={style.cardGap ?? (designConfig.layout?.sectionGap || 0)}
                           onChange={(e) => updateSectionStyle(sec.id, { cardGap: parseInt(e.target.value, 10) })}
-                          style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                          style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
                         />
                         <input
                           type="number"
@@ -2579,17 +2581,18 @@ export function DesignTab({
                           value={style.cardGap ?? (designConfig.layout?.sectionGap || 0)}
                           onChange={(e) => updateSectionStyle(sec.id, { cardGap: parseInt(e.target.value, 10) || 0 })}
                           style={{
-                            width: '50px',
-                            padding: '0.15rem 0.3rem',
+                            width: '44px',
+                            padding: '0.15rem 0.2rem',
                             border: '1px solid #cbd5e1',
                             borderRadius: '0.25rem',
                             fontSize: '0.72rem',
                             fontWeight: 700,
                             color: '#334155',
                             textAlign: 'right',
+                            flexShrink: 0,
                           }}
                         />
-                        <span style={{ fontSize: '0.68rem', color: '#64748b' }}>px</span>
+                        <span style={{ fontSize: '0.68rem', color: '#64748b', flexShrink: 0 }}>px</span>
                       </div>
                     </div>
 
@@ -2714,8 +2717,8 @@ export function DesignTab({
                             </div>
 
                             {/* Slider Móvil */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                              <span style={{ fontSize: '0.68rem', color: '#7e22ce', whiteSpace: 'nowrap' }}>Slider:</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+                              <span style={{ fontSize: '0.68rem', color: '#7e22ce', whiteSpace: 'nowrap', flexShrink: 0 }}>Slider:</span>
                               <input
                                 type="range"
                                 min="50"
@@ -2729,9 +2732,9 @@ export function DesignTab({
                                 onChange={(e) => {
                                   updateSectionStyle(sec.id, { backgroundSizeMobile: `${e.target.value}% auto` });
                                 }}
-                                style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
+                                style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
                               />
-                              <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                              <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '36px', textAlign: 'right', fontWeight: 700, flexShrink: 0 }}>
                                 {style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
                                   ? `${parseInt(style.backgroundSizeMobile, 10)}%`
                                   : '100%'}
@@ -2796,8 +2799,8 @@ export function DesignTab({
                             </div>
 
                             {/* Slider Desktop */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                              <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap' }}>Slider:</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+                              <span style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap', flexShrink: 0 }}>Slider:</span>
                               <input
                                 type="range"
                                 min="50"
@@ -2818,9 +2821,9 @@ export function DesignTab({
                                   }
                                   updateSectionStyle(sec.id, patch);
                                 }}
-                                style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
+                                style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
                               />
-                              <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '40px', textAlign: 'right', fontWeight: 700 }}>
+                              <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '36px', textAlign: 'right', fontWeight: 700, flexShrink: 0 }}>
                                 {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
                               </span>
                             </div>
@@ -3064,7 +3067,7 @@ export function DesignTab({
                         </div>
 
                         {/* Slider e Input numérico para Tamaño del Nombre sin tope restrictivo */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                           <input
                             type="range"
                             min="12"
@@ -3072,7 +3075,7 @@ export function DesignTab({
                             step="1"
                             value={typeof style.nameFontSize === 'number' ? style.nameFontSize : 48}
                             onChange={(e) => updateSectionStyle(sec.id, { nameFontSize: parseInt(e.target.value, 10) })}
-                            style={{ flex: 1, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
+                            style={{ flex: 1, minWidth: 0, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
                           />
                           <input
                             type="number"
@@ -3081,17 +3084,18 @@ export function DesignTab({
                             value={typeof style.nameFontSize === 'number' ? style.nameFontSize : 48}
                             onChange={(e) => updateSectionStyle(sec.id, { nameFontSize: parseInt(e.target.value, 10) || 48 })}
                             style={{
-                              width: '54px',
-                              padding: '0.15rem 0.3rem',
+                              width: '46px',
+                              padding: '0.15rem 0.2rem',
                               border: '1px solid #f0abfc',
                               borderRadius: '0.25rem',
                               fontSize: '0.72rem',
                               fontWeight: 700,
                               color: '#86198f',
                               textAlign: 'right',
+                              flexShrink: 0,
                             }}
                           />
-                          <span style={{ fontSize: '0.68rem', color: '#86198f', fontWeight: 600 }}>px</span>
+                          <span style={{ fontSize: '0.68rem', color: '#86198f', fontWeight: 600, flexShrink: 0 }}>px</span>
                         </div>
                       </div>
 
@@ -3195,7 +3199,7 @@ export function DesignTab({
                         </div>
 
                         {/* Slider Tamaño del Título Público */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                           <input
                             type="range"
                             min="12"
@@ -3203,9 +3207,9 @@ export function DesignTab({
                             step="1"
                             value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 22}
                             onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
-                            style={{ flex: 1, accentColor: '#7e22ce', cursor: 'pointer', height: '4px' }}
+                            style={{ flex: 1, minWidth: 0, accentColor: '#7e22ce', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
                             {style.titleFontSize ? `${style.titleFontSize}px` : '22px'}
                           </span>
                         </div>
@@ -3310,7 +3314,7 @@ export function DesignTab({
                         </div>
 
                         {/* Slider Tamaño del Subtítulo */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                           <input
                             type="range"
                             min="10"
@@ -3318,9 +3322,9 @@ export function DesignTab({
                             step="1"
                             value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 17}
                             onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
-                            style={{ flex: 1, accentColor: '#475569', cursor: 'pointer', height: '4px' }}
+                            style={{ flex: 1, minWidth: 0, accentColor: '#475569', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#334155', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#334155', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
                             {style.bodyFontSize ? `${style.bodyFontSize}px` : '17px'}
                           </span>
                         </div>
@@ -3501,7 +3505,7 @@ export function DesignTab({
                             ))}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                             <input
                               type="range"
                               min="12"
@@ -3509,9 +3513,9 @@ export function DesignTab({
                               step="1"
                               value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 32}
                               onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
-                              style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                              style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
                             />
-                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
                               {style.titleFontSize ? `${style.titleFontSize}px` : '32px'}
                             </span>
                           </div>
@@ -3569,7 +3573,7 @@ export function DesignTab({
                             ))}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                             <input
                               type="range"
                               min="10"
@@ -3577,9 +3581,9 @@ export function DesignTab({
                               step="1"
                               value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 15}
                               onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
-                              style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                              style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
                             />
-                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
                               {style.bodyFontSize ? `${style.bodyFontSize}px` : '15px'}
                             </span>
                           </div>
@@ -3629,7 +3633,7 @@ export function DesignTab({
                         ))}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                         <input
                           type="range"
                           min="0"
@@ -3637,7 +3641,7 @@ export function DesignTab({
                           step="2"
                           value={style.verticalGap ?? 12}
                           onChange={(e) => updateSectionStyle(sec.id, { verticalGap: parseInt(e.target.value, 10) })}
-                          style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                          style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                         />
                       </div>
                     </div>
@@ -3692,7 +3696,7 @@ export function DesignTab({
                         ))}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
                         <input
                           type="range"
                           min="-2"
@@ -3700,7 +3704,7 @@ export function DesignTab({
                           step="1"
                           value={style.wordSpacing ?? 0}
                           onChange={(e) => updateSectionStyle(sec.id, { wordSpacing: parseInt(e.target.value, 10) })}
-                          style={{ flex: 1, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
+                          style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
                         />
                       </div>
                     </div>
@@ -3760,8 +3764,8 @@ export function DesignTab({
                     </div>
 
                     {/* Slider continuo de altura */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
-                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>-100px</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+                      <span style={{ fontSize: '0.65rem', color: '#64748b', flexShrink: 0 }}>-100px</span>
                       <input
                         type="range"
                         min="-100"
@@ -3769,14 +3773,14 @@ export function DesignTab({
                         step="2"
                         value={style.titleOffsetY ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { titleOffsetY: parseInt(e.target.value, 10) })}
-                        style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                        style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.65rem', color: '#64748b' }}>+150px</span>
+                      <span style={{ fontSize: '0.65rem', color: '#64748b', flexShrink: 0 }}>+150px</span>
                     </div>
                   </div>
 
                   {/* 5. Control de Alineación de Texto */}
-                  <div style={{ background: '#f8fafc', padding: '0.45rem 0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <div style={{ background: '#f8fafc', padding: '0.45rem 0.55rem', borderRadius: '0.4rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155' }}>
                       ↔️ Alineación de Texto
                     </span>
@@ -3830,11 +3834,11 @@ export function DesignTab({
                     <span style={{ fontSize: '0.65rem', color: '#1d4ed8' }}>
                       Mové el bloque de texto a cualquier parte de la sección. 0 / 0 es el centro.
                     </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '72px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
                         Horizontal
                       </span>
-                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>-200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-200</span>
                       <input
                         type="range"
                         min="-200"
@@ -3842,18 +3846,18 @@ export function DesignTab({
                         step="2"
                         value={style.contentOffsetX ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { contentOffsetX: parseInt(e.target.value, 10) })}
-                        style={{ flex: 1, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
+                        style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>+200</span>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '48px', textAlign: 'right' }}>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+200</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
                         {style.contentOffsetX ?? 0}px
                       </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '72px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
                         Vertical
                       </span>
-                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>-200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-200</span>
                       <input
                         type="range"
                         min="-200"
@@ -3861,10 +3865,10 @@ export function DesignTab({
                         step="2"
                         value={style.contentOffsetY ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { contentOffsetY: parseInt(e.target.value, 10) })}
-                        style={{ flex: 1, accentColor: '#1d4ed8', cursor: 'pointer', height: '4px' }}
+                        style={{ flex: 1, minWidth: 0, accentColor: '#1d4ed8', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.62rem', color: '#64748b' }}>+200</span>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '48px', textAlign: 'right' }}>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+200</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
                         {style.contentOffsetY ?? 0}px
                       </span>
                     </div>

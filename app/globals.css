@@ -59,19 +59,19 @@ body {
   .admin-editor-grid {
     display: flex !important;
     flex-direction: column !important;
-    padding: 0.75rem !important;
-    gap: 0.75rem !important;
+    padding: 0.35rem !important;
+    gap: 0.5rem !important;
   }
 
   .admin-editor-panel {
     height: auto !important;
-    max-height: calc(100vh - 145px) !important;
+    max-height: calc(100vh - 130px) !important;
     position: static !important;
     width: 100% !important;
   }
 
   .admin-preview-panel-wrap {
-    height: calc(100vh - 145px) !important;
+    height: calc(100vh - 130px) !important;
     position: static !important;
     width: 100% !important;
   }
@@ -82,40 +82,46 @@ body {
   }
 
   .admin-savebar {
-    padding: 0.5rem 0.75rem !important;
-    gap: 0.4rem !important;
+    padding: 0.45rem 0.6rem !important;
+    gap: 0.35rem !important;
   }
 
   .admin-savebar-title {
-    font-size: 0.95rem !important;
+    font-size: 0.88rem !important;
   }
 
   .admin-nav-bar {
-    padding: 0.4rem 0.75rem !important;
+    padding: 0.35rem 0.6rem !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
   .admin-top-header {
-    padding: 0.5rem 0.85rem !important;
+    padding: 0.45rem 0.65rem !important;
   }
 
   .admin-main-container {
-    padding: 0.85rem !important;
+    padding: 0.5rem !important;
   }
 
   .admin-editor-panel .custom-editor-scrollbar {
-    padding: 0.85rem 0.75rem !important;
+    padding: 0.5rem 0.45rem !important;
   }
 
   .admin-editor-panel-tabs {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
+    padding: 0 0.25rem !important;
   }
 
   .admin-editor-panel-tabs::-webkit-scrollbar {
     display: none !important;
+  }
+
+  .admin-editor-panel-tabs button {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.78rem !important;
   }
 }
 
