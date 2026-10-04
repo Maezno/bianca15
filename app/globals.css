@@ -319,13 +319,23 @@ body {
   }
 }
 
-/* Legibilidad refinada de textos sobre fondos ilustrados */
+/* Legibilidad refinada y sombra por defecto debajo de todos los textos sobre fondos ilustrados */
 .invitation-card-item h1,
 .invitation-card-item h2,
 .invitation-card-item h3,
+.invitation-card-item h4,
+.invitation-card-item p,
+.invitation-card-item span,
+.invitation-card-item label,
+.invitation-card-item strong,
 .invitation-card-item [data-heading="true"],
-.invitation-card-item .card-heading {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.05);
+.invitation-card-item [data-body="true"],
+.invitation-card-item [data-badge="true"],
+.invitation-card-item [data-public-title="true"],
+.invitation-card-item [data-event-name="true"],
+.invitation-card-item .card-heading,
+.invitation-card-item .card-body {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* Efecto táctil sutil en botones (feedback al tocar en mobile y desktop) */
