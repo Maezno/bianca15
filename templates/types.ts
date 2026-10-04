@@ -17,6 +17,7 @@ export interface TemplateTheme {
   typography: {
     headingFont: string;
     bodyFont: string;
+    secondaryFont?: string;
   };
   styles?: Record<string, string>;
 }

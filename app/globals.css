@@ -22,6 +22,30 @@ body {
   box-sizing: border-box;
 }
 
+/* ── Scrollbar visible y estilizada para el panel del editor ─────────────── */
+.custom-editor-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #c084fc #f1f5f9;
+}
+
+.custom-editor-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-editor-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.custom-editor-scrollbar::-webkit-scrollbar-thumb {
+  background: #c084fc;
+  border-radius: 4px;
+}
+
+.custom-editor-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9333ea;
+}
+
 /* ── Tarjetas de sección de la invitación ────────────────────────────────── */
 /* En modo desktop el ancho de las tarjetas es de 1000px y puede salirse de la pantalla */
 .invitation-card-item {
@@ -178,30 +202,7 @@ body {
   line-height: 1.35 !important;
 }
 
-/* Separación vertical entre textos (interlineado y márgenes de bloques) */
-.invitation-card-item[style*="--card-vertical-gap"] p {
-  line-height: calc(1.5 + (var(--card-vertical-gap, 0) / 30)) !important;
-  margin-top: calc(var(--card-vertical-gap, 0) * 0.4px) !important;
-  margin-bottom: calc(var(--card-vertical-gap, 0) * 0.4px) !important;
-}
 
-.invitation-card-item[style*="--card-vertical-gap"] h1,
-.invitation-card-item[style*="--card-vertical-gap"] h2,
-.invitation-card-item[style*="--card-vertical-gap"] h3,
-.invitation-card-item[style*="--card-vertical-gap"] strong:first-child {
-  margin-bottom: calc(var(--card-vertical-gap, 0) * 0.5px) !important;
-}
-
-/* Separación entre palabras (word-spacing) */
-.invitation-card-item[style*="--card-word-spacing"] p,
-.invitation-card-item[style*="--card-word-spacing"] span,
-.invitation-card-item[style*="--card-word-spacing"] h1,
-.invitation-card-item[style*="--card-word-spacing"] h2,
-.invitation-card-item[style*="--card-word-spacing"] h3,
-.invitation-card-item[style*="--card-word-spacing"] strong,
-.invitation-card-item[style*="--card-word-spacing"] div {
-  word-spacing: var(--card-word-spacing) !important;
-}
 
 /* Ocultar textos de la tarjeta (la imagen de fondo ya incluye el contenido) */
 .invitation-card-item.hide-card-text [data-heading-container="true"],
@@ -296,4 +297,48 @@ body {
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* ── Mejoras gráficas e interactivas de la tarjeta pública ───────────────── */
+
+/* Animación sutil de entrada al scrollear (respeta prefers-reduced-motion) */
+@keyframes cardFadeSlideUp {
+  from {
+    opacity: 0.2;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .invitation-card-item {
+    animation: cardFadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* Legibilidad refinada de textos sobre fondos ilustrados */
+.invitation-card-item h1,
+.invitation-card-item h2,
+.invitation-card-item h3,
+.invitation-card-item [data-heading="true"],
+.invitation-card-item .card-heading {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Efecto táctil sutil en botones (feedback al tocar en mobile y desktop) */
+.invitation-card-item button,
+.invitation-card-item a[role="button"],
+.invitation-card-item .btn-interactive {
+  min-height: 44px;
+  touch-action: manipulation;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.invitation-card-item button:active,
+.invitation-card-item a[role="button"]:active,
+.invitation-card-item .btn-interactive:active {
+  transform: scale(0.965);
 }

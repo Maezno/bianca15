@@ -300,11 +300,12 @@ interface SectionCardItemProps {
   sectionTheme?: TemplateTheme;
   sectionElement: React.ReactNode;
   isFixed: boolean;
-  currentSectionHeight: number;
-  mobileSectionHeight: number;
+  layoutSectionHeight?: number;
+  layoutMobileHeight?: number;
   contentAlign: 'center' | 'top';
   isSelected: boolean;
   isInteractivePreview?: boolean;
+  isHeightLocked?: boolean;
   onUpdateSectionHeight?: (sectionId: string, height: number) => void;
   defaultHeight: number;
   defaultHeightMobile?: number;
@@ -316,11 +317,12 @@ function SectionCardItem({
   sectionTheme,
   sectionElement,
   isFixed,
-  currentSectionHeight,
-  mobileSectionHeight,
+  layoutSectionHeight,
+  layoutMobileHeight,
   contentAlign,
   isSelected,
   isInteractivePreview,
+  isHeightLocked,
   onUpdateSectionHeight,
   defaultHeight,
   defaultHeightMobile,
@@ -420,6 +422,7 @@ function SectionCardItem({
     fontFamily: sectionTheme?.typography.bodyFont,
     '--card-heading-font': sectionTheme?.typography.headingFont,
     '--card-body-font': sectionTheme?.typography.bodyFont,
+    '--card-secondary-font': sectionTheme?.typography.secondaryFont || sectionTheme?.typography.bodyFont,
     '--card-heading-size': cardHeadingSize,
     '--card-body-size': cardBodySize,
     '--card-heading-color': cardHeadingColor,
@@ -428,8 +431,6 @@ function SectionCardItem({
     '--card-name-color': cardNameColor,
     '--card-public-title-size': cardPublicTitleSize,
     '--card-public-title-color': cardPublicTitleColor,
-    '--card-vertical-gap': cardVerticalGap,
-    '--card-word-spacing': cardWordSpacing,
     '--card-title-offset-y': cardTitleOffsetY,
     '--card-text-align': cardTextAlign,
     textAlign: cardTextAlign,
@@ -459,6 +460,46 @@ function SectionCardItem({
     transition: 'transform 0.15s ease',
   };
 
+  // Cálculo del alto natural o proporcional de la imagen de fondo para adaptar la tarjeta
+  const naturalImageHeight = sectionStyle?.imageHeight || naturalDimensions?.height;
+  const naturalImageWidth = sectionStyle?.imageWidth || naturalDimensions?.width;
+
+  // En modo móvil (pantalla ≤ 768px), el alto proporcional al ancho de la pantalla:
+  const responsiveImageHeight = (naturalImageWidth && naturalImageHeight)
+    ? Math.round((typeof window !== 'undefined' ? Math.min(window.innerWidth, 560) : 390) * (naturalImageHeight / naturalImageWidth))
+    : undefined;
+
+  // Factor de escala configurado para el fondo (ej. "120% auto" -> factor 1.2; "150% auto" -> factor 1.5)
+  const parseBgScale = (sizeStr?: string): number => {
+    if (!sizeStr) return 1;
+    const match = sizeStr.trim().match(/^(\d+)(?:\.\d+)?%/);
+    if (match) {
+      const pct = parseFloat(match[1]);
+      return pct > 0 ? pct / 100 : 1;
+    }
+    return 1;
+  };
+
+  const desktopBgScale = parseBgScale(sectionStyle?.backgroundSize);
+  const mobileBgScale = parseBgScale(sectionStyle?.backgroundSizeMobile);
+
+  // En Desktop: si la tarjeta tiene fondo, toma directamente la altura del PNG multiplicada por la escala del fondo
+  // Si no tiene fondo, utiliza el valor personalizado de sectionHeights o el defaultHeight
+  const baseDesktopHeight = hasBgImage
+    ? (naturalImageHeight || layoutSectionHeight || defaultHeight)
+    : (layoutSectionHeight || defaultHeight);
+  const effectiveDesktopHeight = hasBgImage
+    ? Math.round(baseDesktopHeight * desktopBgScale)
+    : baseDesktopHeight;
+
+  // En Móvil: si la tarjeta tiene fondo, se adapta proporcionalmente a la pantalla y a la escala del fondo para evitar recortes
+  const baseMobileHeight = hasBgImage
+    ? (responsiveImageHeight || naturalImageHeight || layoutMobileHeight || (defaultHeightMobile ?? baseDesktopHeight))
+    : (layoutMobileHeight || (defaultHeightMobile ?? baseDesktopHeight));
+  const effectiveMobileHeight = hasBgImage
+    ? Math.round(baseMobileHeight * mobileBgScale)
+    : baseMobileHeight;
+
   if (!isFixed) {
     return (
       <div
@@ -485,9 +526,7 @@ function SectionCardItem({
             ...(hasBgImage
               ? {
                   ...bgImageStyle,
-                  minHeight: imgRatio
-                    ? `clamp(200px, calc(100vw / ${imgRatio}), ${(sectionStyle?.imageHeight || naturalDimensions?.height || 650)}px)`
-                    : undefined,
+                  minHeight: `${isMobileScreen ? effectiveMobileHeight : effectiveDesktopHeight}px`,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
@@ -504,13 +543,20 @@ function SectionCardItem({
     );
   }
 
+  const finalSectionHeight = isMobileScreen ? effectiveMobileHeight : effectiveDesktopHeight;
+
   return (
     <div
       id={`section-${sectionId}`}
+      onClick={() => {
+        if (isInteractivePreview && typeof window !== 'undefined') {
+          window.parent?.postMessage({ type: 'SELECT_SECTION', sectionId }, '*');
+        }
+      }}
       style={{
-        height: `${currentSectionHeight}px`,
-        maxHeight: `${currentSectionHeight}px`,
-        '--section-height-mobile': `${mobileSectionHeight}px`,
+        height: `${effectiveDesktopHeight}px`,
+        maxHeight: `${effectiveDesktopHeight}px`,
+        '--section-height-mobile': `${effectiveMobileHeight}px`,
         width: '100%',
         boxSizing: 'border-box',
         display: 'flex',
@@ -522,6 +568,7 @@ function SectionCardItem({
         position: 'relative',
         transition: 'box-shadow 0.2s ease',
         overflow: 'visible',
+        cursor: isInteractivePreview ? 'pointer' : 'default',
         boxShadow: isSelected
           ? '0 0 0 3px #9333ea, 0 8px 24px rgba(147, 51, 234, 0.25)'
           : undefined,
@@ -547,11 +594,11 @@ function SectionCardItem({
         </div>
       </div>
 
-      {isInteractivePreview && onUpdateSectionHeight && (
+      {!isHeightLocked && isInteractivePreview && onUpdateSectionHeight && (
         <InteractiveSectionResizer
           sectionId={sectionId}
-          currentHeight={isMobileScreen ? mobileSectionHeight : currentSectionHeight}
-          defaultHeight={isMobileScreen ? (defaultHeightMobile ?? defaultHeight) : defaultHeight}
+          currentHeight={finalSectionHeight}
+          defaultHeight={isMobileScreen ? (defaultHeightMobile ?? effectiveMobileHeight) : effectiveDesktopHeight}
           isSelected={isSelected}
           onUpdateHeight={onUpdateSectionHeight}
         />
@@ -675,12 +722,13 @@ export function PublicInvitationRenderer({
   useEffect(() => {
     ensurePredefinedFontLoaded(theme.typography.headingFont);
     ensurePredefinedFontLoaded(theme.typography.bodyFont);
+    if (theme.typography.secondaryFont) ensurePredefinedFontLoaded(theme.typography.secondaryFont);
     Object.values(sectionStyles).forEach((style) => {
       if (style.sectionFont) ensurePredefinedFontLoaded(style.sectionFont);
       if (style.sectionBodyFont) ensurePredefinedFontLoaded(style.sectionBodyFont);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme.typography.headingFont, theme.typography.bodyFont, JSON.stringify(sectionStyles)]);
+  }, [theme.typography.headingFont, theme.typography.bodyFont, theme.typography.secondaryFont, JSON.stringify(sectionStyles)]);
 
   /** Resuelve el theme final para una sección aplicando sus overrides individuales */
   const resolveSectionTheme = (sectionId: string, style?: SectionStyle) => {
@@ -766,15 +814,25 @@ export function PublicInvitationRenderer({
       : {}),
   };
 
-  // Parallax sutil para el fondo general/fijo
-  const [scrollY, setScrollY] = useState(0);
+  // Parallax sutil para el fondo general/fijo con zoom de seguridad
+  const [parallaxOffset, setParallaxOffset] = useState(0);
   useEffect(() => {
     if (!isBgFixed || !effectiveBgImage) return;
     const handleScroll = () => {
-      setScrollY(window.scrollY || document.documentElement.scrollTop || 0);
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, currentScroll / maxScroll));
+      // Desplazamiento máximo controlado de 70px distribuidos a lo largo de toda la página
+      // Combinado con top: -15% y height: 130%, garantiza que los bordes superior e inferior nunca sean visibles
+      setParallaxOffset(progress * -70);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [isBgFixed, effectiveBgImage]);
 
   return (
@@ -811,26 +869,27 @@ export function PublicInvitationRenderer({
           />
         </>
       )}
-      {/* Fondo fijo de punta a punta en altura con efecto Parallax sutil */}
+      {/* Fondo fijo de punta a punta en altura con zoom preventivo y efecto Parallax sutil */}
       {effectiveBgImage && isBgFixed && (
         <div
           aria-hidden="true"
           style={{
             position: 'fixed',
-            top: '-5%',
-            left: 0,
-            right: 0,
-            bottom: '-5%',
-            width: '100%',
-            height: '110%',
-            minHeight: '110dvh',
+            top: '-15%',
+            left: '-5%',
+            right: '-5%',
+            bottom: '-15%',
+            width: '110%',
+            height: '130%',
+            minHeight: '130dvh',
             backgroundImage: `url("${effectiveBgImage}")`,
             backgroundPosition: 'center center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
-            transform: `translate3d(0, ${scrollY * -0.12}px, 0)`,
+            transform: `translate3d(0, ${parallaxOffset}px, 0) scale(1.08)`,
+            transformOrigin: 'center center',
             willChange: 'transform',
-            transition: 'transform 0.05s linear',
+            transition: 'transform 0.08s linear',
             zIndex: 0,
             pointerEvents: 'none',
           }}
@@ -877,8 +936,8 @@ export function PublicInvitationRenderer({
             default: return null;
           }
 
-          const currentSectionHeight = layout?.sectionHeights?.[sectionId] || defaultHeight;
-          const mobileSectionHeight = layout?.sectionHeightsMobile?.[sectionId] ?? (layout?.sectionHeightMobile ?? currentSectionHeight);
+          const layoutSectionHeight = layout?.sectionHeights?.[sectionId];
+          const layoutMobileHeight = layout?.sectionHeightsMobile?.[sectionId];
           const isSelected = selectedSectionId === sectionId;
 
           return (
@@ -889,11 +948,12 @@ export function PublicInvitationRenderer({
               sectionTheme={sectionTheme}
               sectionElement={sectionElement}
               isFixed={isFixed}
-              currentSectionHeight={currentSectionHeight}
-              mobileSectionHeight={mobileSectionHeight}
+              layoutSectionHeight={layoutSectionHeight}
+              layoutMobileHeight={layoutMobileHeight}
               contentAlign={contentAlign}
               isSelected={isSelected}
               isInteractivePreview={isInteractivePreview}
+              isHeightLocked={Boolean(layout?.lockSectionHeights)}
               onUpdateSectionHeight={onUpdateSectionHeight}
               defaultHeight={defaultHeight}
               defaultHeightMobile={defaultHeightMobile}

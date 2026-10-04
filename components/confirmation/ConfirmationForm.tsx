@@ -31,6 +31,9 @@ interface ConfirmationFormProps {
   groupName: string;
   eventTitle: string;
   existingConfirmation: ExistingConfirmation | null;
+  confirmButtonBackgroundImage?: string;
+  declineButtonBackgroundImage?: string;
+  hideButtonLabel?: boolean;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -64,6 +67,9 @@ export function ConfirmationForm({
   groupName,
   eventTitle,
   existingConfirmation,
+  confirmButtonBackgroundImage,
+  declineButtonBackgroundImage,
+  hideButtonLabel,
 }: ConfirmationFormProps) {
   const initialStep: Step = existingConfirmation ? 'initial' : 'attendance';
 
@@ -359,12 +365,48 @@ export function ConfirmationForm({
         <p style={{ ...subtext, marginBottom: '0.5rem' }}>{groupName}</p>
         <h2 style={heading}>¿VAS A ACOMPAÑARME?</h2>
         <p style={{ ...subtext, color: '#9333ea', fontWeight: 600 }}>{eventTitle}</p>
-        <div style={{ marginTop: '1.5rem' }}>
-          <button style={btn('primary')} onClick={handleAttendanceYes} type="button">
-            SÍ, VOY A ESTAR
+        <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <button
+            style={{
+              ...btn('primary'),
+              marginBottom: 0,
+              ...(confirmButtonBackgroundImage
+                ? {
+                    backgroundImage: `url("${confirmButtonBackgroundImage}")`,
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    minHeight: '52px',
+                    border: 'none',
+                    color: hideButtonLabel ? 'transparent' : '#fff',
+                  }
+                : {}),
+            }}
+            onClick={handleAttendanceYes}
+            type="button"
+          >
+            {hideButtonLabel && confirmButtonBackgroundImage ? '' : 'SÍ, VOY A ESTAR'}
           </button>
-          <button style={btn('secondary')} onClick={handleAttendanceNo} type="button">
-            NO PODRÉ ASISTIR
+          <button
+            style={{
+              ...btn('secondary'),
+              marginBottom: 0,
+              ...(declineButtonBackgroundImage
+                ? {
+                    backgroundImage: `url("${declineButtonBackgroundImage}")`,
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    minHeight: '52px',
+                    border: 'none',
+                    color: hideButtonLabel ? 'transparent' : '#374151',
+                  }
+                : {}),
+            }}
+            onClick={handleAttendanceNo}
+            type="button"
+          >
+            {hideButtonLabel && declineButtonBackgroundImage ? '' : 'NO PODRÉ ASISTIR'}
           </button>
         </div>
         <ErrorBanner />

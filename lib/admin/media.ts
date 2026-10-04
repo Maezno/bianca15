@@ -10,7 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentAdminUser } from './auth';
+import { getCurrentAdminUser, requireAdmin } from './auth';
 import type { AdminEventMedia } from './types';
 import type { EventMediaRow, EventRow } from '@/types/database';
 import { LOCAL_MEDIA_BUFFERS } from './media-buffers';
@@ -91,6 +91,7 @@ const LOCAL_MEDIA_STORE =
  * Obtiene la biblioteca de medios del evento especificado.
  */
 export async function getEventMedia(eventId: string): Promise<AdminEventMedia[]> {
+  await requireAdmin();
   const user = await getCurrentAdminUser();
   if (!user) return [];
 
@@ -206,6 +207,7 @@ function getLocalDiskAndStoreMedia(eventId: string): AdminEventMedia[] {
 export async function uploadEventMedia(
   formData: FormData
 ): Promise<{ success: boolean; media?: AdminEventMedia; error?: string }> {
+  await requireAdmin();
   const user = await getCurrentAdminUser();
   if (!user) {
     return { success: false, error: 'No autorizado. Se requiere inicio de sesión.' };
@@ -380,6 +382,7 @@ export async function deleteEventMedia(
   eventId: string,
   force = false
 ): Promise<{ success: boolean; error?: string; inUseWarning?: boolean }> {
+  await requireAdmin();
   const user = await getCurrentAdminUser();
   if (!user) {
     return { success: false, error: 'No autorizado.' };
@@ -491,6 +494,7 @@ const MAX_FONT_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 export async function uploadEventFont(
   formData: FormData
 ): Promise<{ success: boolean; fontUrl?: string; fontFamily?: string; format?: string; error?: string }> {
+  await requireAdmin();
   const user = await getCurrentAdminUser();
   if (!user) {
     return { success: false, error: 'No autorizado. Se requiere inicio de sesión.' };

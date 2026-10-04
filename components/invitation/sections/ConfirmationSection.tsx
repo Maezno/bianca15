@@ -93,6 +93,9 @@ export function ConfirmationSection({
           groupName={guestGroup.name}
           eventTitle={event.title}
           existingConfirmation={existingConfirmation || null}
+          confirmButtonBackgroundImage={sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+          declineButtonBackgroundImage={sectionStyle?.declineButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+          hideButtonLabel={sectionStyle?.hideButtonLabel}
         />
       </section>
     );

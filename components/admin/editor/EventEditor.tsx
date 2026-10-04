@@ -49,6 +49,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
   const [schedule, setSchedule] = useState(initialData.schedule);
 
   // Estados de control
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -302,8 +303,8 @@ export function EventEditor({ initialData }: EventEditorProps) {
             ))}
           </div>
 
-          {/* Contenido del Tab Activo */}
-          <div className="scrollbar-hidden" style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
+          {/* Contenido del Tab Activo con scrollbar visible y estilizada */}
+          <div className="custom-editor-scrollbar" style={{ padding: '1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
             {activeTab === 'general' && (
               <GeneralTab
                 name={name}
@@ -354,6 +355,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
                 sectionConfig={sectionConfig}
                 eventName={name || event.name}
                 eventId={event.id}
+                selectedSectionId={selectedSectionId}
               />
             )}
 
@@ -408,6 +410,10 @@ export function EventEditor({ initialData }: EventEditorProps) {
               schedule,
             }}
             onUpdateSectionHeight={handleUpdateSectionHeight}
+            onSelectSection={(secId) => {
+              setSelectedSectionId(secId);
+              setActiveTab('design');
+            }}
           />
         </div>
       </div>

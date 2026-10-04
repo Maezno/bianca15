@@ -1,5 +1,7 @@
 'use server';
 
+import { requireAdmin } from './auth';
+
 import { getAdminEventById } from './events';
 import { getTemplate } from '@/templates/registry';
 import type { EventRow } from '@/types/database';
@@ -27,6 +29,7 @@ export interface EditorInitialData {
 }
 
 export async function getEditorData(eventId: string): Promise<EditorInitialData | null> {
+  await requireAdmin();
   const { event } = await getAdminEventById(eventId);
   if (!event) return null;
 

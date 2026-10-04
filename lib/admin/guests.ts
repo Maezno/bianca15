@@ -1,5 +1,7 @@
 'use server';
 
+import { requireAdmin } from './auth';
+
 import { createClient } from '@/lib/supabase/server';
 import { generateToken } from '@/lib/utils/token';
 import type { AdminGuestGroupItem, CreateAdminGroupInput, UpdateAdminGroupInput, CsvValidatedRow } from './types';
@@ -11,6 +13,7 @@ export async function getAdminGuestGroups(
   eventId: string,
   eventSlug: string = 'bianca-15'
 ): Promise<AdminGuestGroupItem[]> {
+  await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -112,6 +115,7 @@ export async function getAdminGuestGroups(
 export async function createAdminGuestGroup(
   input: CreateAdminGroupInput
 ): Promise<{ success: boolean; groupId?: string; error?: string }> {
+  await requireAdmin();
   if (!input.name?.trim()) {
     return { success: false, error: 'El nombre del grupo es obligatorio.' };
   }
@@ -172,6 +176,7 @@ export async function createAdminGuestGroup(
 export async function updateAdminGuestGroup(
   input: UpdateAdminGroupInput
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   if (!input.name?.trim()) {
     return { success: false, error: 'El nombre del grupo es obligatorio.' };
   }
@@ -230,6 +235,7 @@ export async function updateAdminGuestGroup(
 export async function deleteAdminGuestGroup(
   groupId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -255,6 +261,7 @@ export async function addGuestPerson(
   groupId: string,
   name: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   if (!name?.trim()) return { success: false, error: 'El nombre es obligatorio.' };
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -279,6 +286,7 @@ export async function addGuestPerson(
 export async function removeGuestPerson(
   guestId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -299,6 +307,7 @@ export async function importCsvGuestGroups(
   eventId: string,
   rows: CsvValidatedRow[]
 ): Promise<{ success: boolean; importedGroupsCount: number; importedGuestsCount: number; error?: string }> {
+  await requireAdmin();
   const validRows = rows.filter((r) => r.isValid);
   if (validRows.length === 0) {
     return { success: false, importedGroupsCount: 0, importedGuestsCount: 0, error: 'No hay filas válidas para importar.' };
@@ -391,6 +400,7 @@ export async function importCsvGuestGroups(
 export async function duplicateAdminGuestGroup(
   groupId: string
 ): Promise<{ success: boolean; groupId?: string; error?: string }> {
+  await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 

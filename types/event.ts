@@ -247,6 +247,8 @@ export interface EventLayoutConfig {
   sectionStyles?: Record<string, SectionStyle>;
   /** Bandas laterales para modo Desktop que delimitan el visor móvil */
   desktopSidebars?: DesktopSidebarsConfig;
+  /** Si true, bloquea los manejadores interactivos de redimensión de altura en el previsualizador */
+  lockSectionHeights?: boolean;
 }
 
 export interface CustomUploadedFont {
@@ -269,6 +271,8 @@ export interface EventDesignConfig {
   typography?: {
     headingFont?: string;
     bodyFont?: string;
+    /** Fuente secundaria destacada (para alias bancario, datos clave, fechas o información importante y legible) */
+    secondaryFont?: string;
     /** URL de CSS de fuente personalizada (e.g. Google Fonts CSS URL o @font-face) */
     customFontUrl?: string;
     /** Fuentes subidas por el usuario (.ttf, .otf, .woff, .woff2) disponibles en el editor */

@@ -1,5 +1,7 @@
 'use server';
 
+import { requireAdmin } from './auth';
+
 import { createClient } from '@/lib/supabase/server';
 import { generateCsvExport } from './csv';
 
@@ -45,6 +47,7 @@ function getDemoConfirmationsList(eventId?: string): AdminConfirmationRow[] {
 export async function getAdminConfirmations(
   eventId: string
 ): Promise<AdminConfirmationRow[]> {
+  await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -112,6 +115,7 @@ export async function getAdminConfirmations(
 }
 
 export async function exportEventCsv(eventId: string): Promise<string> {
+  await requireAdmin();
   const confirmations = await getAdminConfirmations(eventId);
 
   const exportData = confirmations.map((c) => ({

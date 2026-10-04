@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin/session';
 
 /**
  * proxy.ts
@@ -8,7 +9,7 @@ import type { NextRequest } from 'next/server';
  *  - /admin/login  (pantalla de login)
  *  - /api/auth/*   (endpoints de login/logout)
  */
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Solo las rutas /admin requieren autenticación
@@ -23,14 +24,8 @@ export function proxy(request: NextRequest) {
 
   if (isPublic) return NextResponse.next();
 
-  // Verificar sesión administrativa
-  const allCookies = request.cookies.getAll();
-  const hasAuth = allCookies.some(
-    (c) =>
-      c.name === 'admin-session' ||
-      c.name.includes('sb-') ||
-      c.name.includes('supabase')
-  );
+  // Verificar sesión administrativa firmada
+  const hasAuth = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
 
   if (!hasAuth) {
     const loginUrl = new URL('/admin/login', request.url);

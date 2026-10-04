@@ -8,6 +8,7 @@ interface PreviewPanelProps {
   refreshKey: number;
   liveData?: Partial<PublicEvent>;
   onUpdateSectionHeight?: (sectionId: string, height: number, isMobile?: boolean) => void;
+  onSelectSection?: (sectionId: string) => void;
 }
 
 const SECTION_LABELS: Record<string, { label: string; icon: string }> = {
@@ -30,6 +31,7 @@ export function PreviewPanel({
   refreshKey,
   liveData,
   onUpdateSectionHeight,
+  onSelectSection,
 }: PreviewPanelProps) {
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
   const [selectedSection, setSelectedSection] = useState<string>('');
@@ -68,7 +70,7 @@ export function PreviewPanel({
     syncPreview();
   }, [syncPreview]);
 
-  // Escuchar cuando el iframe esté listo para recibir el primer estado
+  // Escuchar cuando el iframe esté listo o cuando se seleccione una sección
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'PREVIEW_READY') {
@@ -79,14 +81,22 @@ export function PreviewPanel({
             '*'
           );
         }
+      } else if (e.data?.type === 'SELECT_SECTION' && e.data?.sectionId) {
+        setSelectedSection(e.data.sectionId);
+        if (onSelectSection) {
+          onSelectSection(e.data.sectionId);
+        }
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [syncPreview, selectedSection]);
+  }, [syncPreview, selectedSection, onSelectSection]);
 
   const handleSelectSection = (secId: string) => {
     setSelectedSection(secId);
+    if (onSelectSection && secId) {
+      onSelectSection(secId);
+    }
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         {
@@ -221,8 +231,8 @@ export function PreviewPanel({
             </select>
           </div>
 
-          {/* Modificador rápido de altura para la sección seleccionada */}
-          {isFixed && selectedSection && onUpdateSectionHeight && (
+          {/* Modificador rápido de altura para la sección seleccionada (solo si no tiene fondo PNG propio y no está bloqueada) */}
+          {isFixed && selectedSection && onUpdateSectionHeight && !layout?.lockSectionHeights && !layout?.sectionStyles?.[selectedSection]?.backgroundImage && (
             <div
               style={{
                 display: 'flex',

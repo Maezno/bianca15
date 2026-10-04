@@ -17,6 +17,7 @@ export function resolveTheme(baseTheme: TemplateTheme, designConfig?: EventDesig
       ...baseTheme.typography,
       headingFont: designConfig.typography?.headingFont || baseTheme.typography.headingFont,
       bodyFont: designConfig.typography?.bodyFont || baseTheme.typography.bodyFont,
+      secondaryFont: designConfig.typography?.secondaryFont || baseTheme.typography.secondaryFont || 'inherit',
     },
   };
 }

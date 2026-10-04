@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentAdminUser } from './auth';
+import { getCurrentAdminUser, requireAdmin } from './auth';
 import type { AdminEventSummary, AdminEventStats, CreateEventInput, UpdateEventInput } from './types';
 import type { EventRow } from '@/types/database';
 import { slugify } from '@/lib/utils/slug';
@@ -22,6 +22,7 @@ function safeRevalidatePath(path: string) {
 }
 
 export async function getAdminEvents(): Promise<AdminEventSummary[]> {
+  await requireAdmin();
   const user = await getCurrentAdminUser();
   if (!user) return [];
 
@@ -122,6 +123,7 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
 export async function getAdminEventById(
   eventId: string
 ): Promise<{ event: EventRow | null; stats: AdminEventStats }> {
+  await requireAdmin();
   const defaultStats: AdminEventStats = {
     groups: { total: 0, confirmed: 0, pending: 0, declined: 0 },
     persons: { maxCapacity: 0, confirmedPersons: 0, remainingCapacity: 0 },
@@ -294,6 +296,7 @@ export async function getAdminEventById(
 export async function createEvent(
   input: CreateEventInput
 ): Promise<{ success: boolean; eventId?: string; error?: string }> {
+  await requireAdmin();
   if (!input.name || !input.title || !input.slug) {
     return { success: false, error: 'Nombre, título y enlace personalizado (slug) son obligatorios.' };
   }
@@ -353,6 +356,7 @@ export async function createEvent(
 export async function updateEvent(
   input: UpdateEventInput
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
   if (!input.id) return { success: false, error: 'ID de evento faltante.' };
 
   // Siempre actualizamos el demo store para persistencia y soporte inmediato
@@ -421,6 +425,7 @@ export async function updateEvent(
 export async function duplicateEvent(
   eventId: string
 ): Promise<{ success: boolean; eventId?: string; error?: string }> {
+  await requireAdmin();
   if (!eventId) return { success: false, error: 'ID de evento faltante.' };
 
   const { event: original } = await getAdminEventById(eventId);

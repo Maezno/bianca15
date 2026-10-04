@@ -21,6 +21,8 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
     if (!isPreview) return;
 
     const handleMessage = (e: MessageEvent) => {
+      // Solo aceptar mensajes del editor (mismo origen)
+      if (e.origin !== window.location.origin) return;
       if (e.data?.type === 'PREVIEW_STATE_UPDATE' && e.data?.payload) {
         setEvent((prev) => ({
           ...prev,

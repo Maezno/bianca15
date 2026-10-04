@@ -151,6 +151,7 @@ interface DesignTabProps {
   sectionConfig?: EventSectionConfig;
   eventName?: string;
   eventId: string;
+  selectedSectionId?: string | null;
 }
 
 export function DesignTab({
@@ -161,6 +162,7 @@ export function DesignTab({
   sectionConfig,
   eventName,
   eventId,
+  selectedSectionId,
 }: DesignTabProps) {
   const currentColors = {
     primary: designConfig.colors?.primary || baseTheme.colors.primary,
@@ -206,6 +208,20 @@ export function DesignTab({
   const toggleCard = (id: string) => {
     setExpandedCards((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  // Auto-expandir y hacer scroll suave al seleccionar una tarjeta desde el preview
+  useEffect(() => {
+    if (selectedSectionId) {
+      setExpandedCards((prev) => ({ ...prev, [selectedSectionId]: true }));
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`design-card-${selectedSectionId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedSectionId]);
 
   const expandAllCards = () => {
     const all: Record<string, boolean> = {};
@@ -2098,7 +2114,19 @@ export function DesignTab({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          {SECTIONS_LIST.map((sec) => {
+          {(() => {
+            // Respetar el orden configurado en el panel de secciones
+            const orderList = sectionConfig?.order || [];
+            const sorted = [...SECTIONS_LIST].sort((a, b) => {
+              const idxA = orderList.indexOf(a.id);
+              const idxB = orderList.indexOf(b.id);
+              if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+              if (idxA !== -1) return -1;
+              if (idxB !== -1) return 1;
+              return 0;
+            });
+            return sorted;
+          })().map((sec) => {
             const style = getSectionStyle(sec.id);
             const hasBg = !!style.backgroundImage;
             const isCardExpanded = Boolean(expandedCards[sec.id]);
@@ -2137,11 +2165,13 @@ export function DesignTab({
             return (
               <div
                 key={sec.id}
+                id={`design-card-${sec.id}`}
                 style={{
                   background: hasAnyStyle ? '#ffffff' : '#f8fafc',
                   border: `1px solid ${hasAnyStyle ? '#86efac' : '#e2e8f0'}`,
                   borderRadius: '0.5rem',
                   padding: '0.65rem 0.85rem',
+                  scrollMarginTop: '80px',
                 }}
               >
                 {/* Fila superior: label + badges + botones */}
@@ -2259,6 +2289,33 @@ export function DesignTab({
                     {/* Toggles rápidos de tarjeta */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap', padding: '0.4rem 0.6rem', background: '#f8fafc', borderRadius: '0.35rem', border: '1px solid #e2e8f0' }}>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Ajustes rápidos:</span>
+                      
+                      {/* Preset Inteligente Modo Tarjeta Ilustrada */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSectionStyle(sec.id, {
+                            noBackground: true,
+                            noBorder: true,
+                            hideTitle: true,
+                            hideSubtitle: true,
+                          });
+                        }}
+                        title="Configura en 1 clic: Sin fondo, sin borde y oculta título y subtítulo (ideal si tu imagen ya tiene diseño)"
+                        style={{
+                          padding: '0.18rem 0.45rem',
+                          borderRadius: '0.3rem',
+                          border: '1px solid #c084fc',
+                          background: '#faf5ff',
+                          color: '#7e22ce',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        🪄 Modo Ilustrado (1 Clic)
+                      </button>
+
                       <label
                         title="Desactivar/ocultar solo el título principal de esta tarjeta"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', fontWeight: 600, color: style.hideTitle ? '#be123c' : '#64748b', cursor: 'pointer', userSelect: 'none' }}
@@ -3605,11 +3662,27 @@ export function DesignTab({
                       Reemplazá el color de fondo del botón por una imagen (PNG o WebP).
                     </span>
                     <ButtonImageRow
-                      label={sec.id === 'location' ? 'Botones de esta tarjeta' : 'Botón de esta tarjeta'}
+                      label={sec.id === 'location' ? 'Botones de esta tarjeta (ambos)' : 'Botón de esta tarjeta'}
                       url={style.buttonBackgroundImage}
                       onPick={() => setActivePicker({ type: 'button', sectionId: sec.id })}
                       onClear={() => updateSectionStyle(sec.id, { buttonBackgroundImage: undefined })}
                     />
+                    {sec.id === 'location' && (
+                      <>
+                        <ButtonImageRow
+                          label="Fondo PNG Botón «Google Maps»"
+                          url={style.mapsButtonBackgroundImage}
+                          onPick={() => setActivePicker({ type: 'mapsButton', sectionId: sec.id })}
+                          onClear={() => updateSectionStyle(sec.id, { mapsButtonBackgroundImage: undefined })}
+                        />
+                        <ButtonImageRow
+                          label="Fondo PNG Botón «Waze»"
+                          url={style.wazeButtonBackgroundImage}
+                          onPick={() => setActivePicker({ type: 'wazeButton', sectionId: sec.id })}
+                          onClear={() => updateSectionStyle(sec.id, { wazeButtonBackgroundImage: undefined })}
+                        />
+                      </>
+                    )}
                     {sec.id === 'confirmation' && (
                       <>
                         <ButtonImageRow
@@ -3907,87 +3980,7 @@ export function DesignTab({
                     </div>
                   )}
 
-                  {/* 5. Preview en vivo de la tipografía, colores y tamaños configurados */}
-                  {(style.sectionFont || style.sectionBodyFont || style.titleFontSize || style.bodyFontSize || style.verticalGap !== undefined || style.wordSpacing !== undefined || style.titleColor || style.textColor || style.nameFontSize || style.nameColor || style.titleOffsetY !== undefined || style.countdownNumberColor) && (
-                    <div
-                      style={{
-                        padding: '0.55rem 0.75rem',
-                        background: '#ffffff',
-                        border: '1px solid #d8b4fe',
-                        borderRadius: '0.4rem',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: `${style.verticalGap ?? 8}px`,
-                      }}
-                    >
-                      {sec.id === 'hero' ? (
-                        <>
-                          <div
-                            style={{
-                              fontFamily: style.sectionBodyFont,
-                              fontSize: style.titleFontSize ? `${style.titleFontSize}px` : '1.25rem',
-                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
-                              color: style.titleColor || '#d97706',
-                              fontWeight: 600,
-                              lineHeight: 1.15,
-                            }}
-                          >
-                            Mis 15 años (Título Público)
-                          </div>
-                          <div
-                            style={{
-                              fontFamily: style.sectionFont,
-                              fontSize: style.nameFontSize ? `${style.nameFontSize}px` : '2.3rem',
-                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
-                              color: style.nameColor || '#9333ea',
-                              fontWeight: 700,
-                              lineHeight: 1.15,
-                            }}
-                          >
-                            {eventName || 'Bianca'} (Nombre Interno)
-                          </div>
-                          <div
-                            style={{
-                              fontFamily: style.sectionBodyFont,
-                              fontSize: style.bodyFontSize ? `${style.bodyFontSize}px` : '0.85rem',
-                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
-                              color: style.textColor || '#475569',
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            Te espero para compartir una noche inolvidable (Subtítulo)
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div
-                            style={{
-                              fontFamily: style.sectionFont,
-                              fontSize: style.titleFontSize ? `${style.titleFontSize}px` : '1.3rem',
-                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
-                              color: style.titleColor || '#1e293b',
-                              fontWeight: 500,
-                              lineHeight: 1.15,
-                            }}
-                          >
-                            {sec.label}
-                          </div>
-                          <div
-                            style={{
-                              fontFamily: style.sectionBodyFont,
-                              fontSize: style.bodyFontSize ? `${style.bodyFontSize}px` : '0.85rem',
-                              wordSpacing: style.wordSpacing !== undefined ? `${style.wordSpacing}px` : undefined,
-                              color: style.textColor || '#475569',
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            Texto de ejemplo con tamaño, colores y separación personalizados para esta tarjeta.
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
+
 
                   {/* 5. URLs externas personalizadas para esta sección */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>
@@ -4093,6 +4086,26 @@ export function DesignTab({
                   },
                 },
               }));
+            } else if (activePicker.type === 'button' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                buttonBackgroundImage: url || undefined,
+              });
+            } else if (activePicker.type === 'mapsButton' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                mapsButtonBackgroundImage: url || undefined,
+              });
+            } else if (activePicker.type === 'wazeButton' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                wazeButtonBackgroundImage: url || undefined,
+              });
+            } else if (activePicker.type === 'confirmButton' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                confirmButtonBackgroundImage: url || undefined,
+              });
+            } else if (activePicker.type === 'declineButton' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                declineButtonBackgroundImage: url || undefined,
+              });
             }
             setActivePicker(null);
           }}
@@ -4100,24 +4113,44 @@ export function DesignTab({
           currentUrl={
             activePicker.type === 'section' && activePicker.sectionId
               ? getSectionStyle(activePicker.sectionId).backgroundImage || ''
-              : activePicker.type === 'fluid'
-                ? designConfig.layout?.fluidBackgroundUrl || ''
-                : activePicker.type === 'continuous'
-                  ? designConfig.layout?.continuousBackgroundUrl || ''
-                  : activePicker.type === 'sidebars'
-                    ? designConfig.layout?.desktopSidebars?.backgroundImageUrl || ''
-                    : designConfig.layout?.generalBackgroundUrl || ''
+              : activePicker.type === 'button' && activePicker.sectionId
+                ? getSectionStyle(activePicker.sectionId).buttonBackgroundImage || ''
+                : activePicker.type === 'mapsButton' && activePicker.sectionId
+                  ? getSectionStyle(activePicker.sectionId).mapsButtonBackgroundImage || ''
+                  : activePicker.type === 'wazeButton' && activePicker.sectionId
+                    ? getSectionStyle(activePicker.sectionId).wazeButtonBackgroundImage || ''
+                    : activePicker.type === 'confirmButton' && activePicker.sectionId
+                      ? getSectionStyle(activePicker.sectionId).confirmButtonBackgroundImage || ''
+                      : activePicker.type === 'declineButton' && activePicker.sectionId
+                        ? getSectionStyle(activePicker.sectionId).declineButtonBackgroundImage || ''
+                        : activePicker.type === 'fluid'
+                          ? designConfig.layout?.fluidBackgroundUrl || ''
+                          : activePicker.type === 'continuous'
+                            ? designConfig.layout?.continuousBackgroundUrl || ''
+                            : activePicker.type === 'sidebars'
+                              ? designConfig.layout?.desktopSidebars?.backgroundImageUrl || ''
+                              : designConfig.layout?.generalBackgroundUrl || ''
           }
           title={
             activePicker.type === 'section' && activePicker.sectionId
               ? `Fondo de sección: ${SECTIONS_LIST.find((s) => s.id === activePicker.sectionId)?.label || activePicker.sectionId}`
-              : activePicker.type === 'fluid'
-                ? 'Fondo para Modo Fluido'
-                : activePicker.type === 'continuous'
-                  ? 'Fondo Continuo (Modo Fijo)'
-                  : activePicker.type === 'sidebars'
-                    ? 'Imagen para Bandas Laterales en Desktop'
-                    : 'Fondo General del Evento'
+              : activePicker.type === 'button'
+                ? 'Fondo PNG de botón'
+                : activePicker.type === 'mapsButton'
+                  ? 'Fondo PNG de botón Google Maps'
+                  : activePicker.type === 'wazeButton'
+                    ? 'Fondo PNG de botón Waze'
+                    : activePicker.type === 'confirmButton'
+                      ? 'Fondo PNG de botón «Sí, asistiré»'
+                      : activePicker.type === 'declineButton'
+                        ? 'Fondo PNG de botón «No podré asistir»'
+                        : activePicker.type === 'fluid'
+                          ? 'Fondo para Modo Fluido'
+                          : activePicker.type === 'continuous'
+                            ? 'Fondo Continuo (Modo Fijo)'
+                            : activePicker.type === 'sidebars'
+                              ? 'Imagen para Bandas Laterales en Desktop'
+                              : 'Fondo General del Evento'
           }
           purpose="background"
         />

@@ -1,7 +1,9 @@
-﻿'use server';
+'use server';
 
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { verifySessionToken, SESSION_COOKIE } from './session';
 import type { AdminUser } from './types';
 
 // Default mock admin user for local development when Supabase credentials are not yet configured
@@ -12,12 +14,28 @@ const DEMO_ADMIN_USER: AdminUser = {
   role: 'super_admin',
 };
 
+async function hasValidLocalSession(): Promise<boolean> {
+  try {
+    const store = await cookies();
+    return await verifySessionToken(store.get(SESSION_COOKIE)?.value);
+  } catch {
+    return false;
+  }
+}
+
+/** Lanza error si la petición no proviene de un administrador autenticado. Usar en cada Server Action admin. */
+export async function requireAdmin(): Promise<AdminUser> {
+  const user = await getCurrentAdminUser();
+  if (!user) throw new Error('No autorizado');
+  return user;
+}
+
 export async function getCurrentAdminUser(): Promise<AdminUser | null> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return DEMO_ADMIN_USER;
+    return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
   }
 
   try {
@@ -25,8 +43,8 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      // In development mode, fallback to demo admin if not logged in
-      return DEMO_ADMIN_USER;
+      // Sin usuario Supabase: solo se permite la sesión local firmada
+      return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
     }
 
     const { data: profile } = await supabase
@@ -51,7 +69,7 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
       role: profile.role as AdminUser['role'],
     };
   } catch {
-    return DEMO_ADMIN_USER;
+    return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
   }
 }
 
@@ -67,8 +85,8 @@ export async function loginAdmin(formData: FormData): Promise<{ success: boolean
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    // Demo mode: accept any login
-    return { success: true };
+    // Modo local: el login se hace vía /api/auth/login (cookie firmada)
+    return { success: false, error: 'Usá el inicio de sesión local.' };
   }
 
   try {
