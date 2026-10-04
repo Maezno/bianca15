@@ -309,19 +309,15 @@ body {
   overflow-wrap: normal !important;
   hyphens: none !important;
   display: inline-block !important;
-  max-width: 100% !important;
-}
-@media (max-width: 480px) {
-  .invitation-card-item [data-event-name="true"] {
-    font-size: min(var(--card-name-size, 3.2rem), 14vw) !important;
-  }
+  max-width: calc(100vw - 50px) !important;
+  box-sizing: border-box !important;
 }
 .invitation-card-item[style*="--card-name-size"] [data-event-name="true"] {
   font-size: var(--card-name-size) !important;
 }
 @media (max-width: 480px) {
-  .invitation-card-item[style*="--card-name-size"] [data-event-name="true"] {
-    font-size: min(var(--card-name-size), 14vw) !important;
+  .invitation-card-item:not([style*="--card-name-size"]) [data-event-name="true"] {
+    font-size: 3.2rem !important;
   }
 }
 .invitation-card-item[style*="--card-name-color"] [data-event-name="true"] {

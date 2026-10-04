@@ -120,7 +120,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
           data-event-name="true"
           style={{
             fontFamily: theme.typography.headingFont,
-            fontSize: nameSize ? nameSize : 'min(15vw, 3.8rem)',
+            fontSize: nameSize || 'min(15vw, 3.8rem)',
             margin: '0.25rem 0 0.85rem 0',
             color: nameColor,
             fontWeight: 400,
@@ -129,9 +129,9 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
             lineHeight: 1.15,
             textAlign: 'center',
             whiteSpace: 'nowrap',
-            wordBreak: 'normal',
+            wordBreak: 'keep-all',
             overflowWrap: 'normal',
-            maxWidth: '100%',
+            maxWidth: 'calc(100vw - 50px)',
             boxSizing: 'border-box',
           }}
         >
