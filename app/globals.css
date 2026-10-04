@@ -249,7 +249,7 @@ body {
   hyphens: none !important;
 }
 .invitation-card-item[style*="--card-name-size"] [data-event-name="true"] {
-  font-size: min(var(--card-name-size), 19vw) !important;
+  font-size: var(--card-name-size) !important;
 }
 .invitation-card-item[style*="--card-name-color"] [data-event-name="true"] {
   color: var(--card-name-color) !important;

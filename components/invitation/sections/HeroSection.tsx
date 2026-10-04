@@ -120,7 +120,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
           data-event-name="true"
           style={{
             fontFamily: theme.typography.headingFont,
-            fontSize: nameSize ? `min(${nameSize}, 19vw)` : 'clamp(2.4rem, 16vw, 3.8rem)',
+            fontSize: nameSize ? nameSize : 'clamp(2.4rem, 16vw, 3.8rem)',
             margin: '0.25rem 0 0.85rem 0',
             color: nameColor,
             fontWeight: 400,

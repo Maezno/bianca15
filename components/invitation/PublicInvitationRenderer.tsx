@@ -513,6 +513,7 @@ function SectionCardItem({
           boxSizing: 'border-box',
           overflow: 'visible',
           margin: 0,
+          marginBottom: sectionStyle?.cardGap !== undefined ? `${sectionStyle.cardGap}px` : undefined,
           padding: 0,
         }}
       >
@@ -565,6 +566,7 @@ function SectionCardItem({
         alignItems: 'center',
         padding: 0,
         margin: 0,
+        marginBottom: sectionStyle?.cardGap !== undefined ? `${sectionStyle.cardGap}px` : undefined,
         position: 'relative',
         transition: 'box-shadow 0.2s ease',
         overflow: 'visible',

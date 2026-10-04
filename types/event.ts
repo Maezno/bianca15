@@ -202,6 +202,11 @@ export interface SectionStyle {
    * Imagen de fondo específica para el botón de declinar asistencia.
    */
   declineButtonBackgroundImage?: string;
+  /**
+   * Separación vertical / margen inferior debajo de esta tarjeta (px).
+   * Permite distanciar tarjetas de forma individual tanto en modo fijo como fluido.
+   */
+  cardGap?: number;
 }
 
 export type DesktopSidebarsStyle = 'black' | 'blur' | 'transparent' | 'image';

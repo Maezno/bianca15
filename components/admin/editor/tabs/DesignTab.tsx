@@ -202,6 +202,9 @@ export function DesignTab({
     }));
   };
 
+  // Sub-pestañas organizadoras para no saturar la pantalla con demasiadas herramientas juntas
+  const [designSubTab, setDesignSubTab] = useState<'cards' | 'layout' | 'colors' | 'typography'>('cards');
+
   // Estado para colapsar/minimizar las opciones de diseño de cada tarjeta
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
@@ -212,6 +215,7 @@ export function DesignTab({
   // Auto-expandir y hacer scroll suave al seleccionar una tarjeta desde el preview
   useEffect(() => {
     if (selectedSectionId) {
+      setDesignSubTab('cards');
       setExpandedCards((prev) => ({ ...prev, [selectedSectionId]: true }));
       const timer = setTimeout(() => {
         const el = document.getElementById(`design-card-${selectedSectionId}`);
@@ -430,13 +434,65 @@ export function DesignTab({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Presets de Color */}
-      {presets && presets.length > 0 && (
-        <div>
-          <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
-            🎨 Paletas Recomendadas
-          </label>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Selector de sub-categorías de diseño para mantener la vista limpia y cómoda en móvil y desktop */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.35rem',
+          background: '#f1f5f9',
+          padding: '4px',
+          borderRadius: '0.65rem',
+          border: '1px solid #e2e8f0',
+          overflowX: 'auto',
+          position: 'sticky',
+          top: 0,
+          zIndex: 20,
+        }}
+      >
+        {[
+          { id: 'cards', label: '🖼️ Tarjetas Individuales', desc: 'Fondos, textos y separación' },
+          { id: 'layout', label: '📐 Estructura & Gap', desc: 'Modo, distancias y visor' },
+          { id: 'colors', label: '🎨 Colores & Paletas', desc: 'Temas y tonos globales' },
+          { id: 'typography', label: '🔤 Tipografías', desc: 'Fuentes globales y Google Fonts' },
+        ].map((tab) => {
+          const isActive = designSubTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setDesignSubTab(tab.id as typeof designSubTab)}
+              style={{
+                flex: 1,
+                minWidth: '120px',
+                padding: '0.5rem 0.65rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: isActive ? '#ffffff' : 'transparent',
+                color: isActive ? '#7e22ce' : '#64748b',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ─── PESTAÑA: COLORES & PALETAS ─── */}
+      {designSubTab === 'colors' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Presets de Color */}
+          {presets && presets.length > 0 && (
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                🎨 Paletas Recomendadas
+              </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
             {presets.map((preset) => (
               <button
@@ -754,14 +810,17 @@ export function DesignTab({
             </div>
           </div>
         </div>
-      </div>
+        </div>
+        </div>
+      )}
 
-      {/* ─── TIPOGRAFÍA GLOBAL ─── */}
-      <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '0.75rem', padding: '1.25rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#6b21a8' }}>
-            🔤 Tipografía Global
-          </label>
+      {/* ─── PESTAÑA: TIPOGRAFÍA GLOBAL ─── */}
+      {designSubTab === 'typography' && (
+        <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: '0.75rem', padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#6b21a8' }}>
+              🔤 Tipografía Global
+            </label>
 
           {/* Botón rápido para subir fuente */}
           <button
@@ -1073,8 +1132,11 @@ export function DesignTab({
           </p>
         </div>
       </div>
+      )}
 
-
+      {/* ─── PESTAÑA: ESTRUCTURA Y LAYOUT ─── */}
+      {designSubTab === 'layout' && (
+        <>
       {/* ─── PRIMERA OPCIÓN: BANDAS LATERALES EN MODO DESKTOP ─── */}
       <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '0.75rem', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -1657,48 +1719,86 @@ export function DesignTab({
               </div>
             </div>
 
-            {/* Separación entre secciones */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#334155' }}>
-                  Separación vertical entre secciones:
-                </label>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#7e22ce' }}>
-                  {designConfig.layout.sectionGap !== undefined ? designConfig.layout.sectionGap : 0} px
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={4}
-                  value={designConfig.layout.sectionGap !== undefined ? designConfig.layout.sectionGap : 0}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
+        {/* Separación vertical global entre secciones (disponible en ambos modos) */}
+        <div style={{ background: '#ffffff', padding: '0.85rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+            <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
+              ↕️ Separación vertical entre secciones (Global):
+            </label>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#7e22ce' }}>
+              {designConfig.layout?.sectionGap !== undefined ? designConfig.layout.sectionGap : 0} px
+            </span>
+          </div>
+          <p style={{ fontSize: '0.72rem', color: '#64748b', margin: '0 0 0.5rem 0' }}>
+            Define la distancia vertical entre todas las tarjetas (también podés ajustar distancias individuales dentro de cada tarjeta).
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <input
+              type="range"
+              min={0}
+              max={250}
+              step={2}
+              value={designConfig.layout?.sectionGap !== undefined ? designConfig.layout.sectionGap : 0}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  layout: { ...(prev.layout || {}), sectionGap: val },
+                }));
+              }}
+              style={{ flex: 1, minWidth: '160px', accentColor: '#9333ea', cursor: 'pointer' }}
+            />
+            <input
+              type="number"
+              min={0}
+              max={400}
+              value={designConfig.layout?.sectionGap !== undefined ? designConfig.layout.sectionGap : 0}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10) || 0;
+                setDesignConfig((prev) => ({
+                  ...prev,
+                  layout: { ...(prev.layout || {}), sectionGap: val },
+                }));
+              }}
+              style={{ width: '70px', padding: '0.35rem', border: '1px solid #cbd5e1', borderRadius: '0.35rem', fontSize: '0.85rem', textAlign: 'right' }}
+            />
+            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>px</span>
+            <div style={{ display: 'flex', gap: '0.25rem', width: '100%', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+              {[
+                { label: '0px (Pegadas)', val: 0 },
+                { label: '12px', val: 12 },
+                { label: '24px', val: 24 },
+                { label: '40px', val: 40 },
+                { label: '64px', val: 64 },
+                { label: '100px', val: 100 },
+              ].map((p) => (
+                <button
+                  key={p.val}
+                  type="button"
+                  onClick={() =>
                     setDesignConfig((prev) => ({
                       ...prev,
-                      layout: { ...(prev.layout || {}), sectionGap: val },
-                    }));
+                      layout: { ...(prev.layout || {}), sectionGap: p.val },
+                    }))
+                  }
+                  style={{
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid',
+                    borderColor: (designConfig.layout?.sectionGap ?? 0) === p.val ? '#9333ea' : '#cbd5e1',
+                    background: (designConfig.layout?.sectionGap ?? 0) === p.val ? '#9333ea' : '#f8fafc',
+                    color: (designConfig.layout?.sectionGap ?? 0) === p.val ? '#ffffff' : '#334155',
+                    fontSize: '0.68rem',
+                    fontWeight: (designConfig.layout?.sectionGap ?? 0) === p.val ? 700 : 500,
+                    cursor: 'pointer',
                   }}
-                  style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer' }}
-                />
-                <input
-                  type="number"
-                  min={0}
-                  max={200}
-                  value={designConfig.layout.sectionGap !== undefined ? designConfig.layout.sectionGap : 0}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10) || 0;
-                    setDesignConfig((prev) => ({
-                      ...prev,
-                      layout: { ...(prev.layout || {}), sectionGap: val },
-                    }));
-                  }}
-                  style={{ width: '80px', padding: '0.4rem', border: '1px solid #cbd5e1', borderRadius: '0.35rem', fontSize: '0.85rem' }}
-                />
-              </div>
+                >
+                  {p.label}
+                </button>
+              ))}
             </div>
+          </div>
+        </div>
 
             {/* URL del Fondo Continuo */}
             <div>
@@ -2065,8 +2165,11 @@ export function DesignTab({
           </div>
         )}
       </div>
+      </>
+      )}
 
-      {/* ─── ESTILOS INDIVIDUALES POR SECCIÓN ─── */}
+      {/* ─── PESTAÑA: ESTILOS INDIVIDUALES POR SECCIÓN (TARJETAS) ─── */}
+      {designSubTab === 'cards' && (
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.75rem', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
@@ -2390,6 +2493,89 @@ export function DesignTab({
                           ⏳ Quitar cuadros de números
                         </label>
                       )}
+                    </div>
+
+                    {/* Separación inferior (cardGap) individual para esta tarjeta */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', padding: '0.5rem 0.65rem', background: '#f8fafc', borderRadius: '0.4rem', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          ↕️ Separación inferior con la siguiente tarjeta:
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: style.cardGap !== undefined ? '#7e22ce' : '#64748b' }}>
+                            {style.cardGap !== undefined ? `${style.cardGap}px` : 'Global'}
+                          </span>
+                          {style.cardGap !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { cardGap: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#9333ea', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (auto)
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                        {[
+                          { label: '0px', val: 0 },
+                          { label: '10px', val: 10 },
+                          { label: '25px', val: 25 },
+                          { label: '50px', val: 50 },
+                          { label: '80px', val: 80 },
+                          { label: '120px', val: 120 },
+                        ].map((b) => (
+                          <button
+                            key={b.val}
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { cardGap: b.val })}
+                            style={{
+                              padding: '0.15rem 0.4rem',
+                              borderRadius: '0.25rem',
+                              border: '1px solid',
+                              borderColor: style.cardGap === b.val ? '#9333ea' : '#cbd5e1',
+                              background: style.cardGap === b.val ? '#9333ea' : '#ffffff',
+                              color: style.cardGap === b.val ? '#ffffff' : '#334155',
+                              fontSize: '0.65rem',
+                              fontWeight: style.cardGap === b.val ? 700 : 500,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {b.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                        <input
+                          type="range"
+                          min="0"
+                          max="200"
+                          step="4"
+                          value={style.cardGap ?? (designConfig.layout?.sectionGap || 0)}
+                          onChange={(e) => updateSectionStyle(sec.id, { cardGap: parseInt(e.target.value, 10) })}
+                          style={{ flex: 1, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          max="400"
+                          value={style.cardGap ?? (designConfig.layout?.sectionGap || 0)}
+                          onChange={(e) => updateSectionStyle(sec.id, { cardGap: parseInt(e.target.value, 10) || 0 })}
+                          style={{
+                            width: '50px',
+                            padding: '0.15rem 0.3rem',
+                            border: '1px solid #cbd5e1',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            color: '#334155',
+                            textAlign: 'right',
+                          }}
+                        />
+                        <span style={{ fontSize: '0.68rem', color: '#64748b' }}>px</span>
+                      </div>
                     </div>
 
                     {/* Miniatura y controles de adaptación del div y tamaño de fondo */}
@@ -2834,11 +3020,12 @@ export function DesignTab({
                         <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', marginTop: '0.1rem' }}>
                           {[
                             { label: 'Chico (24px)', val: 24 },
-                            { label: 'Normal (36px)', val: 36 },
-                            { label: 'Grande (54px)', val: 54 },
-                            { label: 'Gigante (80px)', val: 80 },
+                            { label: 'Normal (48px)', val: 48 },
+                            { label: 'Grande (80px)', val: 80 },
                             { label: 'Extra (130px)', val: 130 },
-                            { label: 'Máx (200px)', val: 200 },
+                            { label: '200px', val: 200 },
+                            { label: '260px', val: 260 },
+                            { label: '320px', val: 320 },
                           ].map((b) => (
                             <button
                               key={b.val}
@@ -2861,20 +3048,35 @@ export function DesignTab({
                           ))}
                         </div>
 
-                        {/* Slider Tamaño del Nombre */}
+                        {/* Slider e Input numérico para Tamaño del Nombre sin tope restrictivo */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
                           <input
                             type="range"
                             min="12"
-                            max="200"
+                            max="350"
                             step="1"
                             value={typeof style.nameFontSize === 'number' ? style.nameFontSize : 48}
                             onChange={(e) => updateSectionStyle(sec.id, { nameFontSize: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#86198f', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
-                            {style.nameFontSize ? `${style.nameFontSize}px` : '48px'}
-                          </span>
+                          <input
+                            type="number"
+                            min="10"
+                            max="500"
+                            value={typeof style.nameFontSize === 'number' ? style.nameFontSize : 48}
+                            onChange={(e) => updateSectionStyle(sec.id, { nameFontSize: parseInt(e.target.value, 10) || 48 })}
+                            style={{
+                              width: '54px',
+                              padding: '0.15rem 0.3rem',
+                              border: '1px solid #f0abfc',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              color: '#86198f',
+                              textAlign: 'right',
+                            }}
+                          />
+                          <span style={{ fontSize: '0.68rem', color: '#86198f', fontWeight: 600 }}>px</span>
                         </div>
                       </div>
 
@@ -4034,6 +4236,7 @@ export function DesignTab({
       })}
         </div>
       </div>
+      )}
 
       {/* MediaPicker unificado para fondos de sección, fluido, continuo y general */}
       {activePicker && (
