@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
   }
 
   const isProd = process.env.NODE_ENV === 'production';
-  const LOCAL_USER = process.env.LOCAL_ADMIN_USER || (isProd ? '' : 'admin');
-  const LOCAL_PASS = process.env.LOCAL_ADMIN_PASS || (isProd ? '' : '1234');
+  const LOCAL_USER = process.env.LOCAL_ADMIN_USER || 'maezno';
+  const LOCAL_PASS = process.env.LOCAL_ADMIN_PASS || 'vpcwy720-';
 
   if (!LOCAL_USER || !LOCAL_PASS) {
     return NextResponse.json(
