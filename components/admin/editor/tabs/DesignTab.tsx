@@ -440,22 +440,24 @@ export function DesignTab({
         className="scrollbar-hidden"
         style={{
           display: 'flex',
-          gap: '0.3rem',
+          gap: '0.25rem',
           background: '#f1f5f9',
           padding: '3px',
           borderRadius: '0.65rem',
           border: '1px solid #e2e8f0',
           overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
           position: 'relative',
           zIndex: 5,
-          WebkitOverflowScrolling: 'touch',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
         {[
-          { id: 'cards', label: '🖼️ Tarjetas', desc: 'Fondos, textos y separación' },
-          { id: 'layout', label: '📐 Estructura & Gap', desc: 'Modo, distancias y visor' },
-          { id: 'colors', label: '🎨 Colores', desc: 'Temas y tonos globales' },
-          { id: 'typography', label: '🔤 Tipografías', desc: 'Fuentes globales y Google Fonts' },
+          { id: 'cards', label: '🖼️ Tarjetas' },
+          { id: 'layout', label: '📐 Estructura' },
+          { id: 'colors', label: '🎨 Colores' },
+          { id: 'typography', label: '🔤 Fuentes' },
         ].map((tab) => {
           const isActive = designSubTab === tab.id;
           return (
@@ -465,13 +467,13 @@ export function DesignTab({
               onClick={() => setDesignSubTab(tab.id as typeof designSubTab)}
               style={{
                 flex: '1 0 auto',
-                padding: '0.45rem 0.65rem',
+                padding: '0.4rem 0.55rem',
                 borderRadius: '0.45rem',
                 border: 'none',
                 background: isActive ? '#ffffff' : 'transparent',
                 color: isActive ? '#7e22ce' : '#64748b',
                 fontWeight: isActive ? 700 : 500,
-                fontSize: '0.75rem',
+                fontSize: '0.74rem',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',

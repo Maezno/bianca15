@@ -46,35 +46,47 @@ export function SaveBar({
         boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
       }}
     >
-      {/* Fila 1: Volver + Nombre + Badge de Estado + Enlace Ver Pública */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0, flex: 1 }}>
+      {/* Fila 1: Volver + Nombre completo + Estado + Ver pública */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem', width: '100%', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', minWidth: 0, flex: 1, overflow: 'hidden' }}>
           <Link
             href={`/admin/events/${eventId}`}
             style={{
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               color: '#64748b',
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.2rem',
+              gap: '0.15rem',
               fontWeight: 600,
               flexShrink: 0,
             }}
           >
             ← Volver
           </Link>
-          <span style={{ color: '#cbd5e1' }}>|</span>
-          <div style={{ minWidth: 0, overflow: 'hidden' }}>
-            <h1 className="admin-savebar-title" style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span>✏️</span> {eventName}
-            </h1>
-          </div>
+          <span style={{ color: '#cbd5e1', flexShrink: 0 }}>|</span>
+          <h1
+            className="admin-savebar-title"
+            style={{
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              color: '#0f172a',
+              margin: 0,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
+              flex: 1,
+            }}
+            title={eventName}
+          >
+            ✏️ {eventName}
+          </h1>
           <span
             style={{
-              fontSize: '0.68rem',
+              fontSize: '0.65rem',
               fontWeight: 700,
-              padding: '0.15rem 0.5rem',
+              padding: '0.12rem 0.4rem',
               borderRadius: '99px',
               flexShrink: 0,
               background:
@@ -93,15 +105,16 @@ export function SaveBar({
             target="_blank"
             rel="noreferrer"
             style={{
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               color: '#16a34a',
               fontWeight: 700,
               textDecoration: 'none',
               background: '#f0fdf4',
-              padding: '0.2rem 0.5rem',
+              padding: '0.18rem 0.45rem',
               borderRadius: '0.35rem',
               border: '1px solid #bbf7d0',
               flexShrink: 0,
+              whiteSpace: 'nowrap',
             }}
           >
             🔗 Ver pública
@@ -109,10 +122,10 @@ export function SaveBar({
         )}
       </div>
 
-      {/* Fila 2: Switcher Móvil (Opciones / Visualizador) + Indicador de cambios + Botones Guardar / Publicar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', width: '100%' }}>
+      {/* Fila 2: Switcher Móvil (Opciones / Visualizador) + Indicador de cambios + Botones Guardar y Publicar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem', width: '100%', minWidth: 0 }}>
         {/* Switcher Móvil */}
-        {setMobileView && (
+        {setMobileView ? (
           <div
             className="admin-mobile-toggle"
             style={{
@@ -120,7 +133,7 @@ export function SaveBar({
               alignItems: 'center',
               background: '#f1f5f9',
               padding: '2px',
-              borderRadius: '0.5rem',
+              borderRadius: '0.45rem',
               gap: '2px',
               border: '1px solid #e2e8f0',
               flexShrink: 0,
@@ -130,7 +143,7 @@ export function SaveBar({
               type="button"
               onClick={() => setMobileView('editor')}
               style={{
-                padding: '0.28rem 0.55rem',
+                padding: '0.25rem 0.5rem',
                 borderRadius: '0.35rem',
                 border: 'none',
                 background: mobileView === 'editor' ? '#ffffff' : 'transparent',
@@ -151,7 +164,7 @@ export function SaveBar({
               type="button"
               onClick={() => setMobileView('preview')}
               style={{
-                padding: '0.28rem 0.55rem',
+                padding: '0.25rem 0.5rem',
                 borderRadius: '0.35rem',
                 border: 'none',
                 background: mobileView === 'preview' ? '#ffffff' : 'transparent',
@@ -169,18 +182,18 @@ export function SaveBar({
               <span>👁️</span> Visualizador
             </button>
           </div>
-        )}
+        ) : <div />}
 
-        {/* Acciones: Estado de guardado y Botones */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginLeft: 'auto', flexWrap: 'nowrap' }}>
+        {/* Acciones: Guardar / Publicar alineados limpiamente a la derecha */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginLeft: 'auto', flexShrink: 0 }}>
           {isDirty && (
-            <span style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.7rem', color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}>
               <span>●</span> <span className="hide-on-very-small">Sin guardar</span>
             </span>
           )}
 
           {saveSuccess && (
-            <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 700, whiteSpace: 'nowrap' }}>
               ✓ Guardado
             </span>
           )}
@@ -190,8 +203,8 @@ export function SaveBar({
             onClick={onSave}
             disabled={isSaving}
             style={{
-              padding: '0.32rem 0.75rem',
-              borderRadius: '0.45rem',
+              padding: '0.3rem 0.75rem',
+              borderRadius: '0.4rem',
               border: 'none',
               background: '#9333ea',
               color: '#ffffff',
@@ -211,8 +224,8 @@ export function SaveBar({
             onClick={onPublishToggle}
             disabled={isSaving}
             style={{
-              padding: '0.32rem 0.65rem',
-              borderRadius: '0.45rem',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '0.4rem',
               border: status === 'published' ? '1px solid #cbd5e1' : 'none',
               background: status === 'published' ? '#ffffff' : '#16a34a',
               color: status === 'published' ? '#64748b' : '#ffffff',

@@ -322,21 +322,21 @@ export function PreviewPanel({
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          padding: device === 'desktop' ? '0' : '1.25rem',
+          padding: device === 'desktop' ? '0' : '0.5rem',
           overflowY: 'auto',
-          minHeight: '650px',
+          minHeight: '520px',
         }}
       >
         <div
           style={{
-            width: getWidth(),
+            width: device === 'desktop' ? '100%' : 'min(390px, 100%)',
             maxWidth: '100%',
             height: device === 'desktop' ? '100%' : '780px',
             background: '#ffffff',
-            borderRadius: device === 'desktop' ? 0 : '1rem',
-            boxShadow: device === 'desktop' ? 'none' : '0 10px 30px rgba(0,0,0,0.15)',
+            borderRadius: device === 'desktop' ? 0 : '0.75rem',
+            boxShadow: device === 'desktop' ? 'none' : '0 8px 24px rgba(0,0,0,0.12)',
             overflow: 'hidden',
-            border: device === 'desktop' ? 'none' : '4px solid #1e293b',
+            border: device === 'desktop' ? 'none' : '2px solid #334155',
             transition: 'width 0.25s ease',
           }}
         >

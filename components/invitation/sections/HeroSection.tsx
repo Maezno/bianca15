@@ -115,12 +115,12 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
           {event.title}
         </div>
 
-        {/* Nombre del Evento */}
+        {/* Nombre del Evento (Autoajustable al contenedor para que Bianca nunca se corte ni desborde en móvil o iframe) */}
         <h1
           data-event-name="true"
           style={{
             fontFamily: theme.typography.headingFont,
-            fontSize: nameSize ? nameSize : 'clamp(2.4rem, 16vw, 3.8rem)',
+            fontSize: nameSize ? nameSize : 'min(15vw, 3.8rem)',
             margin: '0.25rem 0 0.85rem 0',
             color: nameColor,
             fontWeight: 400,
@@ -132,6 +132,7 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
             wordBreak: 'normal',
             overflowWrap: 'normal',
             maxWidth: '100%',
+            boxSizing: 'border-box',
           }}
         >
           {event.name}
