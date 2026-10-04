@@ -448,7 +448,7 @@ export function DesignTab({
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
           position: 'relative',
-          zIndex: 5,
+          flexShrink: 0,
           width: '100%',
           boxSizing: 'border-box',
         }}

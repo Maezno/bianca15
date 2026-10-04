@@ -276,6 +276,11 @@ export function EventEditor({ initialData }: EventEditorProps) {
               borderBottom: '1px solid #e2e8f0',
               background: '#f8fafc',
               overflowX: 'auto',
+              overflowY: 'hidden',
+              flexShrink: 0,
+              minHeight: '44px',
+              position: 'relative',
+              zIndex: 10,
             }}
           >
             {[
