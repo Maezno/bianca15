@@ -814,24 +814,53 @@ export function PublicInvitationRenderer({
       : {}),
   };
 
-  // Parallax sutil para el fondo general/fijo con zoom de seguridad
+  // Parallax sutil y estable para el fondo general/fijo con zoom de seguridad
   const [parallaxOffset, setParallaxOffset] = useState(0);
   useEffect(() => {
     if (!isBgFixed || !effectiveBgImage) return;
+
+    // Cachear la altura para que el cambio de tamaño dinámico de la barra de direcciones de móvil no reinicie ni sacuda el fondo
+    let cachedViewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+    let cachedMaxScroll = 1;
+
+    const updateDimensions = () => {
+      cachedViewportHeight = window.innerHeight;
+      cachedMaxScroll = Math.max(1, document.documentElement.scrollHeight - cachedViewportHeight);
+    };
+
+    updateDimensions();
+
     const handleScroll = () => {
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, currentScroll / maxScroll));
-      // Desplazamiento máximo controlado de 70px distribuidos a lo largo de toda la página
-      // Combinado con top: -15% y height: 130%, garantiza que los bordes superior e inferior nunca sean visibles
-      setParallaxOffset(progress * -70);
+      const progress = Math.min(1, Math.max(0, currentScroll / cachedMaxScroll));
+      // Desplazamiento máximo controlado de 60px distribuido progresivamente
+      setParallaxOffset(progress * -60);
     };
+
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    
+    // Solo actualizar las dimensiones totales al girar la pantalla (orientación) o redimensionamiento real de ancho
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+    const handleResize = () => {
+      if (window.innerWidth !== lastWidth) {
+        lastWidth = window.innerWidth;
+        updateDimensions();
+        handleScroll();
+      }
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        updateDimensions();
+        handleScroll();
+      }, 150);
+    });
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, [isBgFixed, effectiveBgImage]);
 
@@ -875,21 +904,19 @@ export function PublicInvitationRenderer({
           aria-hidden="true"
           style={{
             position: 'fixed',
-            top: '-15%',
-            left: '-5%',
-            right: '-5%',
-            bottom: '-15%',
-            width: '110%',
-            height: '130%',
-            minHeight: '130dvh',
+            top: '-10lvh',
+            left: 0,
+            right: 0,
+            width: '100vw',
+            height: '120lvh',
+            minHeight: '120vh',
             backgroundImage: `url("${effectiveBgImage}")`,
             backgroundPosition: 'center center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
-            transform: `translate3d(0, ${parallaxOffset}px, 0) scale(1.08)`,
+            transform: `translate3d(0, ${parallaxOffset}px, 0) scale(1.06)`,
             transformOrigin: 'center center',
             willChange: 'transform',
-            transition: 'transform 0.08s linear',
             zIndex: 0,
             pointerEvents: 'none',
           }}
