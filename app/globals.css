@@ -126,6 +126,40 @@ body {
   }
 }
 
+@media (max-width: 600px) {
+  /* Grillas de formularios del admin: 1 columna en móvil */
+  .admin-editor-panel [style*="grid-template-columns: 1fr 1fr"],
+  .admin-main-container [style*="grid-template-columns: 1fr 1fr"],
+  .admin-editor-panel [style*="minmax(220px"],
+  .admin-main-container [style*="minmax(340px"],
+  .admin-main-container [style*="minmax(240px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Anchos mínimos fijos que provocan scroll horizontal */
+  .admin-editor-panel [style*="min-width: 340px"],
+  .admin-editor-panel [style*="min-width: 160px"],
+  .admin-main-container [style*="min-width: 260px"] {
+    min-width: 0 !important;
+  }
+
+  /* Textos largos (URLs, nombres de archivo) nunca desbordan */
+  .admin-editor-panel,
+  .admin-main-container {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-editor-panel input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="number"]),
+  .admin-editor-panel select,
+  .admin-editor-panel textarea,
+  .admin-main-container input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="number"]),
+  .admin-main-container select,
+  .admin-main-container textarea {
+    max-width: 100%;
+    font-size: 16px; /* evita zoom automático en iOS */
+  }
+}
+
 @media (max-width: 480px) {
   .hide-on-very-small {
     display: none !important;

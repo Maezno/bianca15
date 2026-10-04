@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { PublicEvent } from '@/types/event';
@@ -746,7 +746,6 @@ export function PublicInvitationRenderer({
     return () => {
       document.querySelectorAll('[data-section-font]').forEach((el) => el.remove());
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(sectionStyles), customFontUrl]);
 
   // Cargar automáticamente las fuentes predefinidas de Google (theme global + por sección)
@@ -758,7 +757,6 @@ export function PublicInvitationRenderer({
       if (style.sectionFont) ensurePredefinedFontLoaded(style.sectionFont);
       if (style.sectionBodyFont) ensurePredefinedFontLoaded(style.sectionBodyFont);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme.typography.headingFont, theme.typography.bodyFont, theme.typography.secondaryFont, JSON.stringify(sectionStyles)]);
 
   /** Resuelve el theme final para una sección aplicando sus overrides individuales */
