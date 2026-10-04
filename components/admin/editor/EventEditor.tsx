@@ -270,6 +270,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
         >
           {/* Navegación por pestañas */}
           <div
+            className="admin-editor-panel-tabs scrollbar-hidden"
             style={{
               display: 'flex',
               borderBottom: '1px solid #e2e8f0',

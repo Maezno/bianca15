@@ -82,8 +82,8 @@ body {
   }
 
   .admin-savebar {
-    padding: 0.65rem 0.85rem !important;
-    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.4rem !important;
   }
 
   .admin-savebar-title {
@@ -102,6 +102,26 @@ body {
 
   .admin-main-container {
     padding: 0.85rem !important;
+  }
+
+  .admin-editor-panel .custom-editor-scrollbar {
+    padding: 0.85rem 0.75rem !important;
+  }
+
+  .admin-editor-panel-tabs {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .admin-editor-panel-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hide-on-very-small {
+    display: none !important;
   }
 }
 
