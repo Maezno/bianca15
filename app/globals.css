@@ -242,11 +242,37 @@ body {
 .invitation-card-item[style*="--card-public-title-color"] [data-public-title="true"] {
   color: var(--card-public-title-color) !important;
 }
+.invitation-card-item [data-event-name="true"] {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+}
 .invitation-card-item[style*="--card-name-size"] [data-event-name="true"] {
-  font-size: var(--card-name-size) !important;
+  font-size: min(var(--card-name-size), 19vw) !important;
 }
 .invitation-card-item[style*="--card-name-color"] [data-event-name="true"] {
   color: var(--card-name-color) !important;
+}
+
+/* Reglas globales de textos para no partir palabras a la mitad (evitar cortes de sílabas antiestéticos) */
+.invitation-card-item h1,
+.invitation-card-item h2,
+.invitation-card-item h3,
+.invitation-card-item h4,
+.invitation-card-item p,
+.invitation-card-item span,
+.invitation-card-item strong,
+.invitation-card-item [data-heading="true"],
+.invitation-card-item [data-body="true"],
+.invitation-card-item [data-badge="true"],
+.invitation-card-item [data-public-title="true"],
+.invitation-card-item .card-heading,
+.invitation-card-item .card-body {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
 }
 
 /* Tamaño de cuerpo / párrafos personalizado por tarjeta */
