@@ -50,6 +50,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
 
   // Estados de control
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -226,6 +227,8 @@ export function EventEditor({ initialData }: EventEditorProps) {
         saveSuccess={saveSuccess}
         onSave={() => handleSave()}
         onPublishToggle={handlePublishToggle}
+        mobileView={mobileView}
+        setMobileView={setMobileView}
       />
 
       {errorMessage && (
@@ -234,8 +237,9 @@ export function EventEditor({ initialData }: EventEditorProps) {
         </div>
       )}
 
-      {/* Editor Body: 3-Zone Layout en Desktop */}
+      {/* Editor Body: Grid adaptativo (2 columnas en desktop, pestañas/toggle en mobile) */}
       <div
+        className="admin-editor-grid"
         style={{
           flex: 1,
           display: 'grid',
@@ -250,6 +254,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
       >
         {/* Zona Izquierda: Pestañas de Configuración */}
         <div
+          className={`admin-editor-panel ${mobileView !== 'editor' ? 'mobile-hide' : ''}`}
           style={{
             background: '#ffffff',
             borderRadius: '1rem',
@@ -380,7 +385,10 @@ export function EventEditor({ initialData }: EventEditorProps) {
         </div>
 
         {/* Zona Derecha: Panel de Previsualización Interactivo */}
-        <div style={{ height: 'calc(100vh - 120px)', position: 'sticky', top: '80px' }}>
+        <div
+          className={`admin-preview-panel-wrap ${mobileView !== 'preview' ? 'mobile-hide' : ''}`}
+          style={{ height: 'calc(100vh - 120px)', position: 'sticky', top: '80px' }}
+        >
           <PreviewPanel
             slug={event.slug}
             refreshKey={refreshKey}

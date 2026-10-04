@@ -13,6 +13,8 @@ interface SaveBarProps {
   saveSuccess: boolean;
   onSave: () => Promise<void>;
   onPublishToggle: () => Promise<void>;
+  mobileView?: 'editor' | 'preview';
+  setMobileView?: (view: 'editor' | 'preview') => void;
 }
 
 export function SaveBar({
@@ -25,9 +27,12 @@ export function SaveBar({
   saveSuccess,
   onSave,
   onPublishToggle,
+  mobileView,
+  setMobileView,
 }: SaveBarProps) {
   return (
     <div
+      className="admin-savebar"
       style={{
         background: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
@@ -36,14 +41,14 @@ export function SaveBar({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '1rem',
+        gap: '0.75rem',
         position: 'sticky',
         top: 0,
         zIndex: 50,
         boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
         <Link
           href={`/admin/events/${eventId}`}
           style={{
@@ -60,7 +65,7 @@ export function SaveBar({
         </Link>
         <span style={{ color: '#cbd5e1' }}>|</span>
         <div>
-          <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <h1 className="admin-savebar-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span>✏️</span> {eventName}
             <span
               style={{
@@ -101,6 +106,63 @@ export function SaveBar({
           </div>
         </div>
       </div>
+
+      {/* Switcher Móvil: Solo se muestra en pantallas móviles si setMobileView existe */}
+      {setMobileView && (
+        <div
+          className="admin-mobile-toggle"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: '#f1f5f9',
+            padding: '3px',
+            borderRadius: '0.6rem',
+            gap: '3px',
+            border: '1px solid #e2e8f0',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileView('editor')}
+            style={{
+              padding: '0.35rem 0.75rem',
+              borderRadius: '0.45rem',
+              border: 'none',
+              background: mobileView === 'editor' ? '#ffffff' : 'transparent',
+              color: mobileView === 'editor' ? '#9333ea' : '#64748b',
+              fontWeight: mobileView === 'editor' ? 700 : 500,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              boxShadow: mobileView === 'editor' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+            }}
+          >
+            <span>⚙️</span> Opciones
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileView('preview')}
+            style={{
+              padding: '0.35rem 0.75rem',
+              borderRadius: '0.45rem',
+              border: 'none',
+              background: mobileView === 'preview' ? '#ffffff' : 'transparent',
+              color: mobileView === 'preview' ? '#9333ea' : '#64748b',
+              fontWeight: mobileView === 'preview' ? 700 : 500,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              boxShadow: mobileView === 'preview' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+            }}
+          >
+            <span>👁️</span> Visualizador
+          </button>
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
         {isDirty && (

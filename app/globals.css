@@ -46,6 +46,66 @@ body {
   background: #9333ea;
 }
 
+/* ── Adaptabilidad Móvil para el Panel y Editor del Administrador ────────── */
+.admin-mobile-toggle {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .admin-mobile-toggle {
+    display: flex !important;
+  }
+
+  .admin-editor-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .admin-editor-panel {
+    height: auto !important;
+    max-height: calc(100vh - 145px) !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .admin-preview-panel-wrap {
+    height: calc(100vh - 145px) !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .admin-editor-panel.mobile-hide,
+  .admin-preview-panel-wrap.mobile-hide {
+    display: none !important;
+  }
+
+  .admin-savebar {
+    padding: 0.65rem 0.85rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .admin-savebar-title {
+    font-size: 0.95rem !important;
+  }
+
+  .admin-nav-bar {
+    padding: 0.4rem 0.75rem !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .admin-top-header {
+    padding: 0.5rem 0.85rem !important;
+  }
+
+  .admin-main-container {
+    padding: 0.85rem !important;
+  }
+}
+
+
 /* ── Tarjetas de sección de la invitación ────────────────────────────────── */
 /* En modo desktop el ancho de las tarjetas es de 1000px y puede salirse de la pantalla */
 .invitation-card-item {
