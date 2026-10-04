@@ -56,7 +56,8 @@ export function ActionButton({
       boxSizing: 'border-box',
       width: fullWidth ? '100%' : 'auto',
       minWidth: backgroundImage ? '140px' : undefined,
-      minHeight: backgroundImage ? '44px' : undefined,
+      minHeight: '44px',
+      maxWidth: '100%',
       textAlign: 'center',
     };
 

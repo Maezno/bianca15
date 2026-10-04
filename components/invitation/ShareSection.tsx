@@ -104,11 +104,13 @@ export function ShareSection({
         Guardá o compartí este enlace con tu grupo familiar.
       </p>
 
-      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <button
+          type="button"
           onClick={handleShare}
           style={{
             flex: 1,
+            minHeight: '44px',
             padding: '0.65rem 1rem',
             borderRadius: '0.5rem',
             border: 'none',
@@ -128,8 +130,11 @@ export function ShareSection({
         </button>
 
         <button
+          type="button"
           onClick={handleCopy}
+          aria-live="polite"
           style={{
+            minHeight: '44px',
             padding: '0.65rem 1rem',
             borderRadius: '0.5rem',
             border: `1px solid ${borderColor}`,

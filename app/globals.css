@@ -171,7 +171,7 @@ body {
 /* En modo desktop el ancho de las tarjetas es de 1000px y puede salirse de la pantalla */
 .invitation-card-item {
   width: 1000px;
-  max-width: 1000px;
+  max-width: min(1000px, 100%);
   flex-shrink: 0;
   box-sizing: border-box;
   margin-left: auto;

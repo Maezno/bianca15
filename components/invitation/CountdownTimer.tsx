@@ -117,11 +117,12 @@ export function CountdownTimer({
             textAlign: 'center',
             backdropFilter: noBoxes ? 'none' : 'blur(4px)',
             transition: 'transform 0.2s ease',
+            minWidth: 0,
           }}
         >
           <div
             style={{
-              fontSize: numberSize ? `${numberSize}px` : 'clamp(1.4rem, 4vw, 2rem)',
+              fontSize: numberSize ? `min(${numberSize}px, 10vw)` : 'clamp(1.4rem, 4vw, 2rem)',
               fontWeight: 800,
               color: numberColor || primaryColor,
               fontVariantNumeric: 'tabular-nums',

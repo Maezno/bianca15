@@ -138,6 +138,9 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
             style={{
               width: '160px',
               height: '160px',
+              maxWidth: '100%',
+              objectFit: 'contain',
+              boxSizing: 'border-box',
               margin: '0 auto',
               borderRadius: '0.75rem',
               border: `1px solid ${theme.colors.border}`,
