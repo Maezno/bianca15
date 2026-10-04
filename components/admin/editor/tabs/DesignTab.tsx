@@ -2028,134 +2028,139 @@ export function DesignTab({
                 </div>
               </div>
 
-              {/* Cabecera de columnas */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', gap: '0.4rem', alignItems: 'center', padding: '0.25rem 0.6rem', background: '#f1f5f9', borderRadius: '0.3rem', marginBottom: '0.4rem' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Sección</span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textAlign: 'center' }}>🖥️ Desktop</span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', textAlign: 'center' }}>📱 Móvil</span>
-              </div>
+              {/* Contenedor scrolleable para evitar desbordes en móviles */}
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '0.25rem' }}>
+                <div style={{ minWidth: '340px' }}>
+                  {/* Cabecera de columnas */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px', gap: '0.35rem', alignItems: 'center', padding: '0.25rem 0.6rem', background: '#f1f5f9', borderRadius: '0.3rem', marginBottom: '0.4rem' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Sección</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb', textAlign: 'center' }}>🖥️ Desktop</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', textAlign: 'center' }}>📱 Móvil</span>
+                  </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                {[
-                  { id: 'hero', label: '👑 Hero / Portada' },
-                  { id: 'welcome', label: '✨ Bienvenida' },
-                  { id: 'countdown', label: '⏳ Cuenta Regresiva' },
-                  { id: 'date', label: '📅 Fecha y Hora' },
-                  { id: 'location', label: '📍 Ubicación' },
-                  { id: 'schedule', label: '⏰ Cronograma' },
-                  { id: 'dress_code', label: '👔 Dress Code' },
-                  { id: 'gifts', label: '🎁 Regalos' },
-                  { id: 'photos', label: '📸 Fotos' },
-                  { id: 'confirmation', label: '✅ Confirmación' },
-                  { id: 'share', label: '🔗 Compartir' },
-                  { id: 'footer', label: '💌 Cierre' },
-                ].map((sec) => {
-                  const customH = designConfig.layout?.sectionHeights?.[sec.id];
-                  const displayH = customH || designConfig.layout?.sectionHeight || 700;
-                  const customHMobile = designConfig.layout?.sectionHeightsMobile?.[sec.id];
-                  const hasCustomMobile = customHMobile !== undefined;
-                  return (
-                    <div
-                      key={sec.id}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 110px 110px',
-                        gap: '0.4rem',
-                        alignItems: 'center',
-                        padding: '0.35rem 0.6rem',
-                        background: (customH || hasCustomMobile) ? '#faf5ff' : '#f8fafc',
-                        border: '1px solid',
-                        borderColor: (customH || hasCustomMobile) ? '#d8b4fe' : '#e2e8f0',
-                        borderRadius: '0.35rem',
-                      }}
-                    >
-                      <span style={{ fontSize: '0.76rem', color: '#1e293b', fontWeight: 500 }}>
-                        {sec.label}
-                      </span>
-
-                      {/* Control Desktop */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
-                        <input
-                          type="number"
-                          min={250}
-                          max={2500}
-                          value={displayH}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            setDesignConfig((prev) => ({
-                              ...prev,
-                              layout: {
-                                ...(prev.layout || {}),
-                                sectionHeights: {
-                                  ...(prev.layout?.sectionHeights || {}),
-                                  [sec.id]: val,
-                                },
-                              },
-                            }));
-                          }}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    {[
+                      { id: 'hero', label: '👑 Hero / Portada' },
+                      { id: 'welcome', label: '✨ Bienvenida' },
+                      { id: 'countdown', label: '⏳ Cuenta Regresiva' },
+                      { id: 'date', label: '📅 Fecha y Hora' },
+                      { id: 'location', label: '📍 Ubicación' },
+                      { id: 'schedule', label: '⏰ Cronograma' },
+                      { id: 'dress_code', label: '👔 Dress Code' },
+                      { id: 'gifts', label: '🎁 Regalos' },
+                      { id: 'photos', label: '📸 Fotos' },
+                      { id: 'confirmation', label: '✅ Confirmación' },
+                      { id: 'share', label: '🔗 Compartir' },
+                      { id: 'footer', label: '💌 Cierre' },
+                    ].map((sec) => {
+                      const customH = designConfig.layout?.sectionHeights?.[sec.id];
+                      const displayH = customH || designConfig.layout?.sectionHeight || 700;
+                      const customHMobile = designConfig.layout?.sectionHeightsMobile?.[sec.id];
+                      const hasCustomMobile = customHMobile !== undefined;
+                      return (
+                        <div
+                          key={sec.id}
                           style={{
-                            width: '62px',
-                            padding: '0.2rem 0.35rem',
-                            border: `1px solid ${customH ? '#2563eb' : '#cbd5e1'}`,
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            textAlign: 'right',
-                            background: customH ? '#eff6ff' : '#fff',
-                            color: customH ? '#1d4ed8' : '#334155',
-                            fontWeight: customH ? 700 : 400,
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 100px 100px',
+                            gap: '0.35rem',
+                            alignItems: 'center',
+                            padding: '0.35rem 0.5rem',
+                            background: (customH || hasCustomMobile) ? '#faf5ff' : '#f8fafc',
+                            border: '1px solid',
+                            borderColor: (customH || hasCustomMobile) ? '#d8b4fe' : '#e2e8f0',
+                            borderRadius: '0.35rem',
                           }}
-                        />
-                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>px</span>
-                      </div>
+                        >
+                          <span style={{ fontSize: '0.75rem', color: '#1e293b', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {sec.label}
+                          </span>
 
-                      {/* Control Móvil */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
-                        <input
-                          type="number"
-                          min={200}
-                          max={1400}
-                          placeholder={displayH.toString()}
-                          value={customHMobile ?? ''}
-                          onChange={(e) => {
-                            const val = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
-                            setDesignConfig((prev) => ({
-                              ...prev,
-                              layout: {
-                                ...(prev.layout || {}),
-                                sectionHeightsMobile: {
-                                  ...(prev.layout?.sectionHeightsMobile || {}),
-                                  [sec.id]: val as number,
-                                },
-                              },
-                            }));
-                          }}
-                          onBlur={(e) => {
-                            // Si se borró el campo, eliminar la key para no guardar undefined
-                            if (e.target.value === '') {
-                              setDesignConfig((prev) => {
-                                const updated = { ...(prev.layout?.sectionHeightsMobile || {}) };
-                                delete updated[sec.id];
-                                return { ...prev, layout: { ...(prev.layout || {}), sectionHeightsMobile: updated } };
-                              });
-                            }
-                          }}
-                          style={{
-                            width: '62px',
-                            padding: '0.2rem 0.35rem',
-                            border: `1px solid ${hasCustomMobile ? '#9333ea' : '#d8b4fe'}`,
-                            borderRadius: '0.25rem',
-                            fontSize: '0.75rem',
-                            textAlign: 'right',
-                            background: hasCustomMobile ? '#faf5ff' : '#fff',
-                            color: hasCustomMobile ? '#7e22ce' : '#94a3b8',
-                            fontWeight: hasCustomMobile ? 700 : 400,
-                          }}
-                        />
-                        <span style={{ fontSize: '0.65rem', color: '#7e22ce' }}>px</span>
-                      </div>
-                    </div>
-                  );
-                })}
+                          {/* Control Desktop */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
+                            <input
+                              type="number"
+                              min={250}
+                              max={2500}
+                              value={displayH}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                setDesignConfig((prev) => ({
+                                  ...prev,
+                                  layout: {
+                                    ...(prev.layout || {}),
+                                    sectionHeights: {
+                                      ...(prev.layout?.sectionHeights || {}),
+                                      [sec.id]: val,
+                                    },
+                                  },
+                                }));
+                              }}
+                              style={{
+                                width: '56px',
+                                padding: '0.2rem 0.3rem',
+                                border: `1px solid ${customH ? '#2563eb' : '#cbd5e1'}`,
+                                borderRadius: '0.25rem',
+                                fontSize: '0.75rem',
+                                textAlign: 'right',
+                                background: customH ? '#eff6ff' : '#fff',
+                                color: customH ? '#1d4ed8' : '#334155',
+                                fontWeight: customH ? 700 : 400,
+                              }}
+                            />
+                            <span style={{ fontSize: '0.65rem', color: '#64748b' }}>px</span>
+                          </div>
+
+                          {/* Control Móvil */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', justifyContent: 'center' }}>
+                            <input
+                              type="number"
+                              min={200}
+                              max={1400}
+                              placeholder={displayH.toString()}
+                              value={customHMobile ?? ''}
+                              onChange={(e) => {
+                                const val = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                                setDesignConfig((prev) => ({
+                                  ...prev,
+                                  layout: {
+                                    ...(prev.layout || {}),
+                                    sectionHeightsMobile: {
+                                      ...(prev.layout?.sectionHeightsMobile || {}),
+                                      [sec.id]: val as number,
+                                    },
+                                  },
+                                }));
+                              }}
+                              onBlur={(e) => {
+                                // Si se borró el campo, eliminar la key para no guardar undefined
+                                if (e.target.value === '') {
+                                  setDesignConfig((prev) => {
+                                    const updated = { ...(prev.layout?.sectionHeightsMobile || {}) };
+                                    delete updated[sec.id];
+                                    return { ...prev, layout: { ...(prev.layout || {}), sectionHeightsMobile: updated } };
+                                  });
+                                }
+                              }}
+                              style={{
+                                width: '56px',
+                                padding: '0.2rem 0.3rem',
+                                border: `1px solid ${hasCustomMobile ? '#9333ea' : '#d8b4fe'}`,
+                                borderRadius: '0.25rem',
+                                fontSize: '0.75rem',
+                                textAlign: 'right',
+                                background: hasCustomMobile ? '#faf5ff' : '#fff',
+                                color: hasCustomMobile ? '#7e22ce' : '#94a3b8',
+                                fontWeight: hasCustomMobile ? 700 : 400,
+                              }}
+                            />
+                            <span style={{ fontSize: '0.65rem', color: '#7e22ce' }}>px</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
               <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '0.5rem 0 0 0' }}>
                 💡 Los campos de Móvil vacíos heredan el fallback global o el alto Desktop de cada sección.
@@ -2277,114 +2282,122 @@ export function DesignTab({
                   scrollMarginTop: '80px',
                 }}
               >
-                {/* Fila superior: label + badges + botones */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <div
-                    onClick={() => toggleCard(sec.id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', userSelect: 'none', flexShrink: 0 }}
-                    title={isCardExpanded ? 'Clic para minimizar' : 'Clic para desplegar opciones'}
-                  >
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
-                      {sec.label}
+                {/* Fila superior: label + badges */}
+                <div
+                  onClick={() => toggleCard(sec.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    flexWrap: 'wrap',
+                    marginBottom: '0.5rem',
+                    width: '100%',
+                  }}
+                  title={isCardExpanded ? 'Clic para minimizar' : 'Clic para desplegar opciones'}
+                >
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1e293b' }}>
+                    {sec.label}
+                  </span>
+                  {hasBg && (
+                    <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      🖼️ Con fondo
                     </span>
-                    {hasBg && (
-                      <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                        🖼️ Con fondo
-                      </span>
-                    )}
-                    {style.noBackground && (
-                      <span style={{ fontSize: '0.65rem', background: '#fef3c7', color: '#92400e', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                        Sin fondo
-                      </span>
-                    )}
-                    {style.noBorder && (
-                      <span style={{ fontSize: '0.65rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                        Sin borde
-                      </span>
-                    )}
-                    {style.hideText && (
-                      <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                        Sin texto
-                      </span>
-                    )}
-                    {hasFont && (
-                      <span style={{ fontSize: '0.65rem', background: '#f3e8ff', color: '#7e22ce', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                        🔤 Personalizada
-                      </span>
-                    )}
-                  </div>
+                  )}
+                  {style.noBackground && (
+                    <span style={{ fontSize: '0.65rem', background: '#fef3c7', color: '#92400e', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Sin fondo
+                    </span>
+                  )}
+                  {style.noBorder && (
+                    <span style={{ fontSize: '0.65rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Sin borde
+                    </span>
+                  )}
+                  {style.hideText && (
+                    <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Sin texto
+                    </span>
+                  )}
+                  {hasFont && (
+                    <span style={{ fontSize: '0.65rem', background: '#f3e8ff', color: '#7e22ce', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      🔤 Personalizada
+                    </span>
+                  )}
+                </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                    {/* Botón desplegar / minimizar opciones */}
+                {/* Fila inferior de acciones: botones de desplegar, fondo y reset */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', width: '100%' }}>
+                  {/* Botón desplegar / minimizar opciones */}
+                  <button
+                    type="button"
+                    onClick={() => toggleCard(sec.id)}
+                    title={isCardExpanded ? 'Minimizar opciones de esta tarjeta' : 'Desplegar opciones de esta tarjeta'}
+                    style={{
+                      padding: '0.28rem 0.65rem',
+                      borderRadius: '0.35rem',
+                      border: '1px solid',
+                      borderColor: isCardExpanded ? '#bbf7d0' : '#cbd5e1',
+                      background: isCardExpanded ? '#f0fdf4' : '#ffffff',
+                      color: isCardExpanded ? '#15803d' : '#334155',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                    }}
+                  >
+                    {isCardExpanded ? '▲ Minimizar' : '▼ Opciones'}
+                  </button>
+
+                  {/* Botón imagen de fondo */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExpandedCards((prev) => ({ ...prev, [sec.id]: true }));
+                      setActivePicker({ type: 'section', sectionId: sec.id });
+                    }}
+                    title="Seleccionar imagen de fondo para esta tarjeta"
+                    style={{
+                      padding: '0.28rem 0.6rem',
+                      borderRadius: '0.35rem',
+                      border: '1px solid',
+                      borderColor: hasBg ? '#16a34a' : '#cbd5e1',
+                      background: hasBg ? '#dcfce7' : '#ffffff',
+                      color: hasBg ? '#14532d' : '#475569',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {hasBg ? '🖼️ Fondo' : '🖼️ + Fondo'}
+                  </button>
+
+                  {/* Botón limpiar todo */}
+                  {hasAnyStyle && (
                     <button
                       type="button"
-                      onClick={() => toggleCard(sec.id)}
-                      title={isCardExpanded ? 'Minimizar opciones de esta tarjeta' : 'Desplegar opciones de esta tarjeta'}
+                      onClick={() => clearSectionStyle(sec.id)}
+                      title="Quitar todos los estilos de esta sección"
                       style={{
-                        padding: '0.28rem 0.65rem',
+                        padding: '0.28rem 0.5rem',
                         borderRadius: '0.35rem',
-                        border: '1px solid',
-                        borderColor: isCardExpanded ? '#bbf7d0' : '#cbd5e1',
-                        background: isCardExpanded ? '#f0fdf4' : '#ffffff',
-                        color: isCardExpanded ? '#15803d' : '#334155',
-                        fontSize: '0.74rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                      }}
-                    >
-                      {isCardExpanded ? '▲ Minimizar' : '▼ Opciones de diseño'}
-                    </button>
-
-                    {/* Botón imagen de fondo */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setExpandedCards((prev) => ({ ...prev, [sec.id]: true }));
-                        setActivePicker({ type: 'section', sectionId: sec.id });
-                      }}
-                      title="Seleccionar imagen de fondo para esta tarjeta"
-                      style={{
-                        padding: '0.28rem 0.6rem',
-                        borderRadius: '0.35rem',
-                        border: '1px solid',
-                        borderColor: hasBg ? '#16a34a' : '#cbd5e1',
-                        background: hasBg ? '#dcfce7' : '#ffffff',
-                        color: hasBg ? '#14532d' : '#475569',
-                        fontSize: '0.75rem',
+                        border: '1px solid #fca5a5',
+                        background: '#fef2f2',
+                        color: '#b91c1c',
+                        fontSize: '0.72rem',
                         fontWeight: 600,
                         cursor: 'pointer',
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {hasBg ? '🖼️ Fondo' : '🖼️ + Fondo'}
+                      ✕
                     </button>
-
-                    {/* Botón limpiar todo */}
-                    {hasAnyStyle && (
-                      <button
-                        type="button"
-                        onClick={() => clearSectionStyle(sec.id)}
-                        title="Quitar todos los estilos de esta sección"
-                        style={{
-                          padding: '0.28rem 0.5rem',
-                          borderRadius: '0.35rem',
-                          border: '1px solid #fca5a5',
-                          background: '#fef2f2',
-                          color: '#b91c1c',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 {isCardExpanded && (

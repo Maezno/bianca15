@@ -132,130 +132,159 @@ function InteractiveSectionResizer({
     window.addEventListener('mouseup', handleMouseUp);
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   return (
     <>
-      {/* Barra flotante de control */}
+      {/* Barra flotante de control de altura */}
       <div
         style={{
           position: 'absolute',
           top: '10px',
-          right: '12px',
+          right: '10px',
           zIndex: 40,
-          background: isSelected ? 'rgba(126, 34, 206, 0.94)' : 'rgba(15, 23, 42, 0.85)',
+          background: isSelected ? 'rgba(126, 34, 206, 0.94)' : 'rgba(15, 23, 42, 0.88)',
           backdropFilter: 'blur(8px)',
           borderRadius: '2rem',
-          padding: '4px 10px',
+          padding: isCollapsed ? '3px 8px' : '4px 10px',
           display: 'flex',
           alignItems: 'center',
           gap: '5px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-          border: '1px solid rgba(255,255,255,0.2)',
+          border: '1px solid rgba(255,255,255,0.25)',
           userSelect: 'none',
+          maxWidth: 'calc(100% - 20px)',
+          boxSizing: 'border-box',
         }}
       >
-        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#f8fafc' }}>
-          ↕ {currentHeight}px
-        </span>
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onUpdateHeight(sectionId, Math.max(200, currentHeight - 50));
+            setIsCollapsed(!isCollapsed);
           }}
-          title="Reducir 50px"
+          title={isCollapsed ? 'Desplegar ajuste de altura' : 'Minimizar barra de altura'}
           style={{
-            background: 'rgba(255,255,255,0.18)',
+            background: 'transparent',
             border: 'none',
-            color: '#fff',
-            borderRadius: '4px',
-            padding: '2px 6px',
-            fontSize: '0.7rem',
+            color: '#f8fafc',
+            fontSize: '0.72rem',
             fontWeight: 700,
             cursor: 'pointer',
+            padding: '2px 4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
           }}
         >
-          -50
+          <span>↕ {currentHeight}px</span>
+          <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>{isCollapsed ? '⚙️' : '✕'}</span>
         </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onUpdateHeight(sectionId, Math.max(200, currentHeight - 10));
-          }}
-          title="Reducir 10px"
-          style={{
-            background: 'rgba(255,255,255,0.18)',
-            border: 'none',
-            color: '#fff',
-            borderRadius: '4px',
-            padding: '2px 6px',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          -10
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onUpdateHeight(sectionId, Math.min(2500, currentHeight + 10));
-          }}
-          title="Aumentar 10px"
-          style={{
-            background: 'rgba(255,255,255,0.18)',
-            border: 'none',
-            color: '#fff',
-            borderRadius: '4px',
-            padding: '2px 6px',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          +10
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onUpdateHeight(sectionId, Math.min(2500, currentHeight + 50));
-          }}
-          title="Aumentar 50px"
-          style={{
-            background: 'rgba(255,255,255,0.18)',
-            border: 'none',
-            color: '#fff',
-            borderRadius: '4px',
-            padding: '2px 6px',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          +50
-        </button>
-        {currentHeight !== defaultHeight && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUpdateHeight(sectionId, defaultHeight);
-            }}
-            title="Restablecer a la altura estándar"
-            style={{
-              background: 'rgba(255,255,255,0.25)',
-              border: 'none',
-              color: '#fff',
-              borderRadius: '4px',
-              padding: '2px 5px',
-              fontSize: '0.68rem',
-              cursor: 'pointer',
-            }}
-          >
-            ↺
-          </button>
+
+        {!isCollapsed && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdateHeight(sectionId, Math.max(200, currentHeight - 50));
+              }}
+              title="Reducir 50px"
+              style={{
+                background: 'rgba(255,255,255,0.18)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              -50
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdateHeight(sectionId, Math.max(200, currentHeight - 10));
+              }}
+              title="Reducir 10px"
+              style={{
+                background: 'rgba(255,255,255,0.18)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              -10
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdateHeight(sectionId, Math.min(2500, currentHeight + 10));
+              }}
+              title="Aumentar 10px"
+              style={{
+                background: 'rgba(255,255,255,0.18)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              +10
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdateHeight(sectionId, Math.min(2500, currentHeight + 50));
+              }}
+              title="Aumentar 50px"
+              style={{
+                background: 'rgba(255,255,255,0.18)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              +50
+            </button>
+            {currentHeight !== defaultHeight && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdateHeight(sectionId, defaultHeight);
+                }}
+                title="Restablecer a la altura estándar"
+                style={{
+                  background: 'rgba(255,255,255,0.25)',
+                  border: 'none',
+                  color: '#fff',
+                  borderRadius: '4px',
+                  padding: '2px 5px',
+                  fontSize: '0.68rem',
+                  cursor: 'pointer',
+                }}
+              >
+                ↺
+              </button>
+            )}
+          </>
         )}
       </div>
 

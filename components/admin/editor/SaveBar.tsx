@@ -110,7 +110,7 @@ export function SaveBar({
       </div>
 
       {/* Fila 2: Switcher Móvil (Opciones / Visualizador) + Indicador de cambios + Botones Guardar / Publicar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', width: '100%' }}>
         {/* Switcher Móvil */}
         {setMobileView && (
           <div
@@ -119,28 +119,30 @@ export function SaveBar({
               display: 'flex',
               alignItems: 'center',
               background: '#f1f5f9',
-              padding: '3px',
+              padding: '2px',
               borderRadius: '0.5rem',
               gap: '2px',
               border: '1px solid #e2e8f0',
+              flexShrink: 0,
             }}
           >
             <button
               type="button"
               onClick={() => setMobileView('editor')}
               style={{
-                padding: '0.3rem 0.65rem',
+                padding: '0.28rem 0.55rem',
                 borderRadius: '0.35rem',
                 border: 'none',
                 background: mobileView === 'editor' ? '#ffffff' : 'transparent',
                 color: mobileView === 'editor' ? '#9333ea' : '#64748b',
                 fontWeight: mobileView === 'editor' ? 700 : 500,
-                fontSize: '0.75rem',
+                fontSize: '0.72rem',
                 cursor: 'pointer',
                 boxShadow: mobileView === 'editor' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.25rem',
+                gap: '0.2rem',
+                whiteSpace: 'nowrap',
               }}
             >
               <span>⚙️</span> Opciones
@@ -149,18 +151,19 @@ export function SaveBar({
               type="button"
               onClick={() => setMobileView('preview')}
               style={{
-                padding: '0.3rem 0.65rem',
+                padding: '0.28rem 0.55rem',
                 borderRadius: '0.35rem',
                 border: 'none',
                 background: mobileView === 'preview' ? '#ffffff' : 'transparent',
                 color: mobileView === 'preview' ? '#9333ea' : '#64748b',
                 fontWeight: mobileView === 'preview' ? 700 : 500,
-                fontSize: '0.75rem',
+                fontSize: '0.72rem',
                 cursor: 'pointer',
                 boxShadow: mobileView === 'preview' ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.25rem',
+                gap: '0.2rem',
+                whiteSpace: 'nowrap',
               }}
             >
               <span>👁️</span> Visualizador
@@ -169,15 +172,15 @@ export function SaveBar({
         )}
 
         {/* Acciones: Estado de guardado y Botones */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginLeft: 'auto', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginLeft: 'auto', flexWrap: 'nowrap' }}>
           {isDirty && (
-            <span style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+            <span style={{ fontSize: '0.72rem', color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}>
               <span>●</span> <span className="hide-on-very-small">Sin guardar</span>
             </span>
           )}
 
           {saveSuccess && (
-            <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 700, whiteSpace: 'nowrap' }}>
               ✓ Guardado
             </span>
           )}
@@ -187,12 +190,12 @@ export function SaveBar({
             onClick={onSave}
             disabled={isSaving}
             style={{
-              padding: '0.38rem 0.85rem',
+              padding: '0.32rem 0.75rem',
               borderRadius: '0.45rem',
               border: 'none',
               background: '#9333ea',
               color: '#ffffff',
-              fontSize: '0.78rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               cursor: isSaving ? 'not-allowed' : 'pointer',
               opacity: isSaving ? 0.7 : 1,
@@ -208,12 +211,12 @@ export function SaveBar({
             onClick={onPublishToggle}
             disabled={isSaving}
             style={{
-              padding: '0.38rem 0.75rem',
+              padding: '0.32rem 0.65rem',
               borderRadius: '0.45rem',
               border: status === 'published' ? '1px solid #cbd5e1' : 'none',
               background: status === 'published' ? '#ffffff' : '#16a34a',
               color: status === 'published' ? '#64748b' : '#ffffff',
-              fontSize: '0.78rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
               cursor: isSaving ? 'not-allowed' : 'pointer',
               whiteSpace: 'nowrap',
