@@ -53,38 +53,44 @@ export function ConfirmationSection({
             width: '100%',
           }}
         >
-          <span
-            data-badge="true"
-            style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: sectionStyle?.titleColor || theme.colors.primary,
-              fontWeight: 700,
-              textAlign: 'center',
-            }}
-          >
-            CONFIRMACIÓN DE ASISTENCIA
-          </span>
-          <h2
-            data-heading="true"
-            style={{
-              fontFamily: theme.typography.headingFont,
-              fontSize: '1.5rem',
-              color: sectionStyle?.titleColor || theme.colors.text,
-              margin: '0.35rem 0 0.5rem 0',
-              fontWeight: 700,
-              textAlign: 'center',
-            }}
-          >
-            {guestGroup.name}
-          </h2>
-          <p data-body="true" style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0, textAlign: 'center' }}>
-            {guestGroup.maxGuests === 1
-              ? 'Tenés 1 lugar reservado.'
-              : `Tienen ${guestGroup.maxGuests} lugares reservados.`}
-          </p>
+          {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+            <>
+              <span
+                data-badge="true"
+                style={{
+                  display: 'block',
+                  fontSize: '0.8rem',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: sectionStyle?.titleColor || theme.colors.primary,
+                  fontWeight: 700,
+                  textAlign: 'center',
+                }}
+              >
+                CONFIRMACIÓN DE ASISTENCIA
+              </span>
+              <h2
+                data-heading="true"
+                style={{
+                  fontFamily: theme.typography.headingFont,
+                  fontSize: '1.5rem',
+                  color: sectionStyle?.titleColor || theme.colors.text,
+                  margin: '0.35rem 0 0.5rem 0',
+                  fontWeight: 700,
+                  textAlign: 'center',
+                }}
+              >
+                {guestGroup.name}
+              </h2>
+            </>
+          )}
+          {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+            <p data-body="true" style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0, textAlign: 'center' }}>
+              {guestGroup.maxGuests === 1
+                ? 'Tenés 1 lugar reservado.'
+                : `Tienen ${guestGroup.maxGuests} lugares reservados.`}
+            </p>
+          )}
         </div>
 
         <ConfirmationForm
@@ -96,6 +102,12 @@ export function ConfirmationSection({
           confirmButtonBackgroundImage={sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
           declineButtonBackgroundImage={sectionStyle?.declineButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
           hideButtonLabel={sectionStyle?.hideButtonLabel}
+          buttonsLayout={sectionStyle?.buttonsLayout}
+          buttonsAlign={sectionStyle?.buttonsAlign}
+          buttonsOffsetX={sectionStyle?.buttonsOffsetX}
+          buttonsOffsetY={sectionStyle?.buttonsOffsetY}
+          buttonsGap={sectionStyle?.buttonsGap}
+          buttonBackgroundScale={sectionStyle?.buttonBackgroundScale}
         />
       </section>
     );
@@ -135,94 +147,139 @@ export function ConfirmationSection({
           }}
         />
 
-        <div
-          data-heading-container="true"
-          style={{
-            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-            transition: 'margin-bottom 0.15s ease',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <span
-            data-badge="true"
+        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+          <div
+            data-heading-container="true"
             style={{
-              display: 'inline-block',
-              fontSize: '0.8rem',
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: sectionStyle?.titleColor || theme.colors.primary,
-              fontWeight: 700,
-              marginBottom: '0.35rem',
+              marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+              transition: 'margin-bottom 0.15s ease',
+              textAlign: 'center',
+              width: '100%',
+            }}
+          >
+            <span
+              data-badge="true"
+              style={{
+                display: 'inline-block',
+                fontSize: '0.8rem',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: sectionStyle?.titleColor || theme.colors.primary,
+                fontWeight: 700,
+                marginBottom: '0.35rem',
+                textAlign: 'center',
+              }}
+            >
+              CONFIRMACIÓN DE ASISTENCIA
+            </span>
+
+            <h2
+              data-heading="true"
+              style={{
+                fontFamily: theme.typography.headingFont,
+                fontSize: '1.65rem',
+                color: sectionStyle?.titleColor || theme.colors.text,
+                margin: '0.25rem 0 0.75rem 0',
+                fontWeight: 500,
+                lineHeight: 1.25,
+                textAlign: 'center',
+              }}
+            >
+              ¿Vas a acompañarme?
+            </h2>
+          </div>
+        )}
+
+        {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+          <p
+            data-body="true"
+            style={{
+              fontSize: '0.95rem',
+              color: theme.colors.textMuted,
+              maxWidth: '430px',
+              margin: '0 auto 1.75rem auto',
+              lineHeight: 1.6,
               textAlign: 'center',
             }}
           >
-            CONFIRMACIÓN DE ASISTENCIA
-          </span>
-
-          <h2
-            data-heading="true"
-            style={{
-              fontFamily: theme.typography.headingFont,
-              fontSize: '1.65rem',
-              color: sectionStyle?.titleColor || theme.colors.text,
-              margin: '0.25rem 0 0.75rem 0',
-              fontWeight: 500,
-              lineHeight: 1.25,
-              textAlign: 'center',
-            }}
-          >
-            ¿Vas a acompañarme?
-          </h2>
-        </div>
-
-        <p
-          data-body="true"
-          style={{
-            fontSize: '0.95rem',
-            color: theme.colors.textMuted,
-            maxWidth: '430px',
-            margin: '0 auto 1.75rem auto',
-            lineHeight: 1.6,
-            textAlign: 'center',
-          }}
-        >
-          Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.
-        </p>
+            Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.
+          </p>
+        )}
 
         {/* Botones de acción principales */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.75rem',
-            maxWidth: '360px',
-            margin: '0 auto',
-          }}
-        >
-          <ActionButton
-            label="Sí, asistiré"
-            onClick={openAttendModal}
-            variant="primary"
-            primaryColor={theme.colors.primary}
-            textColor="#ffffff"
-            fullWidth
-            backgroundImage={sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
-            hideLabel={Boolean(
-              sectionStyle?.hideButtonLabel &&
-              (sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage)
-            )}
-          />
-          <ActionButton
-            label="No podré asistir"
-            onClick={openDeclineModal}
-            variant="outline"
-            primaryColor={theme.colors.primary}
-            fullWidth
-            backgroundImage={sectionStyle?.declineButtonBackgroundImage}
-            hideLabel={Boolean(sectionStyle?.hideButtonLabel && sectionStyle?.declineButtonBackgroundImage)}
-          />
-        </div>
+        {(() => {
+          const hasBgImage = Boolean(
+            sectionStyle?.confirmButtonBackgroundImage ||
+            sectionStyle?.declineButtonBackgroundImage ||
+            sectionStyle?.buttonBackgroundImage
+          );
+          const bgScale = sectionStyle?.buttonBackgroundScale;
+          const rawGap = sectionStyle?.buttonsGap;
+          const effectiveGap = rawGap !== undefined ? Math.max(0, rawGap) : 12;
+          const negativeMargin = (rawGap !== undefined && rawGap < 0) ? rawGap : 0;
+
+          return (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: sectionStyle?.buttonsLayout === 'row' ? 'row' : 'column',
+                gap: `${effectiveGap}px`,
+                maxWidth: sectionStyle?.buttonsLayout === 'row'
+                  ? (hasBgImage ? `${Math.max(260, Math.round(360 * ((bgScale ?? 100) / 100)))}px` : '420px')
+                  : '360px',
+                margin: '0 auto',
+                width: '100%',
+                justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
+                alignItems: 'center',
+                flexWrap: sectionStyle?.buttonsLayout === 'row' ? 'nowrap' : 'wrap',
+                transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
+                  ? `translate(${sectionStyle?.buttonsOffsetX ?? 0}px, ${sectionStyle?.buttonsOffsetY ?? 0}px)`
+                  : undefined,
+                transition: 'transform 0.15s ease',
+              }}
+            >
+              <ActionButton
+                label="Sí, asistiré"
+                onClick={openAttendModal}
+                variant="primary"
+                primaryColor={theme.colors.primary}
+                textColor="#ffffff"
+                fullWidth={sectionStyle?.buttonsLayout !== 'row'}
+                backgroundImage={sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage}
+                backgroundScale={bgScale}
+                hideLabel={Boolean(
+                  sectionStyle?.hideButtonLabel &&
+                  (sectionStyle?.confirmButtonBackgroundImage || sectionStyle?.buttonBackgroundImage)
+                )}
+                style={
+                  sectionStyle?.buttonsLayout === 'row'
+                    ? { flex: '1 1 0', minWidth: 0, width: '100%' }
+                    : undefined
+                }
+              />
+              <ActionButton
+                label="No podré asistir"
+                onClick={openDeclineModal}
+                variant="outline"
+                primaryColor={theme.colors.primary}
+                fullWidth={sectionStyle?.buttonsLayout !== 'row'}
+                backgroundImage={sectionStyle?.declineButtonBackgroundImage}
+                backgroundScale={bgScale}
+                hideLabel={Boolean(sectionStyle?.hideButtonLabel && sectionStyle?.declineButtonBackgroundImage)}
+                style={
+                  sectionStyle?.buttonsLayout === 'row'
+                    ? {
+                        flex: '1 1 0',
+                        minWidth: 0,
+                        width: '100%',
+                        marginLeft: negativeMargin ? `${negativeMargin}px` : undefined,
+                      }
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })()}
       </section>
 
       {/* Modal emergente con fondo desenfocado */}

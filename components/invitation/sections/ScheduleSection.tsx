@@ -21,44 +21,46 @@ export function ScheduleSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <div
-        data-heading-container="true"
-        style={{
-          textAlign: 'center',
-          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 20 + titleOffsetY)}px` : '1.25rem',
-          transition: 'margin-bottom 0.15s ease',
-          width: '100%',
-        }}
-      >
-        <span
-          data-badge="true"
+      {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+        <div
+          data-heading-container="true"
           style={{
-            display: 'block',
-            fontSize: '0.8rem',
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            color: sectionStyle?.titleColor || theme.colors.primary,
-            fontWeight: 700,
-            marginBottom: '0.35rem',
             textAlign: 'center',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 20 + titleOffsetY)}px` : '1.25rem',
+            transition: 'margin-bottom 0.15s ease',
+            width: '100%',
           }}
         >
-          CRONOGRAMA
-        </span>
-        <h2
-          data-heading="true"
-          style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: '1.35rem',
-            color: sectionStyle?.titleColor || theme.colors.text,
-            margin: '0.2rem 0 0 0',
-            fontWeight: 500,
-            textAlign: 'center',
-          }}
-        >
-          Momentos Especiales
-        </h2>
-      </div>
+          <span
+            data-badge="true"
+            style={{
+              display: 'block',
+              fontSize: '0.8rem',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: sectionStyle?.titleColor || theme.colors.primary,
+              fontWeight: 700,
+              marginBottom: '0.35rem',
+              textAlign: 'center',
+            }}
+          >
+            CRONOGRAMA
+          </span>
+          <h2
+            data-heading="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: '1.35rem',
+              color: sectionStyle?.titleColor || theme.colors.text,
+              margin: '0.2rem 0 0 0',
+              fontWeight: 500,
+              textAlign: 'center',
+            }}
+          >
+            Momentos Especiales
+          </h2>
+        </div>
+      )}
 
       <div data-card-copy="true" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {event.schedule.map((item, idx) => (

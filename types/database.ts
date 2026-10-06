@@ -64,6 +64,8 @@ export type Database = {
           memoroo_url: string | null;
           memoroo_qr_url: string | null;
           cover_image: string | null;
+          footer_title?: string | null;
+          footer_text?: string | null;
           schedule: Json | null;
           design_config: Json | null;
           section_config: Json | null;
@@ -93,6 +95,8 @@ export type Database = {
           memoroo_url?: string | null;
           memoroo_qr_url?: string | null;
           cover_image?: string | null;
+          footer_title?: string | null;
+          footer_text?: string | null;
           schedule?: Json | null;
           design_config?: Json | null;
           section_config?: Json | null;
@@ -122,6 +126,8 @@ export type Database = {
           memoroo_url?: string | null;
           memoroo_qr_url?: string | null;
           cover_image?: string | null;
+          footer_title?: string | null;
+          footer_text?: string | null;
           schedule?: Json | null;
           design_config?: Json | null;
           section_config?: Json | null;

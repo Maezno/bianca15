@@ -100,46 +100,50 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
         }}
       >
         {/* Título Público */}
-        <div
-          data-public-title="true"
-          style={{
-            fontSize: publicTitleSize || '0.85rem',
-            textTransform: 'uppercase',
-            letterSpacing: '0.25em',
-            color: publicTitleColor,
-            fontWeight: 600,
-            marginBottom: '0.75rem',
-            textAlign: 'center',
-          }}
-        >
-          {event.title}
-        </div>
+        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+          <div
+            data-public-title="true"
+            style={{
+              fontSize: publicTitleSize || '0.85rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.25em',
+              color: publicTitleColor,
+              fontWeight: 600,
+              marginBottom: '0.75rem',
+              textAlign: 'center',
+            }}
+          >
+            {event.title}
+          </div>
+        )}
 
         {/* Nombre del Evento (Autoajustable al contenedor para que Bianca nunca se corte ni desborde en móvil o iframe) */}
-        <h1
-          data-event-name="true"
-          style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: nameSize || 'min(15vw, 3.8rem)',
-            margin: '0.25rem 0 0.85rem 0',
-            color: nameColor,
-            fontWeight: 400,
-            WebkitTextStroke: '0px',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.15,
-            textAlign: 'center',
-            whiteSpace: 'nowrap',
-            wordBreak: 'keep-all',
-            overflowWrap: 'normal',
-            maxWidth: 'calc(100vw - 50px)',
-            boxSizing: 'border-box',
-          }}
-        >
-          {event.name}
-        </h1>
+        {!sectionStyle?.hideText && (
+          <h1
+            data-event-name="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: nameSize || 'min(15vw, 3.8rem)',
+              margin: '0.25rem 0 0.85rem 0',
+              color: nameColor,
+              fontWeight: 400,
+              WebkitTextStroke: '0px',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.15,
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              wordBreak: 'keep-all',
+              overflowWrap: 'normal',
+              maxWidth: 'calc(100vw - 50px)',
+              boxSizing: 'border-box',
+            }}
+          >
+            {event.name}
+          </h1>
+        )}
       </div>
 
-      {event.subtitle && (
+      {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && event.subtitle && (
         <p
           data-body="true"
           style={{

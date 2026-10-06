@@ -19,6 +19,17 @@ export function ShareSection({ event, theme, guestGroup }: SectionBaseProps) {
         textColor={sectionStyle?.textColor || theme.colors.text}
         titleColor={sectionStyle?.titleColor}
         titleOffsetY={titleOffsetY}
+        buttonsLayout={sectionStyle?.buttonsLayout}
+        buttonsAlign={sectionStyle?.buttonsAlign}
+        buttonsOffsetX={sectionStyle?.buttonsOffsetX}
+        buttonsOffsetY={sectionStyle?.buttonsOffsetY}
+        buttonsGap={sectionStyle?.buttonsGap}
+        buttonBackgroundImage={sectionStyle?.buttonBackgroundImage}
+        hideButtonLabel={sectionStyle?.hideButtonLabel}
+        buttonBackgroundScale={sectionStyle?.buttonBackgroundScale}
+        hideTitle={sectionStyle?.hideTitle}
+        hideSubtitle={sectionStyle?.hideSubtitle}
+        hideText={sectionStyle?.hideText}
       />
     </section>
   );

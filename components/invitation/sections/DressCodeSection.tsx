@@ -30,34 +30,38 @@ export function DressCodeSection({ event, theme }: SectionBaseProps) {
           width: '100%',
         }}
       >
-        <span
-          data-badge="true"
-          style={{
-            display: 'block',
-            fontSize: '0.8rem',
-            color: sectionStyle?.titleColor || theme.colors.primary,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            fontWeight: 700,
-            marginBottom: '0.35rem',
-            textAlign: 'center',
-          }}
-        >
-          CÓDIGO DE VESTIMENTA
-        </span>
-        <h2
-          data-heading="true"
-          style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: '1.25rem',
-            color: sectionStyle?.titleColor || theme.colors.text,
-            fontWeight: 500,
-            margin: '0.2rem 0',
-            textAlign: 'center',
-          }}
-        >
-          {event.dressCode}
-        </h2>
+        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+          <span
+            data-badge="true"
+            style={{
+              display: 'block',
+              fontSize: '0.8rem',
+              color: sectionStyle?.titleColor || theme.colors.primary,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              marginBottom: '0.35rem',
+              textAlign: 'center',
+            }}
+          >
+            CÓDIGO DE VESTIMENTA
+          </span>
+        )}
+        {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+          <h2
+            data-heading="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: '1.25rem',
+              color: sectionStyle?.titleColor || theme.colors.text,
+              fontWeight: 500,
+              margin: '0.2rem 0',
+              textAlign: 'center',
+            }}
+          >
+            {event.dressCode}
+          </h2>
+        )}
       </div>
     </section>
   );

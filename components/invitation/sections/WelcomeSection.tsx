@@ -7,6 +7,10 @@ export function WelcomeSection({ event, theme }: SectionBaseProps) {
   const sectionStyle = event.designConfig?.layout?.sectionStyles?.['welcome'];
   const titleOffsetY = sectionStyle?.titleOffsetY;
 
+  const hideAllText = Boolean(sectionStyle?.hideText || sectionStyle?.hideSubtitle || sectionStyle?.hideTitle);
+
+  if (hideAllText && !sectionStyle?.backgroundImage) return null;
+
   return (
     <section
       aria-label="Mensaje de bienvenida"
@@ -21,29 +25,31 @@ export function WelcomeSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <div
-        data-heading-container="true"
-        style={{
-          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-          transition: 'margin-bottom 0.15s ease',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
-        <p
-          data-body="true"
+      {!hideAllText && (
+        <div
+          data-heading-container="true"
           style={{
-            color: sectionStyle?.titleColor || sectionStyle?.textColor || theme.colors.text,
-            fontSize: '1.05rem',
-            lineHeight: 1.7,
-            margin: 0,
-            fontStyle: 'italic',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+            transition: 'margin-bottom 0.15s ease',
             textAlign: 'center',
+            width: '100%',
           }}
         >
-          &ldquo;{event.welcomeText}&rdquo;
-        </p>
-      </div>
+          <p
+            data-body="true"
+            style={{
+              color: sectionStyle?.titleColor || sectionStyle?.textColor || theme.colors.text,
+              fontSize: '1.05rem',
+              lineHeight: 1.7,
+              margin: 0,
+              fontStyle: 'italic',
+              textAlign: 'center',
+            }}
+          >
+            &ldquo;{event.welcomeText}&rdquo;
+          </p>
+        </div>
+      )}
     </section>
   );
 }

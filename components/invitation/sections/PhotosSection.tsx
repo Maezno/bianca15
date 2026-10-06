@@ -17,7 +17,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
   const sectionStyle = event.designConfig?.layout?.sectionStyles?.['photos'];
   const titleOffsetY = sectionStyle?.titleOffsetY;
 
-  const rawAlbumUrl = (photosConfig?.albumUrl || event.memorooUrl || '').trim();
+  const rawAlbumUrl = (sectionStyle?.albumUrl || photosConfig?.albumUrl || event.memorooUrl || '').trim();
 
   // Validación de URL
   const isValidUrl = Boolean(
@@ -25,18 +25,20 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
   );
 
   const albumUrl = isValidUrl ? rawAlbumUrl : '';
-  const title = photosConfig?.title || '¡Compartí tus recuerdos!';
+  const title = sectionStyle?.customTitle || photosConfig?.title || '¡Compartí tus recuerdos!';
   const description =
+    sectionStyle?.customSubtitle ||
     photosConfig?.description ||
     'Subí tus fotos y videos durante la fiesta para que todos podamos revivir cada momento.';
-  const buttonText = (photosConfig?.buttonText || 'Compartir fotos').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
-  const isQrEnabled = photosConfig?.qrEnabled !== false;
+  const buttonText = (sectionStyle?.buttonText || photosConfig?.buttonText || 'Compartir fotos').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+  const isQrEnabled = sectionStyle?.showQr !== undefined ? sectionStyle.showQr : (photosConfig?.qrEnabled !== false);
+  const customQrUrl = (sectionStyle?.qrUrl || event.memorooQrUrl || '').trim();
 
-  const [qrUrl, setQrUrl] = useState<string>(event.memorooQrUrl || '');
+  const [qrUrl, setQrUrl] = useState<string>(customQrUrl);
 
   useEffect(() => {
-    if (event.memorooQrUrl) {
-      setQrUrl(event.memorooQrUrl);
+    if (customQrUrl) {
+      setQrUrl(customQrUrl);
       return;
     }
 
@@ -56,9 +58,9 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
         isMounted = false;
       };
     }
-  }, [albumUrl, isQrEnabled, event.memorooQrUrl]);
+  }, [albumUrl, isQrEnabled, customQrUrl]);
 
-  if (!albumUrl && !event.memorooQrUrl) {
+  if (!albumUrl && !customQrUrl) {
     return null;
   }
 
@@ -76,58 +78,62 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      <div
-        data-heading-container="true"
-        style={{
-          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-          transition: 'margin-bottom 0.15s ease',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
-        <span
-          data-badge="true"
+      {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+        <div
+          data-heading-container="true"
           style={{
-            display: 'block',
-            fontSize: '0.8rem',
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            color: sectionStyle?.titleColor || theme.colors.primary,
-            fontWeight: 700,
-            marginBottom: '0.35rem',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+            transition: 'margin-bottom 0.15s ease',
             textAlign: 'center',
+            width: '100%',
           }}
         >
-          ÁLBUM DE FOTOS
-        </span>
-        <h2
-          data-heading="true"
-          style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: '1.35rem',
-            color: sectionStyle?.titleColor || theme.colors.text,
-            margin: '0.25rem 0 0.5rem 0',
-            fontWeight: 500,
-            textAlign: 'center',
-          }}
-        >
-          {title}
-        </h2>
-      </div>
+          <span
+            data-badge="true"
+            style={{
+              display: 'block',
+              fontSize: '0.8rem',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: sectionStyle?.titleColor || theme.colors.primary,
+              fontWeight: 700,
+              marginBottom: '0.35rem',
+              textAlign: 'center',
+            }}
+          >
+            ÁLBUM DE FOTOS
+          </span>
+          <h2
+            data-heading="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: '1.35rem',
+              color: sectionStyle?.titleColor || theme.colors.text,
+              margin: '0.25rem 0 0.5rem 0',
+              fontWeight: 500,
+              textAlign: 'center',
+            }}
+          >
+            {title}
+          </h2>
+        </div>
+      )}
 
-      <p
-        data-body="true"
-        style={{
-          fontSize: '0.9rem',
-          color: theme.colors.textMuted,
-          maxWidth: '380px',
-          margin: '0 auto 1.25rem auto',
-          lineHeight: 1.5,
-          textAlign: 'center',
-        }}
-      >
-        {description}
-      </p>
+      {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+        <p
+          data-body="true"
+          style={{
+            fontSize: '0.9rem',
+            color: theme.colors.textMuted,
+            maxWidth: '380px',
+            margin: '0 auto 1.25rem auto',
+            lineHeight: 1.5,
+            textAlign: 'center',
+          }}
+        >
+          {description}
+        </p>
+      )}
 
       {/* QR del Álbum */}
       {isQrEnabled && qrUrl && (
@@ -157,7 +163,16 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
 
       {/* Botón de acceso directo al álbum */}
       {albumUrl && (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
+            transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
+              ? `translate(${sectionStyle?.buttonsOffsetX ?? 0}px, ${sectionStyle?.buttonsOffsetY ?? 0}px)`
+              : undefined,
+            transition: 'transform 0.15s ease',
+          }}
+        >
           <ActionButton
             label={buttonText}
             href={albumUrl}
@@ -167,6 +182,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
             target="_blank"
             rel="noopener noreferrer"
             backgroundImage={sectionStyle?.buttonBackgroundImage}
+            backgroundScale={sectionStyle?.buttonBackgroundScale}
             hideLabel={Boolean(sectionStyle?.hideButtonLabel && sectionStyle?.buttonBackgroundImage)}
           />
         </div>

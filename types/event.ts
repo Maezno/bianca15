@@ -207,6 +207,59 @@ export interface SectionStyle {
    * Permite distanciar tarjetas de forma individual tanto en modo fijo como fluido.
    */
   cardGap?: number;
+  /**
+   * Disposición de los botones cuando hay múltiples (o en general):
+   * 'row' = uno al lado del otro (horizontal)
+   * 'column' = uno debajo del otro (vertical)
+   */
+  buttonsLayout?: 'row' | 'column';
+  /**
+   * Alineación horizontal del contenedor de botones: 'center' | 'flex-start' | 'flex-end'
+   */
+  buttonsAlign?: 'center' | 'left' | 'right';
+  /**
+   * Desplazamiento horizontal exclusivo de los botones (px).
+   * Negativo = izquierda, positivo = derecha.
+   */
+  buttonsOffsetX?: number;
+  /**
+   * Desplazamiento vertical exclusivo de los botones (px).
+   * Negativo = arriba, positivo = abajo.
+   */
+  buttonsOffsetY?: number;
+  /**
+   * Espacio / separación entre los botones (px).
+   * Puede ser 0 o incluso negativo para acercar o superponer botones.
+   */
+  buttonsGap?: number;
+  /**
+   * Escala o tamaño del fondo PNG de los botones (%: ej. 100 por defecto, 40 a 160).
+   */
+  buttonBackgroundScale?: number;
+  /**
+   * Título personalizado para esta tarjeta (anula el título por defecto del evento o sección).
+   */
+  customTitle?: string;
+  /**
+   * Subtítulo o texto secundario personalizado para esta tarjeta (anula el texto por defecto del evento o sección).
+   */
+  customSubtitle?: string;
+  /**
+   * URL de destino del álbum de fotos (Memoroo u otro servicio).
+   */
+  albumUrl?: string;
+  /**
+   * Texto personalizado para el botón del álbum de fotos.
+   */
+  buttonText?: string;
+  /**
+   * URL de imagen personalizada para el código QR del álbum de fotos.
+   */
+  qrUrl?: string;
+  /**
+   * Si es false, oculta el código QR en la tarjeta del álbum de fotos.
+   */
+  showQr?: boolean;
 }
 
 export type DesktopSidebarsStyle = 'black' | 'blur' | 'transparent' | 'image';
@@ -323,6 +376,8 @@ export interface Event {
   memoroo_url: string;
   memoroo_qr_url: string;
   cover_image?: string;
+  footer_title?: string;
+  footer_text?: string;
   schedule?: ScheduleItem[];
   design_config?: EventDesignConfig;
   section_config?: EventSectionConfig;
@@ -356,6 +411,8 @@ export interface PublicEvent {
   memorooUrl: string;
   memorooQrUrl: string;
   coverImage?: string;
+  footerTitle?: string;
+  footerText?: string;
   schedule?: ScheduleItem[];
   designConfig?: EventDesignConfig;
   sectionConfig?: EventSectionConfig;

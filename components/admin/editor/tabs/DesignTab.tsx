@@ -241,7 +241,7 @@ export function DesignTab({
 
   // Estado para el MediaPicker (sección, fluido, continuo, general o bandas laterales)
   const [activePicker, setActivePicker] = useState<{
-    type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars' | 'button' | 'mapsButton' | 'wazeButton' | 'confirmButton' | 'declineButton';
+    type: 'section' | 'fluid' | 'continuous' | 'general' | 'sidebars' | 'button' | 'mapsButton' | 'wazeButton' | 'confirmButton' | 'declineButton' | 'photoQr';
     sectionId?: string;
   } | null>(null);
 
@@ -2261,6 +2261,10 @@ export function DesignTab({
               style.contentOffsetX !== undefined ||
               style.contentOffsetY !== undefined ||
               style.hideText ||
+              style.hideTitle ||
+              style.hideSubtitle ||
+              style.customTitle !== undefined ||
+              style.customSubtitle !== undefined ||
               style.buttonBackgroundImage ||
               style.mapsButtonBackgroundImage ||
               style.wazeButtonBackgroundImage ||
@@ -2269,9 +2273,15 @@ export function DesignTab({
               style.showMapsButton !== undefined ||
               style.showWazeButton !== undefined ||
               style.mapsButtonBg ||
-              style.wazeButtonBg
+              style.wazeButtonBg ||
+              style.buttonsLayout !== undefined ||
+              style.buttonsAlign !== undefined ||
+              style.buttonsOffsetX !== undefined ||
+              style.buttonsOffsetY !== undefined ||
+              style.buttonsGap !== undefined ||
+              style.buttonBackgroundScale !== undefined
             );
-            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.buttonBackgroundImage;
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.hideTitle || style.hideSubtitle || style.customTitle !== undefined || style.customSubtitle !== undefined || style.buttonBackgroundImage || style.buttonsLayout !== undefined || style.buttonBackgroundScale !== undefined;
             return (
               <div
                 key={sec.id}
@@ -2322,6 +2332,21 @@ export function DesignTab({
                   {style.hideText && (
                     <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
                       Sin texto
+                    </span>
+                  )}
+                  {style.hideTitle && !style.hideText && (
+                    <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Sin título
+                    </span>
+                  )}
+                  {style.hideSubtitle && !style.hideText && (
+                    <span style={{ fontSize: '0.65rem', background: '#ffe4e6', color: '#9f1239', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Sin subtítulo
+                    </span>
+                  )}
+                  {(style.customTitle !== undefined || style.customSubtitle !== undefined) && (
+                    <span style={{ fontSize: '0.65rem', background: '#fdf4ff', color: '#86198f', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                      Texto editado
                     </span>
                   )}
                   {hasFont && (
@@ -3883,7 +3908,17 @@ export function DesignTab({
                       Reemplazá el color de fondo del botón por una imagen (PNG o WebP).
                     </span>
                     <ButtonImageRow
-                      label={sec.id === 'location' ? 'Botones de esta tarjeta (ambos)' : 'Botón de esta tarjeta'}
+                      label={
+                        sec.id === 'location'
+                          ? 'Botones de esta tarjeta (ambos)'
+                          : sec.id === 'gifts'
+                          ? 'Fondo PNG Botón «Copiar Datos / Alias»'
+                          : sec.id === 'photos'
+                          ? 'Fondo PNG Botón «Subir Fotos»'
+                          : sec.id === 'share'
+                          ? 'Fondo PNG Botón «Compartir»'
+                          : 'Botón de esta tarjeta'
+                      }
                       url={style.buttonBackgroundImage}
                       onPick={() => setActivePicker({ type: 'button', sectionId: sec.id })}
                       onClear={() => updateSectionStyle(sec.id, { buttonBackgroundImage: undefined })}
@@ -3921,17 +3956,258 @@ export function DesignTab({
                       </>
                     )}
                     {(style.buttonBackgroundImage || style.mapsButtonBackgroundImage || style.wazeButtonBackgroundImage || style.confirmButtonBackgroundImage || style.declineButtonBackgroundImage) && (
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', fontWeight: 600, color: '#9a3412', cursor: 'pointer', userSelect: 'none' }}>
-                        <input
-                          type="checkbox"
-                          checked={style.hideButtonLabel === true}
-                          onChange={(e) => updateSectionStyle(sec.id, { hideButtonLabel: e.target.checked || undefined })}
-                          style={{ accentColor: '#ea580c', cursor: 'pointer' }}
-                        />
-                        Ocultar texto del botón (el PNG ya lo incluye)
-                      </label>
+                      <>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', fontWeight: 600, color: '#9a3412', cursor: 'pointer', userSelect: 'none' }}>
+                          <input
+                            type="checkbox"
+                            checked={style.hideButtonLabel === true}
+                            onChange={(e) => updateSectionStyle(sec.id, { hideButtonLabel: e.target.checked || undefined })}
+                            style={{ accentColor: '#ea580c', cursor: 'pointer' }}
+                          />
+                          Ocultar texto del botón (el PNG ya lo incluye)
+                        </label>
+
+                        {/* Control de Escala / Tamaño del fondo PNG */}
+                        <div style={{ marginTop: '0.35rem', paddingTop: '0.35rem', borderTop: '1px dashed #fed7aa' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+                            <label style={{ fontSize: '0.65rem', fontWeight: 600, color: '#9a3412' }}>
+                              🔍 Escala del fondo PNG:
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#c2410c' }}>
+                                {style.buttonBackgroundScale ?? 100}%
+                              </span>
+                              {style.buttonBackgroundScale !== undefined && style.buttonBackgroundScale !== 100 && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { buttonBackgroundScale: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#c2410c', fontSize: '0.6rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  100%
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#9a3412' }}>40%</span>
+                            <input
+                              type="range"
+                              min="40"
+                              max="160"
+                              step="2"
+                              value={style.buttonBackgroundScale ?? 100}
+                              onChange={(e) => updateSectionStyle(sec.id, { buttonBackgroundScale: parseInt(e.target.value, 10) })}
+                              style={{ flex: 1, minWidth: 0, accentColor: '#ea580c', cursor: 'pointer', height: '4px' }}
+                            />
+                            <span style={{ fontSize: '0.58rem', color: '#9a3412' }}>160%</span>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
+
+                  {/* 🔘 Posición y Disposición de Botones (General y cuando hay 2 botones) */}
+                  {['location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
+                    <div style={{ background: '#f0fdf4', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534' }}>
+                          🔘 Posición y Disposición de Botones
+                        </span>
+                        {(style.buttonsLayout !== undefined ||
+                          style.buttonsAlign !== undefined ||
+                          style.buttonsOffsetX !== undefined ||
+                          style.buttonsOffsetY !== undefined ||
+                          style.buttonsGap !== undefined ||
+                          style.buttonBackgroundScale !== undefined) && (
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, {
+                              buttonsLayout: undefined,
+                              buttonsAlign: undefined,
+                              buttonsOffsetX: undefined,
+                              buttonsOffsetY: undefined,
+                              buttonsGap: undefined,
+                              buttonBackgroundScale: undefined,
+                            })}
+                            style={{ background: 'none', border: 'none', color: '#15803d', fontSize: '0.62rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                          >
+                            Restablecer
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Opción de poner uno al lado del otro cuando hay múltiples botones (ej. Location, Confirmation, Share) */}
+                      {['location', 'confirmation', 'share'].includes(sec.id) && (
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 600, color: '#14532d', marginBottom: '0.2rem' }}>
+                            Disposición de los 2 botones:
+                          </label>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { buttonsLayout: 'row' })}
+                              style={{
+                                padding: '0.35rem 0.5rem',
+                                borderRadius: '0.3rem',
+                                border: (sec.id === 'location' ? (style.buttonsLayout !== 'column') : (style.buttonsLayout === 'row'))
+                                  ? '2px solid #16a34a'
+                                  : '1px solid #cbd5e1',
+                                background: (sec.id === 'location' ? (style.buttonsLayout !== 'column') : (style.buttonsLayout === 'row'))
+                                  ? '#dcfce7'
+                                  : '#ffffff',
+                                color: '#14532d',
+                                fontSize: '0.68rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <span>↔️</span> Uno al lado del otro
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { buttonsLayout: 'column' })}
+                              style={{
+                                padding: '0.35rem 0.5rem',
+                                borderRadius: '0.3rem',
+                                border: (sec.id === 'location' ? (style.buttonsLayout === 'column') : (style.buttonsLayout !== 'row'))
+                                  ? '2px solid #16a34a'
+                                  : '1px solid #cbd5e1',
+                                background: (sec.id === 'location' ? (style.buttonsLayout === 'column') : (style.buttonsLayout !== 'row'))
+                                  ? '#dcfce7'
+                                  : '#ffffff',
+                                color: '#14532d',
+                                fontSize: '0.68rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <span>↕️</span> Uno debajo del otro
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Alineación horizontal de botones */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 600, color: '#14532d', marginBottom: '0.2rem' }}>
+                          Alineación horizontal:
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.25rem' }}>
+                          {(['left', 'center', 'right'] as const).map((align) => {
+                            const isCurrent = (style.buttonsAlign || 'center') === align;
+                            const label = align === 'left' ? 'Izquierda' : align === 'center' ? 'Centro' : 'Derecha';
+                            return (
+                              <button
+                                key={align}
+                                type="button"
+                                onClick={() => updateSectionStyle(sec.id, { buttonsAlign: align })}
+                                style={{
+                                  padding: '0.3rem 0.4rem',
+                                  borderRadius: '0.3rem',
+                                  border: isCurrent ? '2px solid #16a34a' : '1px solid #cbd5e1',
+                                  background: isCurrent ? '#dcfce7' : '#ffffff',
+                                  color: '#14532d',
+                                  fontSize: '0.65rem',
+                                  fontWeight: isCurrent ? 700 : 500,
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Desplazamiento horizontal de botones (Offset X) */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+                          <label style={{ fontSize: '0.65rem', fontWeight: 600, color: '#14532d' }}>
+                            Mover botones horizontal (X):
+                          </label>
+                          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#15803d' }}>
+                            {style.buttonsOffsetX ?? 0}px
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-150</span>
+                          <input
+                            type="range"
+                            min="-150"
+                            max="150"
+                            step="2"
+                            value={style.buttonsOffsetX ?? 0}
+                            onChange={(e) => updateSectionStyle(sec.id, { buttonsOffsetX: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+150</span>
+                        </div>
+                      </div>
+
+                      {/* Desplazamiento vertical de botones (Offset Y) */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+                          <label style={{ fontSize: '0.65rem', fontWeight: 600, color: '#14532d' }}>
+                            Mover botones vertical (Y):
+                          </label>
+                          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#15803d' }}>
+                            {style.buttonsOffsetY ?? 0}px
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-150</span>
+                          <input
+                            type="range"
+                            min="-150"
+                            max="150"
+                            step="2"
+                            value={style.buttonsOffsetY ?? 0}
+                            onChange={(e) => updateSectionStyle(sec.id, { buttonsOffsetY: parseInt(e.target.value, 10) })}
+                            style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
+                          />
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+150</span>
+                        </div>
+                      </div>
+
+                      {/* Separación entre botones (Gap) */}
+                      {['location', 'confirmation', 'share'].includes(sec.id) && (
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+                            <label style={{ fontSize: '0.65rem', fontWeight: 600, color: '#14532d' }}>
+                              Separación entre botones (gap):
+                            </label>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#15803d' }}>
+                              {style.buttonsGap ?? 12}px
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-30</span>
+                            <input
+                              type="range"
+                              min="-30"
+                              max="60"
+                              step="1"
+                              value={style.buttonsGap ?? 12}
+                              onChange={(e) => updateSectionStyle(sec.id, { buttonsGap: parseInt(e.target.value, 10) })}
+                              style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
+                            />
+                            <span style={{ fontSize: '0.58rem', color: '#64748b' }}>60</span>
+                          </div>
+                          <span style={{ fontSize: '0.58rem', color: '#15803d', display: 'block', marginTop: '0.15rem' }}>
+                            Valores cercanos a 0 o negativos (-1 a -30px) acercan o superponen los botones.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Opciones especiales para Cuenta Regresiva */}
                   {sec.id === 'countdown' && (
@@ -4201,7 +4477,111 @@ export function DesignTab({
                     </div>
                   )}
 
+                  {/* 💌 Editor de Textos para Sección de Cierre */}
+                  {sec.id === 'footer' && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.65rem',
+                        background: '#fdf4ff',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid #f0abfc',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#86198f', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          ✍️ Editor de Textos de Cierre
+                        </span>
+                        {(style.customTitle !== undefined || style.customSubtitle !== undefined) && (
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { customTitle: undefined, customSubtitle: undefined })}
+                            style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.68rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                          >
+                            Restablecer predeterminados
+                          </button>
+                        )}
+                      </div>
 
+                      {/* Título de Cierre */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                            Título principal:
+                          </label>
+                          {style.customTitle !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { customTitle: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (usar predeterminado)
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={style.customTitle ?? ''}
+                          placeholder={eventName || 'ej: Bianca o ¡Te esperamos!'}
+                          onChange={(e) => updateSectionStyle(sec.id, { customTitle: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.customTitle !== undefined ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                            fontWeight: 600,
+                          }}
+                        />
+                        <span style={{ fontSize: '0.62rem', color: '#86198f' }}>
+                          Por defecto muestra: <strong>{eventName || 'Nombre del evento'}</strong>. También podés ocultarlo con el botón &ldquo;🚫 Ocultar título&rdquo; arriba.
+                        </span>
+                      </div>
+
+                      {/* Subtítulo / Mensaje de Cierre */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                            Subtítulo / Mensaje secundario:
+                          </label>
+                          {style.customSubtitle !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { customSubtitle: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (usar predeterminado)
+                            </button>
+                          )}
+                        </div>
+                        <textarea
+                          rows={2}
+                          value={style.customSubtitle ?? ''}
+                          placeholder="ej: ¡Gracias por acompañarnos! (o dejar vacío para ocultar)"
+                          onChange={(e) => updateSectionStyle(sec.id, { customSubtitle: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.customSubtitle !== undefined ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                            resize: 'vertical',
+                          }}
+                        />
+                        <span style={{ fontSize: '0.62rem', color: '#86198f' }}>
+                          Podés escribir un texto personalizado, desactivarlo con &ldquo;🚫 Ocultar subtítulo&rdquo; arriba, o dejarlo vacío sin que afecte el resto de la tarjeta.
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* 5. URLs externas personalizadas para esta sección */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>

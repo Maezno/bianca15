@@ -15,11 +15,13 @@ export interface ActionButtonProps {
   customBg?: string;
   customColor?: string;
   backgroundImage?: string;
+  backgroundScale?: number;
   hideLabel?: boolean;
   fullWidth?: boolean;
   target?: string;
   rel?: string;
   ariaLabel?: string;
+  style?: React.CSSProperties;
 }
 
 export function ActionButton({
@@ -33,19 +35,26 @@ export function ActionButton({
   customBg,
   customColor,
   backgroundImage,
+  backgroundScale,
   hideLabel = false,
   fullWidth = false,
   target,
   rel,
   ariaLabel,
+  style,
 }: ActionButtonProps) {
+  const scale = (backgroundScale && backgroundScale > 0) ? backgroundScale / 100 : 1;
+  const baseHeight = hideLabel ? 52 : 48;
+  const computedHeight = backgroundImage ? Math.round(baseHeight * scale) : 44;
+  const computedMinWidth = hideLabel && !style?.flex && !fullWidth ? Math.round(140 * scale) : 0;
+
   const getStyles = (): React.CSSProperties => {
     const base: React.CSSProperties = {
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
       gap: hideLabel ? 0 : '0.5rem',
-      padding: backgroundImage ? (hideLabel ? '0.85rem 1.75rem' : '0.7rem 1.4rem') : '0.65rem 1.25rem',
+      padding: backgroundImage ? (hideLabel ? '0' : '0.6rem 1.2rem') : '0.65rem 1.25rem',
       borderRadius: backgroundImage ? '0.75rem' : '99px',
       fontSize: '0.875rem',
       fontWeight: 700,
@@ -55,22 +64,20 @@ export function ActionButton({
       border: 'none',
       boxSizing: 'border-box',
       width: fullWidth ? '100%' : 'auto',
-      minWidth: backgroundImage ? '140px' : undefined,
-      minHeight: '44px',
+      minWidth: computedMinWidth,
+      minHeight: `${computedHeight}px`,
       maxWidth: '100%',
       textAlign: 'center',
+      position: 'relative',
     };
 
     if (backgroundImage) {
       return {
         ...base,
         backgroundColor: 'transparent',
-        backgroundImage: `url("${backgroundImage}")`,
-        backgroundSize: '100% 100%',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        color: customColor || textColor,
+        color: hideLabel ? 'transparent' : (customColor || textColor),
         boxShadow: 'none',
+        ...style,
       };
     }
 
@@ -81,6 +88,7 @@ export function ActionButton({
         color: customColor || textColor,
         border: 'none',
         boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+        ...style,
       };
     }
 
@@ -91,6 +99,7 @@ export function ActionButton({
           background: primaryColor,
           color: textColor,
           boxShadow: `0 4px 14px ${primaryColor}40`,
+          ...style,
         };
       case 'secondary':
         return {
@@ -98,6 +107,7 @@ export function ActionButton({
           background: `${primaryColor}15`,
           color: primaryColor,
           border: `1px solid ${primaryColor}40`,
+          ...style,
         };
       case 'outline':
         return {
@@ -105,15 +115,44 @@ export function ActionButton({
           background: 'transparent',
           color: primaryColor,
           border: `1.5px solid ${primaryColor}`,
+          ...style,
         };
       case 'ghost':
         return {
           ...base,
           background: 'transparent',
           color: primaryColor,
+          ...style,
         };
     }
   };
+
+  const innerContent = (
+    <>
+      {backgroundImage && (
+        <span
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url("${backgroundImage}")`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            transform: scale !== 1 ? `scale(${scale})` : undefined,
+            transformOrigin: 'center',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      {!hideLabel && (
+        <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {icon && <span aria-hidden="true">{icon}</span>}
+          <span>{label}</span>
+        </span>
+      )}
+    </>
+  );
 
   if (href) {
     return (
@@ -124,8 +163,7 @@ export function ActionButton({
         style={getStyles()}
         aria-label={ariaLabel || label}
       >
-        {!hideLabel && icon && <span aria-hidden="true">{icon}</span>}
-        {!hideLabel && <span>{label}</span>}
+        {innerContent}
       </a>
     );
   }
@@ -137,8 +175,7 @@ export function ActionButton({
       style={getStyles()}
       aria-label={ariaLabel || label}
     >
-      {!hideLabel && icon && <span aria-hidden="true">{icon}</span>}
-      {!hideLabel && <span>{label}</span>}
+      {innerContent}
     </button>
   );
 }

@@ -34,6 +34,12 @@ interface ConfirmationFormProps {
   confirmButtonBackgroundImage?: string;
   declineButtonBackgroundImage?: string;
   hideButtonLabel?: boolean;
+  buttonsLayout?: 'row' | 'column';
+  buttonsAlign?: 'center' | 'left' | 'right';
+  buttonsOffsetX?: number;
+  buttonsOffsetY?: number;
+  buttonsGap?: number;
+  buttonBackgroundScale?: number;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -70,6 +76,12 @@ export function ConfirmationForm({
   confirmButtonBackgroundImage,
   declineButtonBackgroundImage,
   hideButtonLabel,
+  buttonsLayout,
+  buttonsAlign,
+  buttonsOffsetX,
+  buttonsOffsetY,
+  buttonsGap,
+  buttonBackgroundScale,
 }: ConfirmationFormProps) {
   const initialStep: Step = existingConfirmation ? 'initial' : 'attendance';
 
@@ -365,50 +377,91 @@ export function ConfirmationForm({
         <p style={{ ...subtext, marginBottom: '0.5rem' }}>{groupName}</p>
         <h2 style={heading}>¿VAS A ACOMPAÑARME?</h2>
         <p style={{ ...subtext, color: '#9333ea', fontWeight: 600 }}>{eventTitle}</p>
-        <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <button
-            style={{
-              ...btn('primary'),
-              marginBottom: 0,
-              ...(confirmButtonBackgroundImage
-                ? {
-                    backgroundImage: `url("${confirmButtonBackgroundImage}")`,
-                    backgroundSize: 'contain',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    minHeight: '52px',
-                    border: 'none',
-                    color: hideButtonLabel ? 'transparent' : '#fff',
-                  }
-                : {}),
-            }}
-            onClick={handleAttendanceYes}
-            type="button"
-          >
-            {hideButtonLabel && confirmButtonBackgroundImage ? '' : 'SÍ, VOY A ESTAR'}
-          </button>
-          <button
-            style={{
-              ...btn('secondary'),
-              marginBottom: 0,
-              ...(declineButtonBackgroundImage
-                ? {
-                    backgroundImage: `url("${declineButtonBackgroundImage}")`,
-                    backgroundSize: 'contain',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'center',
-                    minHeight: '52px',
-                    border: 'none',
-                    color: hideButtonLabel ? 'transparent' : '#374151',
-                  }
-                : {}),
-            }}
-            onClick={handleAttendanceNo}
-            type="button"
-          >
-            {hideButtonLabel && declineButtonBackgroundImage ? '' : 'NO PODRÉ ASISTIR'}
-          </button>
-        </div>
+        {(() => {
+          const scale = (buttonBackgroundScale && buttonBackgroundScale > 0) ? buttonBackgroundScale / 100 : 1;
+          const effectiveGap = buttonsGap !== undefined ? Math.max(0, buttonsGap) : 12;
+          const negativeMargin = (buttonsGap !== undefined && buttonsGap < 0) ? buttonsGap : 0;
+          const computedHeight = Math.round(52 * scale);
+
+          return (
+            <div
+              style={{
+                marginTop: '1.5rem',
+                display: 'flex',
+                flexDirection: buttonsLayout === 'row' ? 'row' : 'column',
+                gap: `${effectiveGap}px`,
+                justifyContent: buttonsAlign === 'left' ? 'flex-start' : buttonsAlign === 'right' ? 'flex-end' : 'center',
+                alignItems: 'center',
+                flexWrap: buttonsLayout === 'row' ? 'nowrap' : 'wrap',
+                width: '100%',
+                maxWidth: buttonsLayout === 'row' ? `${Math.max(260, Math.round(360 * scale))}px` : '360px',
+                margin: '1.5rem auto 0 auto',
+                transform: (buttonsOffsetX || buttonsOffsetY)
+                  ? `translate(${buttonsOffsetX ?? 0}px, ${buttonsOffsetY ?? 0}px)`
+                  : undefined,
+                transition: 'transform 0.15s ease',
+              }}
+            >
+              <button
+                style={{
+                  ...btn('primary'),
+                  marginBottom: 0,
+                  flex: buttonsLayout === 'row' ? '1 1 0' : undefined,
+                  width: '100%',
+                  minWidth: 0,
+                  position: 'relative',
+                  ...(confirmButtonBackgroundImage
+                    ? {
+                        backgroundImage: `url("${confirmButtonBackgroundImage}")`,
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center',
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        minHeight: `${computedHeight}px`,
+                        transform: scale !== 1 ? `scale(${scale})` : undefined,
+                        border: 'none',
+                        color: hideButtonLabel ? 'transparent' : '#fff',
+                      }
+                    : {}),
+                }}
+                onClick={handleAttendanceYes}
+                type="button"
+              >
+                {hideButtonLabel && confirmButtonBackgroundImage ? '' : 'SÍ, VOY A ESTAR'}
+              </button>
+              <button
+                style={{
+                  ...btn('secondary'),
+                  marginBottom: 0,
+                  flex: buttonsLayout === 'row' ? '1 1 0' : undefined,
+                  width: '100%',
+                  minWidth: 0,
+                  position: 'relative',
+                  marginLeft: (buttonsLayout === 'row' && negativeMargin) ? `${negativeMargin}px` : undefined,
+                  ...(declineButtonBackgroundImage
+                    ? {
+                        backgroundImage: `url("${declineButtonBackgroundImage}")`,
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center',
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                        minHeight: `${computedHeight}px`,
+                        transform: scale !== 1 ? `scale(${scale})` : undefined,
+                        border: 'none',
+                        color: hideButtonLabel ? 'transparent' : '#374151',
+                      }
+                    : {}),
+                }}
+                onClick={handleAttendanceNo}
+                type="button"
+              >
+                {hideButtonLabel && declineButtonBackgroundImage ? '' : 'NO PODRÉ ASISTIR'}
+              </button>
+            </div>
+          );
+        })()}
         <ErrorBanner />
       </div>
     );

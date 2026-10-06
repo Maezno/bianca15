@@ -346,6 +346,10 @@ export function EventEditor({ initialData }: EventEditorProps) {
                 setDressCode={setDressCode}
                 giftsText={giftsText}
                 setGiftsText={setGiftsText}
+                memorooUrl={memorooUrl}
+                setMemorooUrl={setMemorooUrl}
+                memorooQrUrl={memorooQrUrl}
+                setMemorooQrUrl={setMemorooQrUrl}
               />
             )}
 

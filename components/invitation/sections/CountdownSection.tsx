@@ -17,31 +17,33 @@ export function CountdownSection({ event, theme }: SectionBaseProps) {
         width: '100%',
       }}
     >
-      <div
-        data-heading-container="true"
-        style={{
-          textAlign: 'center',
-          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 16 + titleOffsetY)}px` : '1rem',
-          transition: 'margin-bottom 0.15s ease',
-        }}
-      >
-        <h2
-          data-heading="true"
+      {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+        <div
+          data-heading-container="true"
           style={{
-            fontFamily: theme.typography.headingFont,
-            fontSize: '1.25rem',
-            letterSpacing: '0.18em',
-            color: sectionStyle?.titleColor || theme.colors.primary,
-            textTransform: 'uppercase',
-            fontWeight: 600,
-            margin: '0',
             textAlign: 'center',
-            display: 'block',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 16 + titleOffsetY)}px` : '1rem',
+            transition: 'margin-bottom 0.15s ease',
           }}
         >
-          CUENTA REGRESIVA
-        </h2>
-      </div>
+          <h2
+            data-heading="true"
+            style={{
+              fontFamily: theme.typography.headingFont,
+              fontSize: '1.25rem',
+              letterSpacing: '0.18em',
+              color: sectionStyle?.titleColor || theme.colors.primary,
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              margin: '0',
+              textAlign: 'center',
+              display: 'block',
+            }}
+          >
+            CUENTA REGRESIVA
+          </h2>
+        </div>
+      )}
       <CountdownTimer
         targetDateStr={event.date}
         targetTimeStr={event.startTime}

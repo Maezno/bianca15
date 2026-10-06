@@ -13,6 +13,17 @@ interface ShareSectionProps {
   textColor?: string;
   titleColor?: string;
   titleOffsetY?: number;
+  buttonsLayout?: 'row' | 'column';
+  buttonsAlign?: 'center' | 'left' | 'right';
+  buttonsOffsetX?: number;
+  buttonsOffsetY?: number;
+  buttonsGap?: number;
+  buttonBackgroundImage?: string;
+  hideButtonLabel?: boolean;
+  buttonBackgroundScale?: number;
+  hideTitle?: boolean;
+  hideSubtitle?: boolean;
+  hideText?: boolean;
 }
 
 export function ShareSection({
@@ -26,6 +37,17 @@ export function ShareSection({
   textColor = '#334155',
   titleColor,
   titleOffsetY,
+  buttonsLayout,
+  buttonsAlign,
+  buttonsOffsetX,
+  buttonsOffsetY,
+  buttonsGap,
+  buttonBackgroundImage,
+  hideButtonLabel,
+  buttonBackgroundScale,
+  hideTitle,
+  hideSubtitle,
+  hideText,
 }: ShareSectionProps) {
   const [copied, setCopied] = useState(false);
 
@@ -81,77 +103,118 @@ export function ShareSection({
         boxSizing: 'border-box',
       }}
     >
-      <div
-        data-heading-container="true"
-        style={{
-          marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-          transition: 'margin-bottom 0.15s ease',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
-        <h3
-          data-heading="true"
-          style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, color: titleColor || textColor, textAlign: 'center' }}
-        >
-          Compartir Invitación
-        </h3>
-      </div>
-      <p
-        data-body="true"
-        style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor, textAlign: 'center' }}
-      >
-        Guardá o compartí este enlace con tu grupo familiar.
-      </p>
-
-      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <button
-          type="button"
-          onClick={handleShare}
+      {!hideTitle && !hideText && (
+        <div
+          data-heading-container="true"
           style={{
-            flex: 1,
-            minHeight: '44px',
-            padding: '0.65rem 1rem',
-            borderRadius: '0.5rem',
-            border: 'none',
-            background: btnBg,
-            color: btnColor,
-            fontWeight: 700,
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.4rem',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+            transition: 'margin-bottom 0.15s ease',
+            textAlign: 'center',
+            width: '100%',
           }}
         >
-          Compartir
-        </button>
-
-        <button
-          type="button"
-          onClick={handleCopy}
-          aria-live="polite"
-          style={{
-            minHeight: '44px',
-            padding: '0.65rem 1rem',
-            borderRadius: '0.5rem',
-            border: `1px solid ${borderColor}`,
-            background: copied ? '#dcfce7' : 'transparent',
-            color: copied ? '#166534' : textColor,
-            fontWeight: 600,
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.4rem',
-          }}
+          <h3
+            data-heading="true"
+            style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, color: titleColor || textColor, textAlign: 'center' }}
+          >
+            Compartir Invitación
+          </h3>
+        </div>
+      )}
+      {!hideSubtitle && !hideText && (
+        <p
+          data-body="true"
+          style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor, textAlign: 'center' }}
         >
-          {copied ? '¡Copiado!' : 'Copiar Link'}
-        </button>
-      </div>
+          Guardá o compartí este enlace con tu grupo familiar.
+        </p>
+      )}
+
+      {(() => {
+        const scale = (buttonBackgroundScale && buttonBackgroundScale > 0) ? buttonBackgroundScale / 100 : 1;
+        const effectiveGap = buttonsGap !== undefined ? Math.max(0, buttonsGap) : 8;
+        const negativeMargin = (buttonsGap !== undefined && buttonsGap < 0) ? buttonsGap : 0;
+        const computedHeight = Math.round((hideButtonLabel ? 52 : 48) * scale);
+
+        return (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: buttonsLayout === 'column' ? 'column' : 'row',
+              gap: `${effectiveGap}px`,
+              justifyContent: buttonsAlign === 'left' ? 'flex-start' : buttonsAlign === 'right' ? 'flex-end' : 'center',
+              alignItems: 'center',
+              flexWrap: buttonsLayout === 'column' ? 'wrap' : 'nowrap',
+              maxWidth: buttonsLayout === 'column' ? '360px' : (buttonBackgroundImage ? `${Math.max(260, Math.round(360 * scale))}px` : '420px'),
+              margin: '0 auto',
+              width: '100%',
+              transform: (buttonsOffsetX || buttonsOffsetY)
+                ? `translate(${buttonsOffsetX ?? 0}px, ${buttonsOffsetY ?? 0}px)`
+                : undefined,
+              transition: 'transform 0.15s ease',
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleShare}
+              style={{
+                flex: buttonsLayout === 'column' ? undefined : '1 1 0',
+                width: buttonsLayout === 'column' ? '100%' : 'auto',
+                minHeight: buttonBackgroundImage ? `${computedHeight}px` : '44px',
+                minWidth: 0,
+                position: 'relative',
+                padding: buttonBackgroundImage ? (hideButtonLabel ? '0' : '0.6rem 1.2rem') : '0.65rem 1rem',
+                borderRadius: buttonBackgroundImage ? '0.75rem' : '0.5rem',
+                border: 'none',
+                background: buttonBackgroundImage ? 'transparent' : btnBg,
+                backgroundImage: buttonBackgroundImage ? `url("${buttonBackgroundImage}")` : undefined,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                transform: (buttonBackgroundImage && scale !== 1) ? `scale(${scale})` : undefined,
+                color: hideButtonLabel && buttonBackgroundImage ? 'transparent' : btnColor,
+                fontWeight: 700,
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                boxShadow: buttonBackgroundImage ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              {!(hideButtonLabel && buttonBackgroundImage) && 'Compartir'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopy}
+              aria-live="polite"
+              style={{
+                flex: buttonsLayout === 'column' ? undefined : '1 1 0',
+                width: buttonsLayout === 'column' ? '100%' : 'auto',
+                minHeight: '44px',
+                minWidth: 0,
+                marginLeft: (buttonsLayout !== 'column' && negativeMargin) ? `${negativeMargin}px` : undefined,
+                padding: '0.65rem 1rem',
+                borderRadius: '0.5rem',
+                border: `1px solid ${borderColor}`,
+                background: copied ? '#dcfce7' : 'transparent',
+                color: copied ? '#166534' : textColor,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+              }}
+            >
+              {copied ? '¡Copiado!' : 'Copiar Link'}
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }
