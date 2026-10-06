@@ -655,166 +655,9 @@ export function DesignTab({
             </div>
           </div>
         </div>
-
-        {/* Imagen de Fondo General (Opcional - Base para todo el evento) */}
-        <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
-              🖼️ Imagen de Fondo General (Opcional - Base para todo el evento)
-            </label>
-            <button
-              type="button"
-              onClick={() => setActivePicker({ type: 'general' })}
-              style={{
-                padding: '0.25rem 0.6rem',
-                borderRadius: '0.35rem',
-                border: '1px solid #9333ea',
-                background: '#f3e8ff',
-                color: '#7e22ce',
-                fontSize: '0.72rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              {designConfig.layout?.generalBackgroundUrl ? '🔄 Cambiar fondo' : '➕ Elegir de biblioteca'}
-            </button>
-          </div>
-
-          {designConfig.layout?.generalBackgroundUrl && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: '#ffffff', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', border: '1px solid #cbd5e1', marginBottom: '0.4rem' }}>
-              <img
-                src={designConfig.layout.generalBackgroundUrl}
-                alt="Fondo general"
-                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '0.3rem', border: '1px solid #94a3b8' }}
-              />
-              <span style={{ fontSize: '0.75rem', color: '#475569', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {designConfig.layout.generalBackgroundUrl}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setDesignConfig((prev) => ({
-                    ...prev,
-                    layout: { ...(prev.layout || {}), generalBackgroundUrl: undefined },
-                  }))
-                }
-                style={{
-                  padding: '0.2rem 0.45rem',
-                  borderRadius: '0.25rem',
-                  border: '1px solid #fca5a5',
-                  background: '#fef2f2',
-                  color: '#b91c1c',
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                ✕ Quitar
-              </button>
-            </div>
-          )}
-
-          <input
-            type="url"
-            placeholder="O ingresa una URL directa: https://ejemplo.com/fondo-base.webp"
-            value={designConfig.layout?.generalBackgroundUrl || ''}
-            onChange={(e) =>
-              setDesignConfig((prev) => ({
-                ...prev,
-                layout: { ...(prev.layout || {}), generalBackgroundUrl: e.target.value },
-              }))
-            }
-            style={{
-              width: '100%',
-              padding: '0.45rem 0.65rem',
-              border: '1px solid #cbd5e1',
-              borderRadius: '0.35rem',
-              fontSize: '0.8rem',
-              boxSizing: 'border-box',
-            }}
-          />
-
-          {/* Selector de comportamiento del fondo (Fijo en pantalla / Desplazable) */}
-          <div style={{ marginTop: '0.75rem', paddingTop: '0.65rem', borderTop: '1px solid #e2e8f0' }}>
-            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '0.35rem' }}>
-              📌 Fijación del fondo en pantalla
-            </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() =>
-                  setDesignConfig((prev) => ({
-                    ...prev,
-                    layout: { ...(prev.layout || {}), backgroundAttachment: 'fixed' },
-                  }))
-                }
-                style={{
-                  padding: '0.45rem 0.55rem',
-                  borderRadius: '0.35rem',
-                  border: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
-                    ? '2px solid #9333ea'
-                    : '1px solid #cbd5e1',
-                  background: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
-                    ? '#f3e8ff'
-                    : '#ffffff',
-                  color: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed'
-                    ? '#7e22ce'
-                    : '#475569',
-                  fontSize: '0.75rem',
-                  fontWeight: (designConfig.layout?.backgroundAttachment ?? 'fixed') === 'fixed' ? 700 : 500,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
-                <span>📌 Fijo (Wallpaper)</span>
-                <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 400 }}>
-                  Cubre la pantalla de punta a punta y no se mueve con el scroll
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setDesignConfig((prev) => ({
-                    ...prev,
-                    layout: { ...(prev.layout || {}), backgroundAttachment: 'scroll' },
-                  }))
-                }
-                style={{
-                  padding: '0.45rem 0.55rem',
-                  borderRadius: '0.35rem',
-                  border: designConfig.layout?.backgroundAttachment === 'scroll'
-                    ? '2px solid #9333ea'
-                    : '1px solid #cbd5e1',
-                  background: designConfig.layout?.backgroundAttachment === 'scroll'
-                    ? '#f3e8ff'
-                    : '#ffffff',
-                  color: designConfig.layout?.backgroundAttachment === 'scroll'
-                    ? '#7e22ce'
-                    : '#475569',
-                  fontSize: '0.75rem',
-                  fontWeight: designConfig.layout?.backgroundAttachment === 'scroll' ? 700 : 500,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.15rem',
-                }}
-              >
-                <span>📜 Desplazable</span>
-                <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 400 }}>
-                  Acompaña el avance del scroll a lo largo de la página
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-        </div>
-        </div>
-      )}
+      </div>
+      </div>
+    )}
 
       {/* ─── PESTAÑA: TIPOGRAFÍA GLOBAL ─── */}
       {designSubTab === 'typography' && (
@@ -2279,9 +2122,13 @@ export function DesignTab({
               style.buttonsOffsetX !== undefined ||
               style.buttonsOffsetY !== undefined ||
               style.buttonsGap !== undefined ||
-              style.buttonBackgroundScale !== undefined
+              style.buttonBackgroundScale !== undefined ||
+              style.albumUrl !== undefined ||
+              style.qrUrl !== undefined ||
+              style.showQr !== undefined ||
+              style.buttonText !== undefined
             );
-            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.hideTitle || style.hideSubtitle || style.customTitle !== undefined || style.customSubtitle !== undefined || style.buttonBackgroundImage || style.buttonsLayout !== undefined || style.buttonBackgroundScale !== undefined;
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.hideTitle || style.hideSubtitle || style.customTitle !== undefined || style.customSubtitle !== undefined || style.buttonBackgroundImage || style.buttonsLayout !== undefined || style.buttonBackgroundScale !== undefined || style.albumUrl !== undefined || style.qrUrl !== undefined || style.showQr !== undefined || style.buttonText !== undefined;
             return (
               <div
                 key={sec.id}
@@ -3900,10 +3747,11 @@ export function DesignTab({
                   </div>
 
                   {/* Fondo PNG de botones */}
-                  <div style={{ background: '#fff7ed', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #fed7aa', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9a3412' }}>
-                      🖼️ Fondo PNG de botones
-                    </span>
+                  {['location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
+                    <div style={{ background: '#fff7ed', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #fed7aa', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9a3412' }}>
+                        🖼️ Fondo PNG de botones
+                      </span>
                     <span style={{ fontSize: '0.65rem', color: '#c2410c' }}>
                       Reemplazá el color de fondo del botón por una imagen (PNG o WebP).
                     </span>
@@ -4004,7 +3852,8 @@ export function DesignTab({
                         </div>
                       </>
                     )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* 🔘 Posición y Disposición de Botones (General y cuando hay 2 botones) */}
                   {['location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
@@ -4477,6 +4326,229 @@ export function DesignTab({
                     </div>
                   )}
 
+                  {/* 📸 Configuración de Álbum de Fotos y QR para sec.id === 'photos' */}
+                  {sec.id === 'photos' && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.65rem',
+                        background: '#fdf4ff',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid #f0abfc',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#86198f', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          📸 Enlace de Fotos y Código QR
+                        </span>
+                        {(style.albumUrl !== undefined || style.qrUrl !== undefined || style.showQr !== undefined || style.buttonText !== undefined || style.customTitle !== undefined || style.customSubtitle !== undefined) && (
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { albumUrl: undefined, qrUrl: undefined, showQr: undefined, buttonText: undefined, customTitle: undefined, customSubtitle: undefined })}
+                            style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.68rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                          >
+                            Restablecer predeterminados
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Título de la tarjeta de fotos */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                            Título de la tarjeta:
+                          </label>
+                          {style.customTitle !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { customTitle: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (usar predeterminado)
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={style.customTitle ?? ''}
+                          placeholder="¡Compartí tus recuerdos!"
+                          onChange={(e) => updateSectionStyle(sec.id, { customTitle: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.customTitle !== undefined ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                          }}
+                        />
+                      </div>
+
+                      {/* Subtítulo / Descripción de fotos */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                            Subtítulo / Mensaje explicativo:
+                          </label>
+                          {style.customSubtitle !== undefined && (
+                            <button
+                              type="button"
+                              onClick={() => updateSectionStyle(sec.id, { customSubtitle: undefined })}
+                              style={{ background: 'none', border: 'none', color: '#a21caf', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                            >
+                              (usar predeterminado)
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={style.customSubtitle ?? ''}
+                          placeholder="Subí tus fotos y videos durante la fiesta para que todos podamos revivir cada momento."
+                          onChange={(e) => updateSectionStyle(sec.id, { customSubtitle: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.customSubtitle !== undefined ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                          }}
+                        />
+                      </div>
+
+                      {/* URL del Álbum de Fotos */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                          🔗 Enlace para subir las fotos (URL del álbum):
+                        </label>
+                        <input
+                          type="url"
+                          value={style.albumUrl ?? ''}
+                          placeholder="https://memoroo.com.ar/e/3f0ab99c-401e-477f-b2cc-c26a2a0763e4"
+                          onChange={(e) => updateSectionStyle(sec.id, { albumUrl: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.albumUrl ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                          }}
+                        />
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.62rem', color: '#86198f' }}>
+                            Destino del botón &ldquo;Compartir fotos&rdquo;.
+                          </span>
+                          {(style.albumUrl || 'https://memoroo.com.ar/e/3f0ab99c-401e-477f-b2cc-c26a2a0763e4') && (
+                            <a
+                              href={style.albumUrl || 'https://memoroo.com.ar/e/3f0ab99c-401e-477f-b2cc-c26a2a0763e4'}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ fontSize: '0.65rem', color: '#9333ea', textDecoration: 'underline', fontWeight: 600 }}
+                            >
+                              Probar enlace ↗
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Texto del Botón de Fotos */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#701a75' }}>
+                          🏷️ Texto del botón de fotos:
+                        </label>
+                        <input
+                          type="text"
+                          value={style.buttonText ?? ''}
+                          placeholder="Compartir fotos (o ej: Subir mis fotos)"
+                          onChange={(e) => updateSectionStyle(sec.id, { buttonText: e.target.value })}
+                          style={{
+                            width: '100%',
+                            padding: '0.45rem 0.6rem',
+                            border: `1px solid ${style.buttonText ? '#c084fc' : '#cbd5e1'}`,
+                            borderRadius: '0.35rem',
+                            fontSize: '0.78rem',
+                            boxSizing: 'border-box',
+                            background: '#ffffff',
+                            color: '#1e293b',
+                          }}
+                        />
+                      </div>
+
+                      {/* Código QR */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', padding: '0.5rem', background: '#ffffff', borderRadius: '0.35rem', border: '1px solid #f0abfc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', fontWeight: 600, color: '#701a75', cursor: 'pointer', userSelect: 'none' }}>
+                            <input
+                              type="checkbox"
+                              checked={style.showQr !== false}
+                              onChange={(e) => updateSectionStyle(sec.id, { showQr: e.target.checked })}
+                              style={{ accentColor: '#a21caf', cursor: 'pointer' }}
+                            />
+                            Mostrar código QR en la tarjeta
+                          </label>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: style.showQr !== false ? '#16a34a' : '#94a3b8' }}>
+                            {style.showQr !== false ? 'Activo' : 'Oculto'}
+                          </span>
+                        </div>
+
+                        {style.showQr !== false && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginTop: '0.2rem' }}>
+                            <label style={{ fontSize: '0.68rem', fontWeight: 600, color: '#701a75' }}>
+                              Imagen QR personalizada (opcional):
+                            </label>
+                            <div style={{ display: 'flex', gap: '0.35rem' }}>
+                              <input
+                                type="url"
+                                value={style.qrUrl ?? ''}
+                                placeholder="Dejar vacío para generar QR automáticamente del enlace"
+                                onChange={(e) => updateSectionStyle(sec.id, { qrUrl: e.target.value })}
+                                style={{
+                                  flex: 1,
+                                  minWidth: 0,
+                                  padding: '0.35rem 0.5rem',
+                                  border: `1px solid ${style.qrUrl ? '#c084fc' : '#cbd5e1'}`,
+                                  borderRadius: '0.3rem',
+                                  fontSize: '0.72rem',
+                                  boxSizing: 'border-box',
+                                  background: '#ffffff',
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setActivePicker({ type: 'photoQr', sectionId: sec.id })}
+                                style={{
+                                  padding: '0.35rem 0.6rem',
+                                  borderRadius: '0.3rem',
+                                  background: '#faf5ff',
+                                  border: '1px solid #d8b4fe',
+                                  color: '#7e22ce',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                🖼️ Galería
+                              </button>
+                            </div>
+                            <span style={{ fontSize: '0.62rem', color: '#64748b' }}>
+                              Si no subís una imagen propia, el QR se dibuja automáticamente apuntando a la URL del álbum.
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 💌 Editor de Textos para Sección de Cierre */}
                   {sec.id === 'footer' && (
                     <div
@@ -4583,50 +4655,7 @@ export function DesignTab({
                     </div>
                   )}
 
-                  {/* 5. URLs externas personalizadas para esta sección */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingTop: '0.2rem' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.68rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.15rem' }}>
-                        URL externa de fuente para títulos (opcional):
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://fonts.googleapis.com/css2?family=...&display=swap"
-                        value={style.sectionFontUrl || ''}
-                        onChange={(e) => updateSectionStyle(sec.id, { sectionFontUrl: e.target.value || undefined })}
-                        style={{
-                          width: '100%',
-                          padding: '0.35rem 0.5rem',
-                          border: `1px solid ${style.sectionFontUrl ? '#d8b4fe' : '#cbd5e1'}`,
-                          borderRadius: '0.3rem',
-                          fontSize: '0.72rem',
-                          boxSizing: 'border-box',
-                          background: '#ffffff',
-                        }}
-                      />
-                    </div>
 
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.68rem', color: '#6b21a8', fontWeight: 600, marginBottom: '0.15rem' }}>
-                        URL externa de fuente para texto (opcional):
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://fonts.googleapis.com/css2?family=...&display=swap"
-                        value={style.sectionBodyFontUrl || ''}
-                        onChange={(e) => updateSectionStyle(sec.id, { sectionBodyFontUrl: e.target.value || undefined })}
-                        style={{
-                          width: '100%',
-                          padding: '0.35rem 0.5rem',
-                          border: `1px solid ${style.sectionBodyFontUrl ? '#d8b4fe' : '#cbd5e1'}`,
-                          borderRadius: '0.3rem',
-                          fontSize: '0.72rem',
-                          boxSizing: 'border-box',
-                          background: '#ffffff',
-                        }}
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -4708,6 +4737,10 @@ export function DesignTab({
               updateSectionStyle(activePicker.sectionId, {
                 declineButtonBackgroundImage: url || undefined,
               });
+            } else if (activePicker.type === 'photoQr' && activePicker.sectionId) {
+              updateSectionStyle(activePicker.sectionId, {
+                qrUrl: url || undefined,
+              });
             }
             setActivePicker(null);
           }}
@@ -4725,6 +4758,8 @@ export function DesignTab({
                       ? getSectionStyle(activePicker.sectionId).confirmButtonBackgroundImage || ''
                       : activePicker.type === 'declineButton' && activePicker.sectionId
                         ? getSectionStyle(activePicker.sectionId).declineButtonBackgroundImage || ''
+                        : activePicker.type === 'photoQr' && activePicker.sectionId
+                          ? getSectionStyle(activePicker.sectionId).qrUrl || ''
                         : activePicker.type === 'fluid'
                           ? designConfig.layout?.fluidBackgroundUrl || ''
                           : activePicker.type === 'continuous'
@@ -4746,6 +4781,8 @@ export function DesignTab({
                       ? 'Fondo PNG de botón «Sí, asistiré»'
                       : activePicker.type === 'declineButton'
                         ? 'Fondo PNG de botón «No podré asistir»'
+                        : activePicker.type === 'photoQr'
+                          ? 'Imagen de Código QR'
                         : activePicker.type === 'fluid'
                           ? 'Fondo para Modo Fluido'
                           : activePicker.type === 'continuous'

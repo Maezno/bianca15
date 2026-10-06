@@ -62,7 +62,7 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
                 textAlign: 'center',
               }}
             >
-              {event.location}
+              {sectionStyle?.customTitle || event.location}
             </h2>
           )}
         </div>
@@ -79,7 +79,7 @@ export function LocationSection({ event, theme }: SectionBaseProps) {
             textAlign: 'center',
           }}
         >
-          {event.address}
+          {sectionStyle?.customSubtitle || event.address}
         </p>
       )}
 

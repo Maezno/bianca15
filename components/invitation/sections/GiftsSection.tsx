@@ -71,7 +71,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
               textAlign: 'center',
             }}
           >
-            Regalos
+            {sectionStyle?.customTitle || 'Regalos'}
           </h2>
         </div>
       )}
@@ -91,7 +91,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
               fontWeight: 600,
             }}
           >
-            {event.giftsText}
+            {sectionStyle?.customSubtitle || event.giftsText}
           </p>
         )}
 

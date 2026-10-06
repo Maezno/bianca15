@@ -185,7 +185,7 @@ export function ConfirmationSection({
                 textAlign: 'center',
               }}
             >
-              ¿Vas a acompañarme?
+              {sectionStyle?.customTitle || '¿Vas a acompañarme?'}
             </h2>
           </div>
         )}
@@ -202,7 +202,7 @@ export function ConfirmationSection({
               textAlign: 'center',
             }}
           >
-            Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.
+            {sectionStyle?.customSubtitle || 'Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.'}
           </p>
         )}
 

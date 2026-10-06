@@ -32,10 +32,6 @@ interface GeneralTabProps {
   setDressCode: (v: string) => void;
   giftsText: string;
   setGiftsText: (v: string) => void;
-  memorooUrl?: string;
-  setMemorooUrl?: (v: string) => void;
-  memorooQrUrl?: string;
-  setMemorooQrUrl?: (v: string) => void;
 }
 
 export function GeneralTab({
@@ -67,10 +63,6 @@ export function GeneralTab({
   setDressCode,
   giftsText,
   setGiftsText,
-  memorooUrl = '',
-  setMemorooUrl,
-  memorooQrUrl = '',
-  setMemorooQrUrl,
 }: GeneralTabProps) {
   const templates = getAllTemplates();
 
@@ -272,44 +264,6 @@ export function GeneralTab({
           placeholder="Datos bancarios, CBU, alias o mensaje sobre regalos..."
           style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box' }}
         />
-      </div>
-
-      {/* Álbum de Fotos Compartido (Memoroo) */}
-      <div style={{ background: '#fdf4ff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #f0abfc', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#86198f' }}>
-          📸 Álbum de Fotos Compartido (Memoroo)
-        </h4>
-        <div>
-          <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#701a75', marginBottom: '0.25rem' }}>
-            Enlace para subir las fotos (URL del Álbum)
-          </label>
-          <input
-            type="url"
-            value={memorooUrl}
-            onChange={(e) => setMemorooUrl?.(e.target.value)}
-            placeholder="https://memoroo.com.ar/e/..."
-            style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box', background: '#fff' }}
-          />
-          <span style={{ fontSize: '0.75rem', color: '#86198f', marginTop: '0.2rem', display: 'block' }}>
-            Este enlace se abre cuando los invitados tocan el botón &ldquo;Compartir fotos&rdquo;.
-          </span>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 600, color: '#701a75', marginBottom: '0.25rem' }}>
-            URL de Imagen QR personalizada (opcional)
-          </label>
-          <input
-            type="url"
-            value={memorooQrUrl}
-            onChange={(e) => setMemorooQrUrl?.(e.target.value)}
-            placeholder="https://.../mi-qr.png (o dejar vacío para generar automáticamente)"
-            style={{ width: '100%', padding: '0.65rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem', boxSizing: 'border-box', background: '#fff' }}
-          />
-          <span style={{ fontSize: '0.75rem', color: '#86198f', marginTop: '0.2rem', display: 'block' }}>
-            Si se deja vacío, el sistema genera automáticamente el código QR dinámico apuntando a la URL del álbum.
-          </span>
-        </div>
       </div>
     </div>
   );
