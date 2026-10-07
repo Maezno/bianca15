@@ -244,8 +244,8 @@ export async function deleteAdminGuestGroup(
       const adminClient = getAdminClient();
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
 
-      // Intentar primero con la función RPC con SECURITY DEFINER (bypass de RLS garantizado)
       if (isUuid) {
+        // Intentar primero con la función RPC con SECURITY DEFINER (bypass de RLS garantizado)
         const { data: rpcRes, error: rpcErr } = await adminClient.rpc('delete_guest_group_by_id', {
           p_group_id: groupId,
         });
@@ -253,13 +253,13 @@ export async function deleteAdminGuestGroup(
         if (!rpcErr && rpcRes && (rpcRes as { success?: boolean }).success) {
           return { success: true };
         }
-      }
 
-      // Respaldo directo vía cliente administrativo
-      const { error } = await adminClient.from('guest_groups').delete().eq('id', groupId);
-      if (error) {
-        console.error('[deleteAdminGuestGroup] Error al eliminar en Supabase:', error);
-        return { success: false, error: `No se pudo eliminar el grupo: ${error.message}` };
+        // Respaldo directo vía cliente administrativo
+        const { error } = await adminClient.from('guest_groups').delete().eq('id', groupId);
+        if (error) {
+          console.error('[deleteAdminGuestGroup] Error al eliminar en Supabase:', error);
+          return { success: false, error: `No se pudo eliminar el grupo: ${error.message}` };
+        }
       }
     }
 

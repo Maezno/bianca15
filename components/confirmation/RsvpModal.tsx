@@ -143,7 +143,7 @@ export function RsvpModal({
             position: 'relative',
             width: '100%',
             maxWidth: '520px',
-            maxHeight: '90dvh',
+            maxHeight: 'min(90vh, calc(100vh - 2rem))',
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#ffffff',
@@ -720,7 +720,7 @@ export function RsvpModal({
               {/* Botones Fijos Abajo: Siempre visibles sin necesidad de scrollear */}
               <div
                 style={{
-                  padding: '1rem 1.75rem',
+                  padding: '1rem 1.75rem calc(1rem + env(safe-area-inset-bottom)) 1.75rem',
                   borderTop: '1px solid #f1f5f9',
                   backgroundColor: '#ffffff',
                   boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.04)',
