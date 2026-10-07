@@ -102,8 +102,8 @@
           "date": 611,
           "location": 594,
           "schedule": 595,
-          "dress_code": 1123,
-          "gifts": 487,
+          "dress_code": 1063,
+          "gifts": 871,
           "confirmation": 613,
           "share": 347,
           "footer": 250
@@ -209,24 +209,23 @@
             "hideText": true
           },
           "gifts": {
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/c526ecfc-66c2-4e62-8f45-08ecd59dd779.webp",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/e1f931d5-5116-4987-a397-3c30f61cd812.webp",
             "backgroundSize": "120% auto",
             "hideTitle": true,
             "hideSubtitle": true,
-            "backgroundSizeMobile": "150% auto",
-            "contentOffsetY": 80,
             "buttonBackgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/a6ed86f2-f507-4022-ab0a-c583dab31338.webp",
             "hideButtonLabel": true,
-            "buttonBackgroundScale": 160,
+            "buttonBackgroundScale": 122,
             "noBackground": true,
             "noBorder": true,
             "verticalGap": 10,
-            "buttonsOffsetY": 42,
+            "buttonsOffsetY": 58,
             "textColor": "#0f172a",
             "cardGap": 0,
             "sectionBodyFont": "Cinzel, serif",
             "titleFontSize": 33,
-            "bodyFontSize": 18
+            "bodyFontSize": 18,
+            "titleOffsetY": 0
           },
           "confirmation": {
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/b8165cd3-d7a0-4254-979f-cda21cc2d948.webp",
@@ -256,9 +255,9 @@
             "cardGap": 0
           },
           "photos": {
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/7d814a8d-2512-4ac7-847f-c17c9d620817.webp",
-            "backgroundSize": "60% auto",
-            "backgroundSizeMobile": "80% auto",
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/2dffd725-45f9-4a60-bc50-b2ef2b0c5d71.webp",
+            "backgroundSize": "120% auto",
+            "backgroundSizeMobile": "155% auto",
             "noBorder": true,
             "noBackground": true,
             "buttonBackgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/94905d61-7857-4ca0-a1a3-a0de3a6f294b.webp",
@@ -294,7 +293,7 @@
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-10-07T04:17:47.783Z"
+    "updated_at": "2026-10-07T04:21:47.067Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",

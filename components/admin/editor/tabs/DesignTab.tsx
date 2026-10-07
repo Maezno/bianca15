@@ -2440,7 +2440,7 @@ export function DesignTab({
                         <input
                           type="range"
                           min="0"
-                          max="200"
+                          max="300"
                           step="4"
                           value={style.cardGap ?? (designConfig.layout?.sectionGap || 0)}
                           onChange={(e) => updateSectionStyle(sec.id, { cardGap: parseInt(e.target.value, 10) })}
@@ -3075,7 +3075,7 @@ export function DesignTab({
                           <input
                             type="range"
                             min="12"
-                            max="200"
+                            max="300"
                             step="1"
                             value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 22}
                             onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
@@ -3190,7 +3190,7 @@ export function DesignTab({
                           <input
                             type="range"
                             min="10"
-                            max="200"
+                            max="300"
                             step="1"
                             value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 17}
                             onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
@@ -3381,7 +3381,7 @@ export function DesignTab({
                             <input
                               type="range"
                               min="12"
-                              max="200"
+                              max="300"
                               step="1"
                               value={typeof style.titleFontSize === 'number' ? style.titleFontSize : 32}
                               onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
@@ -3449,7 +3449,7 @@ export function DesignTab({
                             <input
                               type="range"
                               min="10"
-                              max="200"
+                              max="300"
                               step="1"
                               value={typeof style.bodyFontSize === 'number' ? style.bodyFontSize : 15}
                               onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
@@ -3641,13 +3641,13 @@ export function DesignTab({
                       <input
                         type="range"
                         min="-100"
-                        max="150"
+                        max="300"
                         step="2"
                         value={style.titleOffsetY ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { titleOffsetY: parseInt(e.target.value, 10) })}
                         style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.65rem', color: '#64748b', flexShrink: 0 }}>+150px</span>
+                      <span style={{ fontSize: '0.65rem', color: '#64748b', flexShrink: 0 }}>+300px</span>
                     </div>
                   </div>
 
@@ -3710,17 +3710,17 @@ export function DesignTab({
                       <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
                         Horizontal
                       </span>
-                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-300</span>
                       <input
                         type="range"
-                        min="-200"
-                        max="200"
+                        min="-300"
+                        max="300"
                         step="2"
                         value={style.contentOffsetX ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { contentOffsetX: parseInt(e.target.value, 10) })}
                         style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+300</span>
                       <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
                         {style.contentOffsetX ?? 0}px
                       </span>
@@ -3729,17 +3729,17 @@ export function DesignTab({
                       <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
                         Vertical
                       </span>
-                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-300</span>
                       <input
                         type="range"
-                        min="-200"
-                        max="200"
+                        min="-300"
+                        max="300"
                         step="2"
                         value={style.contentOffsetY ?? 0}
                         onChange={(e) => updateSectionStyle(sec.id, { contentOffsetY: parseInt(e.target.value, 10) })}
                         style={{ flex: 1, minWidth: 0, accentColor: '#1d4ed8', cursor: 'pointer', height: '4px' }}
                       />
-                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+200</span>
+                      <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+300</span>
                       <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
                         {style.contentOffsetY ?? 0}px
                       </span>
@@ -3987,17 +3987,17 @@ export function DesignTab({
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-150</span>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-300</span>
                           <input
                             type="range"
-                            min="-150"
-                            max="150"
+                            min="-300"
+                            max="300"
                             step="2"
                             value={style.buttonsOffsetX ?? 0}
                             onChange={(e) => updateSectionStyle(sec.id, { buttonsOffsetX: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+150</span>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+300</span>
                         </div>
                       </div>
 
@@ -4012,17 +4012,17 @@ export function DesignTab({
                           </span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-150</span>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>-300</span>
                           <input
                             type="range"
-                            min="-150"
-                            max="150"
+                            min="-300"
+                            max="300"
                             step="2"
                             value={style.buttonsOffsetY ?? 0}
                             onChange={(e) => updateSectionStyle(sec.id, { buttonsOffsetY: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, minWidth: 0, accentColor: '#16a34a', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+150</span>
+                          <span style={{ fontSize: '0.58rem', color: '#64748b' }}>+300</span>
                         </div>
                       </div>
 
@@ -4175,7 +4175,7 @@ export function DesignTab({
                           <input
                             type="range"
                             min="20"
-                            max="200"
+                            max="300"
                             step="2"
                             value={style.countdownNumberSize ?? 32}
                             onChange={(e) => updateSectionStyle(sec.id, { countdownNumberSize: parseInt(e.target.value, 10) })}
