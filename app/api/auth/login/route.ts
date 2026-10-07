@@ -34,6 +34,27 @@ export async function POST(request: NextRequest) {
   }
 
   const isProd = process.env.NODE_ENV === 'production';
+  const isEmail = username.includes('@');
+  
+  // Try Supabase Auth first if it's an email
+  if (isEmail && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    try {
+      const { createClient } = await import('@/utils/supabase/server');
+      const { cookies } = await import('next/headers');
+      const cookieStore = await cookies();
+      const supabase = createClient(cookieStore);
+      
+      const { error } = await supabase.auth.signInWithPassword({ email: username, password });
+      
+      if (!error) {
+        attempts.delete(ip);
+        return NextResponse.json({ success: true });
+      }
+    } catch (err) {
+      console.error('Supabase Auth error:', err);
+    }
+  }
+
   const LOCAL_USER = process.env.LOCAL_ADMIN_USER || 'maezno';
   const LOCAL_PASS = process.env.LOCAL_ADMIN_PASS || 'vpcwy720-';
 

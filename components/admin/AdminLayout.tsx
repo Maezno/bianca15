@@ -65,6 +65,24 @@ export function AdminLayout({ user, eventId, eventName, children }: AdminLayoutP
           </Link>
           <span style={{ color: '#cbd5e1' }}>|</span>
           <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500, whiteSpace: 'nowrap' }}>Admin</span>
+          
+          {user?.role === 'super_admin' && (
+            <>
+              <span style={{ color: '#cbd5e1' }}>|</span>
+              <Link
+                href="/admin/users"
+                style={{
+                  fontSize: '0.9rem',
+                  color: pathname === '/admin/users' ? '#9333ea' : '#64748b',
+                  fontWeight: pathname === '/admin/users' ? 700 : 500,
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Usuarios
+              </Link>
+            </>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
