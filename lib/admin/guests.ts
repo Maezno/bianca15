@@ -48,13 +48,7 @@ export async function getAdminGuestGroups(
     }
 
     if (error || !groups) {
-      const demoGroups = loadDemoGuestGroups();
-      return demoGroups
-        .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
-        .map((g) => ({
-          ...g,
-          invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
-        }));
+      return [];
     }
 
     return (groups as unknown as Array<{
@@ -105,14 +99,9 @@ export async function getAdminGuestGroups(
         invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
       };
     });
-  } catch {
-    const demoGroups = loadDemoGuestGroups();
-    return demoGroups
-      .filter((g) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111')
-      .map((g) => ({
-        ...g,
-        invitationUrl: `/invitacion/${eventSlug}/${g.token}`,
-      }));
+  } catch (err) {
+    console.error('[getAdminGuestGroups] Unexpected error:', err);
+    return [];
   }
 }
 

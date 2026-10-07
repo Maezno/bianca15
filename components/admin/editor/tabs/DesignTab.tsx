@@ -437,7 +437,6 @@ export function DesignTab({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* Selector de sub-categorías de diseño para mantener la vista limpia y cómoda en móvil y desktop */}
       <div
-        className="scrollbar-hidden"
         style={{
           display: 'flex',
           gap: '0.25rem',
@@ -445,8 +444,7 @@ export function DesignTab({
           padding: '3px',
           borderRadius: '0.65rem',
           border: '1px solid #e2e8f0',
-          overflowX: 'auto',
-          WebkitOverflowScrolling: 'touch',
+          flexWrap: 'wrap',
           position: 'relative',
           flexShrink: 0,
           width: '100%',
@@ -1591,7 +1589,7 @@ export function DesignTab({
                   layout: { ...(prev.layout || {}), sectionGap: val },
                 }));
               }}
-              style={{ flex: 1, minWidth: '160px', accentColor: '#9333ea', cursor: 'pointer' }}
+              style={{ flex: 1, minWidth: '160px', flexShrink: 0, whiteSpace: 'nowrap', accentColor: '#9333ea', cursor: 'pointer' }}
             />
             <input
               type="number"
@@ -1875,7 +1873,7 @@ export function DesignTab({
 
               {/* Contenedor scrolleable para evitar desbordes en móviles */}
               <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '0.25rem' }}>
-                <div style={{ minWidth: '340px' }}>
+                <div style={{ minWidth: '340px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                   {/* Cabecera de columnas */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px', gap: '0.35rem', alignItems: 'center', padding: '0.25rem 0.6rem', background: '#f1f5f9', borderRadius: '0.3rem', marginBottom: '0.4rem' }}>
                     <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#475569' }}>Sección</span>
@@ -2606,7 +2604,7 @@ export function DesignTab({
                                 }}
                                 style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '5px' }}
                               />
-                              <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '36px', textAlign: 'right', fontWeight: 700, flexShrink: 0 }}>
+                              <span style={{ fontSize: '0.68rem', color: '#6b21a8', minWidth: '36px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 700 }}>
                                 {style.backgroundSizeMobile && /^\d+/.test(style.backgroundSizeMobile)
                                   ? `${parseInt(style.backgroundSizeMobile, 10)}%`
                                   : '100%'}
@@ -2695,7 +2693,7 @@ export function DesignTab({
                                 }}
                                 style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '5px' }}
                               />
-                              <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '36px', textAlign: 'right', fontWeight: 700, flexShrink: 0 }}>
+                              <span style={{ fontSize: '0.68rem', color: '#475569', minWidth: '36px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 700 }}>
                                 {style.backgroundSize && /^\d+/.test(style.backgroundSize) ? `${parseInt(style.backgroundSize, 10)}%` : '100%'}
                               </span>
                             </div>
@@ -2862,7 +2860,7 @@ export function DesignTab({
 
                         {/* Color del Nombre */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#701a75', minWidth: '45px' }}>Color:</span>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#701a75', minWidth: '45px', flexShrink: 0, whiteSpace: 'nowrap' }}>Color:</span>
                           <input
                             type="color"
                             value={style.nameColor || '#ffffff'}
@@ -2995,7 +2993,7 @@ export function DesignTab({
 
                         {/* Color del Título Público */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#581c87', minWidth: '45px' }}>Color:</span>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#581c87', minWidth: '45px', flexShrink: 0, whiteSpace: 'nowrap' }}>Color:</span>
                           <input
                             type="color"
                             value={style.titleColor || '#c5a028'}
@@ -3081,7 +3079,7 @@ export function DesignTab({
                             onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, minWidth: 0, accentColor: '#7e22ce', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
                             {style.titleFontSize ? `${style.titleFontSize}px` : '22px'}
                           </span>
                         </div>
@@ -3111,7 +3109,7 @@ export function DesignTab({
 
                         {/* Color del Subtítulo */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#475569', minWidth: '45px' }}>Color:</span>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#475569', minWidth: '45px', flexShrink: 0, whiteSpace: 'nowrap' }}>Color:</span>
                           <input
                             type="color"
                             value={style.textColor || '#cbd5e1'}
@@ -3196,7 +3194,7 @@ export function DesignTab({
                             onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, minWidth: 0, accentColor: '#475569', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#334155', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#334155', minWidth: '38px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
                             {style.bodyFontSize ? `${style.bodyFontSize}px` : '17px'}
                           </span>
                         </div>
@@ -3387,7 +3385,7 @@ export function DesignTab({
                               onChange={(e) => updateSectionStyle(sec.id, { titleFontSize: parseInt(e.target.value, 10) })}
                               style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
                             />
-                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
                               {style.titleFontSize ? `${style.titleFontSize}px` : '32px'}
                             </span>
                           </div>
@@ -3455,7 +3453,7 @@ export function DesignTab({
                               onChange={(e) => updateSectionStyle(sec.id, { bodyFontSize: parseInt(e.target.value, 10) })}
                               style={{ flex: 1, minWidth: 0, accentColor: '#9333ea', cursor: 'pointer', height: '4px' }}
                             />
-                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', textAlign: 'right', fontWeight: 600, flexShrink: 0 }}>
+                            <span style={{ fontSize: '0.7rem', color: '#7e22ce', minWidth: '38px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
                               {style.bodyFontSize ? `${style.bodyFontSize}px` : '15px'}
                             </span>
                           </div>
@@ -3707,7 +3705,7 @@ export function DesignTab({
                       Mové el bloque de texto a cualquier parte de la sección. 0 / 0 es el centro.
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                         Horizontal
                       </span>
                       <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-300</span>
@@ -3721,12 +3719,12 @@ export function DesignTab({
                         style={{ flex: 1, minWidth: 0, accentColor: '#2563eb', cursor: 'pointer', height: '4px' }}
                       />
                       <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+300</span>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right' }}>
                         {style.contentOffsetX ?? 0}px
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e40af', minWidth: '60px', flexShrink: 0, whiteSpace: 'nowrap' }}>
                         Vertical
                       </span>
                       <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>-300</span>
@@ -3740,7 +3738,7 @@ export function DesignTab({
                         style={{ flex: 1, minWidth: 0, accentColor: '#1d4ed8', cursor: 'pointer', height: '4px' }}
                       />
                       <span style={{ fontSize: '0.62rem', color: '#64748b', flexShrink: 0 }}>+300</span>
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1d4ed8', minWidth: '40px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right' }}>
                         {style.contentOffsetY ?? 0}px
                       </span>
                     </div>
@@ -4183,7 +4181,7 @@ export function DesignTab({
                             onChange={(e) => updateSectionStyle(sec.id, { countdownNumberSize: parseInt(e.target.value, 10) })}
                             style={{ flex: 1, accentColor: '#a21caf', cursor: 'pointer', height: '4px' }}
                           />
-                          <span style={{ fontSize: '0.7rem', color: '#a21caf', minWidth: '42px', textAlign: 'right', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.7rem', color: '#a21caf', minWidth: '42px', flexShrink: 0, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
                             {style.countdownNumberSize ? `${style.countdownNumberSize}px` : '32px'}
                           </span>
                         </div>

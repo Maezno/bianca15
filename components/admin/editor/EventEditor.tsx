@@ -270,13 +270,12 @@ export function EventEditor({ initialData }: EventEditorProps) {
         >
           {/* Navegación por pestañas */}
           <div
-            className="admin-editor-panel-tabs scrollbar-hidden"
+            className="admin-editor-panel-tabs"
             style={{
               display: 'flex',
               borderBottom: '1px solid #e2e8f0',
               background: '#f8fafc',
-              overflowX: 'auto',
-              overflowY: 'hidden',
+              flexWrap: 'wrap',
               flexShrink: 0,
               minHeight: '44px',
               position: 'relative',
@@ -307,6 +306,7 @@ export function EventEditor({ initialData }: EventEditorProps) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.35rem',
+                  flexShrink: 0,
                 }}
               >
                 <span>{tab.icon}</span> {tab.label}

@@ -346,7 +346,7 @@ export function GuestGroupTable({
         </div>
 
         {/* Tabla de Invitados */}
-        <div style={{ overflowX: 'auto' }}>
+        <div className="responsive-table" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
@@ -427,7 +427,7 @@ export function GuestGroupTable({
 
                   return (
                     <tr key={g.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '0.65rem 0.75rem' }}>
+                      <td data-label="Invitado / Grupo" style={{ padding: '0.65rem 0.75rem' }}>
                         <div
                           onClick={() => setDetailGroup(g)}
                           style={{ fontWeight: 700, color: '#0f172a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
@@ -440,12 +440,12 @@ export function GuestGroupTable({
                         {g.email && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>✉️ {g.email}</div>}
                       </td>
 
-                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700, color: '#475569' }}>
+                      <td data-label="Cupo" style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700, color: '#475569' }}>
                         {g.max_guests}
                       </td>
 
-                      <td style={{ padding: '0.65rem 0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <td data-label="Personas" style={{ padding: '0.65rem 0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{ color: '#334155' }}>
                             {g.guests.length > 0
                               ? g.guests.map((gu) => gu.name).join(', ')
@@ -470,11 +470,11 @@ export function GuestGroupTable({
                         </div>
                       </td>
 
-                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center' }}>
+                      <td data-label="Estado" style={{ padding: '0.65rem 0.75rem', textAlign: 'center' }}>
                         {statusBadge}
                       </td>
 
-                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>
+                      <td data-label="Confirmados" style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>
                         {status === 'confirmed' ? (
                           <span style={{ color: '#166534' }}>{conf?.guests_count || 0} personas</span>
                         ) : (
@@ -483,7 +483,7 @@ export function GuestGroupTable({
                       </td>
 
                       {/* Acciones Rápidas (Puntos 14, 15, 20, 34, 42 del Hito 8) */}
-                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'right' }}>
+                      <td data-label="Acciones" style={{ padding: '0.65rem 0.75rem', textAlign: 'right' }}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.25rem', flexWrap: 'wrap' }}>
                           <button
                             type="button"
