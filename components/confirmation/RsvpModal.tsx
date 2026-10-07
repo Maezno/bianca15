@@ -143,7 +143,7 @@ export function RsvpModal({
             position: 'relative',
             width: '100%',
             maxWidth: '520px',
-            maxHeight: 'min(90vh, calc(100vh - 2rem))',
+            maxHeight: '100%',
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#ffffff',
@@ -433,7 +433,6 @@ export function RsvpModal({
                   <input
                     id="rsvp-single-name"
                     type="text"
-                    required
                     autoFocus
                     placeholder="Escribí tu nombre y apellido"
                     value={members[0] || ''}
@@ -516,7 +515,6 @@ export function RsvpModal({
                       >
                         <input
                           type="text"
-                          required={idx === 0}
                           placeholder={idx === 0 ? 'Nombre y apellido (Integrante 1)' : `Nombre y apellido (Integrante ${idx + 1})`}
                           value={member}
                           onChange={(e) => handleMemberChange(idx, e.target.value)}
@@ -608,7 +606,6 @@ export function RsvpModal({
                 <input
                   id="decline-name"
                   type="text"
-                  required
                   placeholder="Ej: Laura Gómez / Familia Pérez"
                   value={members[0] || familyName}
                   onChange={(e) => {
@@ -732,7 +729,8 @@ export function RsvpModal({
                 }}
               >
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSubmit}
                   disabled={isPending}
                   style={{
                     flex: 1,
