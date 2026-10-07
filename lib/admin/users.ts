@@ -7,10 +7,13 @@ export async function getAdminUsers() {
   await requireAdmin();
   
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return { success: false, error: 'Supabase no está configurado.' };
+    const missing = [];
+    if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!supabaseKey) missing.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY o SUPABASE_SERVICE_ROLE_KEY');
+    return { success: false, error: `Supabase no está configurado (faltan: ${missing.join(', ')} en el entorno del servidor).` };
   }
 
   try {
@@ -53,10 +56,10 @@ export async function createAdminUser(data: { email: string; name: string; role:
   await requireAdmin();
   
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return { success: false, error: 'Supabase no está configurado.' };
+    return { success: false, error: 'Faltan variables de Supabase en el servidor.' };
   }
 
   try {
