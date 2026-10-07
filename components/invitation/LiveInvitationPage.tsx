@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { PublicEvent } from '@/types/event';
 import { getTemplate } from '@/templates/registry';
 
@@ -56,6 +56,7 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
     return () => window.removeEventListener('message', handleMessage);
   }, [isPreview]);
 
+  const debounceTimeout = useRef<NodeJS.Timeout>();
   const handleUpdateSectionHeight = (sectionId: string, newHeight: number) => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const clamped = Math.max(200, Math.min(2500, Math.round(newHeight)));
@@ -92,21 +93,22 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
     });
 
     // Notificar al editor principal para sincronizar formulario y guardado
-    try {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage(
-          {
-            type: 'UPDATE_SECTION_HEIGHT',
-            sectionId,
-            height: clamped,
-            isMobile,
-          },
-          '*'
-        );
-      }
-    } catch {
-      // Ignorar cross-origin
-    }
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: 'UPDATE_SECTION_HEIGHT',
+              sectionId,
+              height: clamped,
+              isMobile,
+            },
+            '*'
+          );
+        }
+      } catch {}
+    }, 150);
   };
 
   const template = getTemplate(event.templateId);
@@ -147,3 +149,4 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
     </>
   );
 }
+
