@@ -56,7 +56,7 @@ export function LiveInvitationPage({ initialEvent, isPreview }: LiveInvitationPa
     return () => window.removeEventListener('message', handleMessage);
   }, [isPreview]);
 
-  const debounceTimeout = useRef<NodeJS.Timeout>();
+  const debounceTimeout = useRef<NodeJS.Timeout | undefined>(undefined);
   const handleUpdateSectionHeight = (sectionId: string, newHeight: number) => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const clamped = Math.max(200, Math.min(2500, Math.round(newHeight)));
