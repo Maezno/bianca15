@@ -24,6 +24,8 @@ export function RsvpModal({
   initialMode = 'attend',
 }: RsvpModalProps) {
   const [mode, setMode] = useState<'attend' | 'decline'>(initialMode);
+  // Nuevo estado para el paso. Si asiste, arranca en paso 1 (selección de tipo). Si declina, va directo al paso 2.
+  const [step, setStep] = useState<1 | 2>(initialMode === 'attend' ? 1 : 2);
   const [rsvpType, setRsvpType] = useState<'individual' | 'family'>('individual');
   const [members, setMembers] = useState<string[]>(['']);
   const [familyName, setFamilyName] = useState<string>('');
@@ -36,6 +38,7 @@ export function RsvpModal({
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
+      setStep(initialMode === 'attend' ? 1 : 2);
       setRsvpType('individual');
       setMembers(['']);
       setFamilyName('');
@@ -252,11 +255,151 @@ export function RsvpModal({
                 Listo
               </button>
             </div>
+          ) : mode === 'attend' && step === 1 ? (
+            /* Paso 1: Elegir el tipo de asistencia */
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+              <div style={{ padding: '2rem 1.5rem 0.5rem 1.5rem', flexShrink: 0, textAlign: 'center' }}>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: primaryColor,
+                    marginBottom: '0.3rem',
+                  }}
+                >
+                  {eventTitle || 'Confirmación de Asistencia'}
+                </span>
+                <h2
+                  style={{
+                    fontSize: '1.35rem',
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    margin: 0,
+                    fontFamily: headingFont,
+                  }}
+                >
+                  ¿Venís solo/a o con tu familia?
+                </h2>
+              </div>
+              
+              <div style={{ padding: '1.5rem 1.5rem 2rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRsvpType('individual');
+                    setMembers([members[0] || '']);
+                    setStep(2);
+                  }}
+                  style={{
+                    padding: '1.25rem',
+                    borderRadius: '0.85rem',
+                    border: '2px solid #e2e8f0',
+                    backgroundColor: '#ffffff',
+                    color: '#334155',
+                    fontWeight: 700,
+                    fontSize: '1.05rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = primaryColor)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                >
+                  <span style={{ fontSize: '1.75rem' }}>👤</span>
+                  Asistiré individualmente
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRsvpType('family');
+                    if (members.length < 2) {
+                      setMembers((prev) => (prev[0] ? [prev[0], ''] : ['', '']));
+                    }
+                    setStep(2);
+                  }}
+                  style={{
+                    padding: '1.25rem',
+                    borderRadius: '0.85rem',
+                    border: '2px solid #e2e8f0',
+                    backgroundColor: '#ffffff',
+                    color: '#334155',
+                    fontWeight: 700,
+                    fontSize: '1.05rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = primaryColor)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                >
+                  <span style={{ fontSize: '1.75rem' }}>👥</span>
+                  Asistiré con mi grupo / familia
+                </button>
+              </div>
+
+              <div
+                style={{
+                  padding: '1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1.5rem',
+                  borderTop: '1px solid #f1f5f9',
+                  textAlign: 'center',
+                  backgroundColor: '#ffffff'
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{
+                    padding: '0.5rem 1.5rem',
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748b',
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           ) : (
-            /* Formulario */
+            /* Formulario (Paso 2) */
             <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
               {/* Encabezado Fijo Arriba */}
-              <div style={{ padding: '1.25rem 1.5rem 0.25rem 1.5rem', flexShrink: 0, textAlign: 'center' }}>
+              <div style={{ padding: '1.25rem 1.5rem 0.25rem 1.5rem', flexShrink: 0, textAlign: 'center', position: 'relative' }}>
+                {mode === 'attend' && (
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    style={{
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '1.25rem',
+                      background: 'none',
+                      border: 'none',
+                      color: primaryColor,
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.2rem'
+                    }}
+                  >
+                    ← Volver
+                  </button>
+                )}
                 <span
                   style={{
                     display: 'inline-block',
@@ -279,139 +422,12 @@ export function RsvpModal({
                     fontFamily: headingFont,
                   }}
                 >
-                  {mode === 'attend' ? '¿Nos vas a acompañar?' : 'Avisar que no podré asistir'}
+                  {mode === 'attend' ? 'Completá tus datos' : 'Avisar que no podré asistir'}
                 </h2>
               </div>
 
               {/* Contenido scrolleable del formulario */}
-              <div style={{ padding: '0.5rem 1.5rem 0.75rem 1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
-
-            {/* Alternador de Modo: Asistiré / No asistiré */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.4rem',
-                backgroundColor: '#f1f5f9',
-                padding: '0.3rem',
-                borderRadius: '0.6rem',
-                marginBottom: '1.25rem',
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('attend');
-                  setErrorMsg(null);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '0.55rem 0.4rem',
-                  borderRadius: '0.45rem',
-                  border: 'none',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  backgroundColor: mode === 'attend' ? '#ffffff' : 'transparent',
-                  color: mode === 'attend' ? primaryColor : '#64748b',
-                  boxShadow: mode === 'attend' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                Sí, asistiré
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('decline');
-                  setErrorMsg(null);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '0.55rem 0.4rem',
-                  borderRadius: '0.45rem',
-                  border: 'none',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  backgroundColor: mode === 'decline' ? '#ffffff' : 'transparent',
-                  color: mode === 'decline' ? '#dc2626' : '#64748b',
-                  boxShadow: mode === 'decline' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                No podré asistir
-              </button>
-            </div>
-
-            {/* Si asistirá: Selección Individual o Familia */}
-            {mode === 'attend' && (
-              <div style={{ marginBottom: '1rem' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    color: '#334155',
-                    marginBottom: '0.4rem',
-                  }}
-                >
-                  ¿Venís solo/a o con tu familia?
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRsvpType('individual');
-                      setMembers([members[0] || '']);
-                    }}
-                    style={{
-                      padding: '0.75rem 0.4rem',
-                      borderRadius: '0.6rem',
-                      border: rsvpType === 'individual' ? `2px solid ${primaryColor}` : '2px solid #e2e8f0',
-                      backgroundColor: rsvpType === 'individual' ? `${primaryColor}10` : '#ffffff',
-                      color: rsvpType === 'individual' ? primaryColor : '#475569',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.2rem',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    Individual
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRsvpType('family');
-                      if (members.length < 2) {
-                        setMembers((prev) => (prev[0] ? [prev[0], ''] : ['', '']));
-                      }
-                    }}
-                    style={{
-                      padding: '0.75rem 0.4rem',
-                      borderRadius: '0.6rem',
-                      border: rsvpType === 'family' ? `2px solid ${primaryColor}` : '2px solid #e2e8f0',
-                      backgroundColor: rsvpType === 'family' ? `${primaryColor}10` : '#ffffff',
-                      color: rsvpType === 'family' ? primaryColor : '#475569',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.2rem',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    Familia / Grupo
-                  </button>
-                </div>
-              </div>
-            )}
+              <div style={{ padding: '1rem 1.5rem 0.75rem 1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
 
             {/* Campos según modo y tipo */}
             {mode === 'attend' ? (
@@ -780,8 +796,8 @@ export function RsvpModal({
                 </button>
               </div>
             </form>
-        )}
-      </div>
+          )}
+        </div>
     </div>
   );
 }
