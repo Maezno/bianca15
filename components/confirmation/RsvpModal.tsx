@@ -711,7 +711,7 @@ export function RsvpModal({
             )}
 
             {/* Botón LISTO */}
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', position: 'relative', zIndex: 10 }}>
               <button
                 type="submit"
                 disabled={isPending}
@@ -725,6 +725,7 @@ export function RsvpModal({
                   fontSize: '1.05rem',
                   fontWeight: 700,
                   cursor: isPending ? 'wait' : 'pointer',
+                  pointerEvents: 'auto',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                   transition: 'opacity 0.15s, transform 0.1s',
                   display: 'flex',
@@ -754,6 +755,7 @@ export function RsvpModal({
                   color: '#64748b',
                   fontSize: '0.95rem',
                   fontWeight: 600,
+                  pointerEvents: 'auto',
                   cursor: isPending ? 'not-allowed' : 'pointer',
                 }}
               >
