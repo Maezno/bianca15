@@ -256,11 +256,11 @@ export function RsvpModal({
             /* Formulario */
             <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
               {/* Encabezado Fijo Arriba */}
-              <div style={{ padding: '1.5rem 1.75rem 0.5rem 1.75rem', flexShrink: 0, textAlign: 'center' }}>
+              <div style={{ padding: '1.25rem 1.5rem 0.25rem 1.5rem', flexShrink: 0, textAlign: 'center' }}>
                 <span
                   style={{
                     display: 'inline-block',
-                    fontSize: '0.75rem',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
@@ -272,7 +272,7 @@ export function RsvpModal({
                 </span>
                 <h2
                   style={{
-                    fontSize: '1.4rem',
+                    fontSize: '1.25rem',
                     fontWeight: 800,
                     color: '#0f172a',
                     margin: 0,
@@ -284,17 +284,17 @@ export function RsvpModal({
               </div>
 
               {/* Contenido scrolleable del formulario */}
-              <div style={{ padding: '0.5rem 1.75rem 1rem 1.75rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
+              <div style={{ padding: '0.5rem 1.5rem 0.75rem 1.5rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
 
             {/* Alternador de Modo: Asistiré / No asistiré */}
             <div
               style={{
                 display: 'flex',
-                gap: '0.5rem',
+                gap: '0.4rem',
                 backgroundColor: '#f1f5f9',
-                padding: '0.35rem',
-                borderRadius: '0.75rem',
-                marginBottom: '1.5rem',
+                padding: '0.3rem',
+                borderRadius: '0.6rem',
+                marginBottom: '1.25rem',
               }}
             >
               <button
@@ -305,10 +305,10 @@ export function RsvpModal({
                 }}
                 style={{
                   flex: 1,
-                  padding: '0.6rem 0.5rem',
-                  borderRadius: '0.5rem',
+                  padding: '0.55rem 0.4rem',
+                  borderRadius: '0.45rem',
                   border: 'none',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   backgroundColor: mode === 'attend' ? '#ffffff' : 'transparent',
@@ -327,10 +327,10 @@ export function RsvpModal({
                 }}
                 style={{
                   flex: 1,
-                  padding: '0.6rem 0.5rem',
-                  borderRadius: '0.5rem',
+                  padding: '0.55rem 0.4rem',
+                  borderRadius: '0.45rem',
                   border: 'none',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   backgroundColor: mode === 'decline' ? '#ffffff' : 'transparent',
@@ -345,19 +345,19 @@ export function RsvpModal({
 
             {/* Si asistirá: Selección Individual o Familia */}
             {mode === 'attend' && (
-              <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <label
                   style={{
                     display: 'block',
-                    fontSize: '0.85rem',
+                    fontSize: '0.8rem',
                     fontWeight: 700,
                     color: '#334155',
-                    marginBottom: '0.5rem',
+                    marginBottom: '0.4rem',
                   }}
                 >
                   ¿Venís solo/a o con tu familia?
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <button
                     type="button"
                     onClick={() => {
@@ -365,18 +365,18 @@ export function RsvpModal({
                       setMembers([members[0] || '']);
                     }}
                     style={{
-                      padding: '0.85rem 0.5rem',
-                      borderRadius: '0.75rem',
+                      padding: '0.75rem 0.4rem',
+                      borderRadius: '0.6rem',
                       border: rsvpType === 'individual' ? `2px solid ${primaryColor}` : '2px solid #e2e8f0',
                       backgroundColor: rsvpType === 'individual' ? `${primaryColor}10` : '#ffffff',
                       color: rsvpType === 'individual' ? primaryColor : '#475569',
                       fontWeight: 700,
-                      fontSize: '0.95rem',
+                      fontSize: '0.9rem',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '0.25rem',
+                      gap: '0.2rem',
                       transition: 'all 0.15s ease',
                     }}
                   >
@@ -392,18 +392,18 @@ export function RsvpModal({
                       }
                     }}
                     style={{
-                      padding: '0.85rem 0.5rem',
-                      borderRadius: '0.75rem',
+                      padding: '0.75rem 0.4rem',
+                      borderRadius: '0.6rem',
                       border: rsvpType === 'family' ? `2px solid ${primaryColor}` : '2px solid #e2e8f0',
                       backgroundColor: rsvpType === 'family' ? `${primaryColor}10` : '#ffffff',
                       color: rsvpType === 'family' ? primaryColor : '#475569',
                       fontWeight: 700,
-                      fontSize: '0.95rem',
+                      fontSize: '0.9rem',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '0.25rem',
+                      gap: '0.2rem',
                       transition: 'all 0.15s ease',
                     }}
                   >
@@ -417,15 +417,15 @@ export function RsvpModal({
             {mode === 'attend' ? (
               rsvpType === 'individual' ? (
                 /* Individual: una sola línea con Nombre y Apellido */
-                <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                   <label
                     htmlFor="rsvp-single-name"
                     style={{
                       display: 'block',
-                      fontSize: '0.875rem',
+                      fontSize: '0.8rem',
                       fontWeight: 700,
                       color: '#334155',
-                      marginBottom: '0.35rem',
+                      marginBottom: '0.3rem',
                     }}
                   >
                     Nombre y Apellido
@@ -440,10 +440,10 @@ export function RsvpModal({
                     style={{
                       width: '100%',
                       boxSizing: 'border-box',
-                      padding: '0.85rem 1rem',
-                      borderRadius: '0.75rem',
+                      padding: '0.7rem 0.85rem',
+                      borderRadius: '0.6rem',
                       border: '2px solid #e2e8f0',
-                      fontSize: '1rem',
+                      fontSize: '0.95rem',
                       color: '#0f172a',
                       outline: 'none',
                       transition: 'border-color 0.15s ease',
@@ -454,16 +454,16 @@ export function RsvpModal({
                 </div>
               ) : (
                 /* Familia: Nombre de familia + lista de integrantes en una sola línea */
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ marginBottom: '0.6rem' }}>
                     <label
                       htmlFor="rsvp-family-name"
                       style={{
                         display: 'block',
-                        fontSize: '0.875rem',
+                        fontSize: '0.8rem',
                         fontWeight: 700,
                         color: '#334155',
-                        marginBottom: '0.35rem',
+                        marginBottom: '0.3rem',
                       }}
                     >
                       Nombre de la Familia o Grupo (opcional)
@@ -477,10 +477,10 @@ export function RsvpModal({
                       style={{
                         width: '100%',
                         boxSizing: 'border-box',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '0.75rem',
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '0.6rem',
                         border: '2px solid #e2e8f0',
-                        fontSize: '0.95rem',
+                        fontSize: '0.9rem',
                         color: '#0f172a',
                         outline: 'none',
                         transition: 'border-color 0.15s ease',
@@ -493,23 +493,23 @@ export function RsvpModal({
                   <label
                     style={{
                       display: 'block',
-                      fontSize: '0.875rem',
+                      fontSize: '0.8rem',
                       fontWeight: 700,
                       color: '#334155',
-                      marginBottom: '0.5rem',
+                      marginBottom: '0.4rem',
                     }}
                   >
                     Integrantes que asistirán
                   </label>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     {members.map((member, idx) => (
                       <div
                         key={idx}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.5rem',
+                          gap: '0.4rem',
                           animation: 'fadeIn 0.2s ease-out forwards',
                         }}
                       >
@@ -521,10 +521,10 @@ export function RsvpModal({
                           style={{
                             flex: 1,
                             boxSizing: 'border-box',
-                            padding: '0.8rem 1rem',
-                            borderRadius: '0.75rem',
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '0.6rem',
                             border: '2px solid #e2e8f0',
-                            fontSize: '0.95rem',
+                            fontSize: '0.9rem',
                             color: '#0f172a',
                             outline: 'none',
                             transition: 'border-color 0.15s ease',
@@ -539,8 +539,8 @@ export function RsvpModal({
                             aria-label={`Quitar integrante ${idx + 1}`}
                             title="Quitar integrante"
                             style={{
-                              padding: '0.75rem',
-                              borderRadius: '0.6rem',
+                              padding: '0.65rem',
+                              borderRadius: '0.5rem',
                               border: 'none',
                               backgroundColor: '#fee2e2',
                               color: '#ef4444',
@@ -548,7 +548,7 @@ export function RsvpModal({
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '1rem',
+                              fontSize: '0.9rem',
                               lineHeight: 1,
                               fontWeight: 700,
                             }}
@@ -561,20 +561,20 @@ export function RsvpModal({
                   </div>
 
                   {/* Botón + para agregar integrantes sin límite debajo del primer integrante */}
-                  <div style={{ marginTop: '0.75rem' }}>
+                  <div style={{ marginTop: '0.6rem' }}>
                     <button
                       type="button"
                       onClick={handleAddMember}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.65rem 1.15rem',
-                        borderRadius: '0.75rem',
+                        gap: '0.4rem',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.6rem',
                         border: `2px dashed ${primaryColor}`,
                         backgroundColor: `${primaryColor}08`,
                         color: primaryColor,
-                        fontSize: '0.9rem',
+                        fontSize: '0.85rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         transition: 'background-color 0.15s, transform 0.1s',
@@ -582,7 +582,7 @@ export function RsvpModal({
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = `${primaryColor}18`)}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = `${primaryColor}08`)}
                     >
-                      <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>+</span>
+                      <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span>
                       Agregar otro integrante
                     </button>
                   </div>
@@ -590,15 +590,15 @@ export function RsvpModal({
               )
             ) : (
               /* Modo declinar: pide nombre y apellido o familia */
-              <div style={{ marginBottom: '1.25rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <label
                   htmlFor="decline-name"
                   style={{
                     display: 'block',
-                    fontSize: '0.875rem',
+                    fontSize: '0.8rem',
                     fontWeight: 700,
                     color: '#334155',
-                    marginBottom: '0.35rem',
+                    marginBottom: '0.3rem',
                   }}
                 >
                   Nombre y Apellido o Familia
@@ -615,10 +615,10 @@ export function RsvpModal({
                   style={{
                     width: '100%',
                     boxSizing: 'border-box',
-                    padding: '0.85rem 1rem',
-                    borderRadius: '0.75rem',
+                    padding: '0.7rem 0.85rem',
+                    borderRadius: '0.6rem',
                     border: '2px solid #e2e8f0',
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     color: '#0f172a',
                     outline: 'none',
                   }}
@@ -627,15 +627,15 @@ export function RsvpModal({
             )}
 
             {/* Teléfono de contacto opcional */}
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '0.8rem' }}>
               <label
                 htmlFor="rsvp-phone"
                 style={{
                   display: 'block',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   color: '#64748b',
-                  marginBottom: '0.25rem',
+                  marginBottom: '0.2rem',
                 }}
               >
                 Teléfono / WhatsApp (opcional)
@@ -649,10 +649,10 @@ export function RsvpModal({
                 style={{
                   width: '100%',
                   boxSizing: 'border-box',
-                  padding: '0.7rem 1rem',
-                  borderRadius: '0.65rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '0.55rem',
                   border: '1px solid #cbd5e1',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: '#0f172a',
                   outline: 'none',
                 }}
@@ -660,15 +660,15 @@ export function RsvpModal({
             </div>
 
             {/* Mensaje o dedicatoria opcional */}
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <label
                 htmlFor="rsvp-comment"
                 style={{
                   display: 'block',
-                  fontSize: '0.8rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   color: '#64748b',
-                  marginBottom: '0.25rem',
+                  marginBottom: '0.2rem',
                 }}
               >
                 Mensaje o dedicatoria (opcional)
@@ -682,14 +682,14 @@ export function RsvpModal({
                 style={{
                   width: '100%',
                   boxSizing: 'border-box',
-                  padding: '0.7rem 1rem',
-                  borderRadius: '0.65rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '0.55rem',
                   border: '1px solid #cbd5e1',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: '#0f172a',
                   outline: 'none',
                   resize: 'vertical',
-                  minHeight: '60px',
+                  minHeight: '50px',
                 }}
               />
             </div>
@@ -702,10 +702,10 @@ export function RsvpModal({
                   backgroundColor: '#fee2e2',
                   border: '1px solid #f87171',
                   color: '#b91c1c',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.65rem',
-                  fontSize: '0.875rem',
-                  marginBottom: '1.25rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '0.55rem',
+                  fontSize: '0.8rem',
+                  marginBottom: '1rem',
                 }}
               >
                 {errorMsg}
@@ -717,12 +717,12 @@ export function RsvpModal({
               {/* Botones Fijos Abajo: Siempre visibles sin necesidad de scrollear */}
               <div
                 style={{
-                  padding: '1rem 1.75rem calc(1rem + env(safe-area-inset-bottom)) 1.75rem',
+                  padding: '0.75rem 1.5rem calc(0.75rem + env(safe-area-inset-bottom, 0px)) 1.5rem',
                   borderTop: '1px solid #f1f5f9',
                   backgroundColor: '#ffffff',
                   boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.04)',
                   display: 'flex',
-                  gap: '0.75rem',
+                  gap: '0.6rem',
                   flexShrink: 0,
                   position: 'relative',
                   zIndex: 20,
@@ -734,12 +734,12 @@ export function RsvpModal({
                   disabled={isPending}
                   style={{
                     flex: 1,
-                    padding: '0.95rem 1.5rem',
-                    borderRadius: '0.85rem',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.7rem',
                     border: 'none',
                     backgroundColor: mode === 'attend' ? primaryColor : '#475569',
                     color: '#ffffff',
-                    fontSize: '1.05rem',
+                    fontSize: '0.95rem',
                     fontWeight: 700,
                     cursor: isPending ? 'wait' : 'pointer',
                     pointerEvents: 'auto',
@@ -748,7 +748,7 @@ export function RsvpModal({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
+                    gap: '0.4rem',
                   }}
                   onMouseEnter={(e) => {
                     if (!isPending) e.currentTarget.style.opacity = '0.92';
@@ -765,12 +765,12 @@ export function RsvpModal({
                   onClick={onClose}
                   disabled={isPending}
                   style={{
-                    padding: '0.95rem 1.25rem',
-                    borderRadius: '0.85rem',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.7rem',
                     border: '1px solid #e2e8f0',
                     backgroundColor: '#f8fafc',
                     color: '#64748b',
-                    fontSize: '0.95rem',
+                    fontSize: '0.9rem',
                     fontWeight: 600,
                     pointerEvents: 'auto',
                     cursor: isPending ? 'not-allowed' : 'pointer',
