@@ -140,23 +140,24 @@ export function ConfirmationSection({
             ? 'none'
             : '0 12px 36px rgba(0, 0, 0, 0.12)',
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
-        {/* Decorador sutil en el fondo de la tarjeta */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '-50px',
-            right: '-50px',
-            width: '140px',
-            height: '140px',
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${theme.colors.primary}25 0%, transparent 70%)`,
-            pointerEvents: 'none',
-          }}
-        />
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: 'inherit', pointerEvents: 'none' }}>
+          {/* Decorador sutil en el fondo de la tarjeta */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '-50px',
+              right: '-50px',
+              width: '140px',
+              height: '140px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${theme.colors.primary}25 0%, transparent 70%)`,
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
 
         <div
           style={{
