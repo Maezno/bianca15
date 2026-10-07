@@ -138,123 +138,123 @@ export function RsvpModal({
         }
       }}
     >
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          maxWidth: '520px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          backgroundColor: '#ffffff',
-          borderRadius: '1.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.05)',
-          padding: '2rem 1.75rem',
-          fontFamily: 'Inter, system-ui, sans-serif',
-          color: '#1e293b',
-          animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Botón cerrar */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
+        <div
           style={{
-            position: 'absolute',
-            top: '1.25rem',
-            right: '1.25rem',
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '50%',
-            border: 'none',
-            backgroundColor: '#f1f5f9',
-            color: '#64748b',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.15s, color 0.15s',
+            position: 'relative',
+            width: '100%',
+            maxWidth: '520px',
+            maxHeight: '85dvh',
+            overflowY: 'auto',
+            backgroundColor: '#ffffff',
+            borderRadius: '1.5rem',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.05)',
+            padding: '2rem 1.75rem 3rem 1.75rem',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            color: '#1e293b',
+            animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#e2e8f0';
-            e.currentTarget.style.color = '#0f172a';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#f1f5f9';
-            e.currentTarget.style.color = '#64748b';
-          }}
+          onClick={(e) => e.stopPropagation()}
         >
-          ✕
-        </button>
+          {/* Botón cerrar */}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            style={{
+              position: 'absolute',
+              top: '1.25rem',
+              right: '1.25rem',
+              width: '2rem',
+              height: '2rem',
+              borderRadius: '50%',
+              border: 'none',
+              backgroundColor: '#f1f5f9',
+              color: '#64748b',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background-color 0.15s, color 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e2e8f0';
+              e.currentTarget.style.color = '#0f172a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f1f5f9';
+              e.currentTarget.style.color = '#64748b';
+            }}
+          >
+            ✕
+          </button>
 
-        {isSuccess ? (
-          /* Pantalla de confirmación exitosa */
-          <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: mode === 'attend' ? '#dcfce7' : '#f1f5f9',
-                color: mode === 'attend' ? '#16a34a' : '#64748b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-                margin: '0 auto 1rem auto',
-                fontWeight: 700,
-              }}
-            >
-              {mode === 'attend' ? '✓' : '—'}
+          {isSuccess ? (
+            /* Pantalla de confirmación exitosa */
+            <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
+              <div
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: mode === 'attend' ? '#dcfce7' : '#f1f5f9',
+                  color: mode === 'attend' ? '#16a34a' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem',
+                  margin: '0 auto 1rem auto',
+                  fontWeight: 700,
+                }}
+              >
+                {mode === 'attend' ? '✓' : '—'}
+              </div>
+              <h3
+                style={{
+                  fontSize: '1.6rem',
+                  fontWeight: 800,
+                  color: mode === 'attend' ? '#166534' : '#334155',
+                  marginBottom: '0.75rem',
+                  fontFamily: headingFont,
+                }}
+              >
+                {mode === 'attend' ? '¡Asistencia Confirmada!' : 'Gracias por avisarnos'}
+              </h3>
+              <p
+                style={{
+                  fontSize: '1rem',
+                  color: '#475569',
+                  lineHeight: 1.6,
+                  marginBottom: '1.75rem',
+                }}
+              >
+                {mode === 'attend'
+                  ? `¡Qué alegría contar con vos${rsvpType === 'family' ? ' y tu familia' : ''}! Nos vemos para celebrar mis 15.`
+                  : 'Lamentamos que no puedas acompañarnos, ¡pero te agradecemos mucho por avisar!'}
+              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '0.85rem 2rem',
+                  borderRadius: '999px',
+                  border: 'none',
+                  backgroundColor: primaryColor,
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                }}
+              >
+                Listo
+              </button>
             </div>
-            <h3
-              style={{
-                fontSize: '1.6rem',
-                fontWeight: 800,
-                color: mode === 'attend' ? '#166534' : '#334155',
-                marginBottom: '0.75rem',
-                fontFamily: headingFont,
-              }}
-            >
-              {mode === 'attend' ? '¡Asistencia Confirmada!' : 'Gracias por avisarnos'}
-            </h3>
-            <p
-              style={{
-                fontSize: '1rem',
-                color: '#475569',
-                lineHeight: 1.6,
-                marginBottom: '1.75rem',
-              }}
-            >
-              {mode === 'attend'
-                ? `¡Qué alegría contar con vos${rsvpType === 'family' ? ' y tu familia' : ''}! Nos vemos para celebrar mis 15.`
-                : 'Lamentamos que no puedas acompañarnos, ¡pero te agradecemos mucho por avisar!'}
-            </p>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '0.85rem 2rem',
-                borderRadius: '999px',
-                border: 'none',
-                backgroundColor: primaryColor,
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-              }}
-            >
-              Listo
-            </button>
-          </div>
-        ) : (
-          /* Formulario */
-          <form onSubmit={handleSubmit}>
-            {/* Encabezado */}
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          ) : (
+            /* Formulario */
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Encabezado */}
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <span
                 style={{
                   display: 'inline-block',
