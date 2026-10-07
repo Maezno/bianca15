@@ -46,7 +46,7 @@ export async function submitPublicRsvp(payload: PublicRsvpPayload): Promise<Publ
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   // Si Supabase está disponible, intentamos persistir directamente en PostgreSQL
   if (supabaseUrl && supabaseKey) {

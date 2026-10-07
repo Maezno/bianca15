@@ -15,7 +15,7 @@ export async function getAdminGuestGroups(
 ): Promise<AdminGuestGroupItem[]> {
   await requireAdmin();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     const demoGroups = loadDemoGuestGroups();
@@ -42,6 +42,10 @@ export async function getAdminGuestGroups(
       `)
       .eq('event_id', eventId)
       .order('name', { ascending: true });
+
+    if (error) {
+      console.error('[getAdminGuestGroups] Error querying Supabase:', error);
+    }
 
     if (error || !groups) {
       const demoGroups = loadDemoGuestGroups();
@@ -125,7 +129,7 @@ export async function createAdminGuestGroup(
 
   const token = generateToken();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return { success: true, groupId: 'demo-new-group-id' };
