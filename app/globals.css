@@ -384,6 +384,7 @@ body {
   :root,
   .invitation-card-item {
     --desktop-btn-scale: 1 !important;
+    --mobile-btn-offset-ratio: 0.65 !important;
   }
 
   .invitation-card-item {
@@ -394,12 +395,14 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
     background-size: var(--bg-size-mobile, 100% auto) !important;
+    overflow: visible !important;
   }
 
   /* En modo fijo, si hay --section-height-mobile definido, sobrescribe el alto del wrapper */
   [id^="section-"][style*="--section-height-mobile"] {
     height: var(--section-height-mobile) !important;
     max-height: var(--section-height-mobile) !important;
+    overflow: visible !important;
   }
 }
 

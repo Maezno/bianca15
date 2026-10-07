@@ -143,12 +143,13 @@ export function RsvpModal({
             position: 'relative',
             width: '100%',
             maxWidth: '520px',
-            maxHeight: '85dvh',
-            overflowY: 'auto',
+            maxHeight: '90dvh',
+            display: 'flex',
+            flexDirection: 'column',
             backgroundColor: '#ffffff',
             borderRadius: '1.5rem',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.05)',
-            padding: '2rem 1.75rem 3rem 1.75rem',
+            overflow: 'hidden',
             fontFamily: 'Inter, system-ui, sans-serif',
             color: '#1e293b',
             animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -176,6 +177,7 @@ export function RsvpModal({
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'background-color 0.15s, color 0.15s',
+              zIndex: 30,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#e2e8f0';
@@ -191,7 +193,7 @@ export function RsvpModal({
 
           {isSuccess ? (
             /* Pantalla de confirmación exitosa */
-            <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
+            <div style={{ textAlign: 'center', padding: '2.5rem 1.75rem', overflowY: 'auto' }}>
               <div
                 style={{
                   width: '64px',
@@ -252,34 +254,37 @@ export function RsvpModal({
             </div>
           ) : (
             /* Formulario */
-            <form onSubmit={handleSubmit} noValidate>
-              {/* Encabezado */}
-              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <span
-                style={{
-                  display: 'inline-block',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: primaryColor,
-                  marginBottom: '0.35rem',
-                }}
-              >
-                {eventTitle || 'Confirmación de Asistencia'}
-              </span>
-              <h2
-                style={{
-                  fontSize: '1.5rem',
-                  fontWeight: 800,
-                  color: '#0f172a',
-                  margin: 0,
-                  fontFamily: headingFont,
-                }}
-              >
-                {mode === 'attend' ? '¿Nos vas a acompañar?' : 'Avisar que no podré asistir'}
-              </h2>
-            </div>
+            <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+              {/* Encabezado Fijo Arriba */}
+              <div style={{ padding: '1.5rem 1.75rem 0.5rem 1.75rem', flexShrink: 0, textAlign: 'center' }}>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: primaryColor,
+                    marginBottom: '0.25rem',
+                  }}
+                >
+                  {eventTitle || 'Confirmación de Asistencia'}
+                </span>
+                <h2
+                  style={{
+                    fontSize: '1.4rem',
+                    fontWeight: 800,
+                    color: '#0f172a',
+                    margin: 0,
+                    fontFamily: headingFont,
+                  }}
+                >
+                  {mode === 'attend' ? '¿Nos vas a acompañar?' : 'Avisar que no podré asistir'}
+                </h2>
+              </div>
+
+              {/* Contenido scrolleable del formulario */}
+              <div style={{ padding: '0.5rem 1.75rem 1rem 1.75rem', overflowY: 'auto', flex: 1, minHeight: 0 }}>
 
             {/* Alternador de Modo: Asistiré / No asistiré */}
             <div
@@ -710,59 +715,73 @@ export function RsvpModal({
               </div>
             )}
 
-            {/* Botón LISTO */}
-            <div style={{ display: 'flex', gap: '0.75rem', position: 'relative', zIndex: 10 }}>
-              <button
-                type="submit"
-                disabled={isPending}
-                style={{
-                  flex: 1,
-                  padding: '0.95rem 1.5rem',
-                  borderRadius: '0.85rem',
-                  border: 'none',
-                  backgroundColor: mode === 'attend' ? primaryColor : '#475569',
-                  color: '#ffffff',
-                  fontSize: '1.05rem',
-                  fontWeight: 700,
-                  cursor: isPending ? 'wait' : 'pointer',
-                  pointerEvents: 'auto',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  transition: 'opacity 0.15s, transform 0.1s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isPending) e.currentTarget.style.opacity = '0.92';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isPending) e.currentTarget.style.opacity = '1';
-                }}
-              >
-                {isPending ? 'Guardando...' : 'Listo, confirmar'}
-              </button>
+              </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isPending}
+              {/* Botones Fijos Abajo: Siempre visibles sin necesidad de scrollear */}
+              <div
                 style={{
-                  padding: '0.95rem 1.25rem',
-                  borderRadius: '0.85rem',
-                  border: '1px solid #e2e8f0',
-                  backgroundColor: '#f8fafc',
-                  color: '#64748b',
-                  fontSize: '0.95rem',
-                  fontWeight: 600,
-                  pointerEvents: 'auto',
-                  cursor: isPending ? 'not-allowed' : 'pointer',
+                  padding: '1rem 1.75rem',
+                  borderTop: '1px solid #f1f5f9',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.04)',
+                  display: 'flex',
+                  gap: '0.75rem',
+                  flexShrink: 0,
+                  position: 'relative',
+                  zIndex: 20,
                 }}
               >
-                Cancelar
-              </button>
-            </div>
-          </form>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  style={{
+                    flex: 1,
+                    padding: '0.95rem 1.5rem',
+                    borderRadius: '0.85rem',
+                    border: 'none',
+                    backgroundColor: mode === 'attend' ? primaryColor : '#475569',
+                    color: '#ffffff',
+                    fontSize: '1.05rem',
+                    fontWeight: 700,
+                    cursor: isPending ? 'wait' : 'pointer',
+                    pointerEvents: 'auto',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    transition: 'opacity 0.15s, transform 0.1s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isPending) e.currentTarget.style.opacity = '0.92';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isPending) e.currentTarget.style.opacity = '1';
+                  }}
+                >
+                  {isPending ? 'Guardando...' : 'Listo, confirmar'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isPending}
+                  style={{
+                    padding: '0.95rem 1.25rem',
+                    borderRadius: '0.85rem',
+                    border: '1px solid #e2e8f0',
+                    backgroundColor: '#f8fafc',
+                    color: '#64748b',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    pointerEvents: 'auto',
+                    cursor: isPending ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
         )}
       </div>
     </div>

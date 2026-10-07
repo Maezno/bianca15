@@ -75,11 +75,14 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
         background: theme.colors.surface,
         borderRadius: '1.25rem',
         border: `1px solid ${theme.colors.border}`,
-        padding: '1.75rem',
+        padding: (sectionStyle?.noBackground || sectionStyle?.backgroundImage) ? '0.5rem 0.25rem' : '1.75rem',
         textAlign: 'center',
         boxShadow: (theme.colors.surface === 'transparent' || theme.styles?.cardShadow === 'none')
           ? 'none'
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
+        width: '100%',
+        boxSizing: 'border-box',
+        overflow: 'visible',
       }}
     >
       <div
@@ -179,8 +182,14 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
           style={{
             display: 'flex',
             justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
+            alignItems: 'center',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            position: 'relative',
+            zIndex: 5,
             transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
-              ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
+              ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, var(--mobile-btn-offset-ratio, 0.65))))`
               : undefined,
             transition: 'transform 0.15s ease',
           }}

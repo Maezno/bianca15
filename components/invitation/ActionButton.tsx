@@ -68,7 +68,7 @@ export function ActionButton({
       minHeight: backgroundImage
         ? `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`
         : `calc(44px * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15)))`,
-      maxWidth: '100%',
+      maxWidth: 'min(100%, calc(100vw - 32px))',
       textAlign: 'center',
       position: 'relative',
     };
