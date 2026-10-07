@@ -48,7 +48,18 @@ export async function POST(request: NextRequest) {
       
       if (!error) {
         attempts.delete(ip);
-        return NextResponse.json({ success: true });
+        const token = await createSessionToken();
+        const response = NextResponse.json({ success: true });
+        if (token) {
+          response.cookies.set(SESSION_COOKIE, token, {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: 'lax',
+            maxAge: SESSION_MAX_AGE_S,
+            path: '/',
+          });
+        }
+        return response;
       } else {
         return NextResponse.json({ success: false, error: error.message || 'Error de credenciales en Supabase' }, { status: 401 });
       }
