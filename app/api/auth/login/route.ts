@@ -37,21 +37,24 @@ export async function POST(request: NextRequest) {
   const isEmail = username.includes('@');
   
   // Try Supabase Auth first if it's an email
-  if (isEmail && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+  if (isEmail && process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     try {
       const { createClient } = await import('@/utils/supabase/server');
       const { cookies } = await import('next/headers');
       const cookieStore = await cookies();
       const supabase = createClient(cookieStore);
       
-      const { error } = await supabase.auth.signInWithPassword({ email: username, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: username.trim(), password });
       
       if (!error) {
         attempts.delete(ip);
         return NextResponse.json({ success: true });
+      } else {
+        return NextResponse.json({ success: false, error: error.message || 'Error de credenciales en Supabase' }, { status: 401 });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Supabase Auth error:', err);
+      return NextResponse.json({ success: false, error: err?.message || 'Error al conectar con Supabase' }, { status: 500 });
     }
   }
 
