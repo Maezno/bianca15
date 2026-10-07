@@ -237,14 +237,14 @@ export function GuestGroupTable({
                 borderRadius: '0.5rem',
                 border: '1px solid #cbd5e1',
                 fontSize: '0.875rem',
-                minWidth: '260px',
+                minWidth: '180px',
                 flex: 1,
                 maxWidth: '400px',
               }}
             />
 
             {/* Filtro por Estado */}
-            <div style={{ display: 'flex', background: '#f1f5f9', padding: '0.2rem', borderRadius: '0.5rem', gap: '0.2rem' }}>
+            <div style={{ display: 'flex', background: '#f1f5f9', padding: '0.2rem', borderRadius: '0.5rem', gap: '0.2rem', flexWrap: 'wrap' }}>
               {(['all', 'confirmed', 'pending', 'declined'] as const).map((st) => {
                 const label = st === 'all' ? 'Todos' : st === 'confirmed' ? 'Confirmados' : st === 'pending' ? 'Pendientes' : 'No asisten';
                 const active = statusFilter === st;
@@ -265,6 +265,8 @@ export function GuestGroupTable({
                       fontWeight: active ? 700 : 500,
                       boxShadow: active ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                       cursor: 'pointer',
+                      flex: '1 1 auto',
+                      textAlign: 'center',
                     }}
                   >
                     {label}
@@ -301,7 +303,7 @@ export function GuestGroupTable({
           </div>
 
           {/* Acciones Globales: Exportar CSV + Nuevo Grupo */}
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '360px' }}>
             <button
               type="button"
               onClick={handleExportCsv}
@@ -315,8 +317,10 @@ export function GuestGroupTable({
                 fontSize: '0.875rem',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '0.4rem',
                 cursor: 'pointer',
+                flex: '1 1 auto',
               }}
             >
               📥 Exportar CSV
@@ -335,9 +339,11 @@ export function GuestGroupTable({
                 fontSize: '0.875rem',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '0.4rem',
                 cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(147, 51, 234, 0.25)',
+                flex: '1 1 auto',
               }}
             >
               <span>+</span> Nuevo Invitado
@@ -345,13 +351,13 @@ export function GuestGroupTable({
           </div>
         </div>
 
-        {/* Tabla de Invitados */}
-        <div className="responsive-table" style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+        {/* Vista Desktop: Tabla horizontal protegida */}
+        <div className="guest-table-desktop" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
                 <th
-                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer' }}
+                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   onClick={() => {
                     if (sortBy === 'name') setSortAsc(!sortAsc);
                     else { setSortBy('name'); setSortAsc(true); }
@@ -360,7 +366,7 @@ export function GuestGroupTable({
                   Invitado / Grupo {sortBy === 'name' ? (sortAsc ? '▲' : '▼') : ''}
                 </th>
                 <th
-                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center' }}
+                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap' }}
                   onClick={() => {
                     if (sortBy === 'max_guests') setSortAsc(!sortAsc);
                     else { setSortBy('max_guests'); setSortAsc(true); }
@@ -368,9 +374,9 @@ export function GuestGroupTable({
                 >
                   Cupo {sortBy === 'max_guests' ? (sortAsc ? '▲' : '▼') : ''}
                 </th>
-                <th style={{ padding: '0.65rem 0.75rem', color: '#475569' }}>Personas</th>
+                <th style={{ padding: '0.65rem 0.75rem', color: '#475569', whiteSpace: 'nowrap' }}>Personas</th>
                 <th
-                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center' }}
+                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap' }}
                   onClick={() => {
                     if (sortBy === 'status') setSortAsc(!sortAsc);
                     else { setSortBy('status'); setSortAsc(true); }
@@ -379,7 +385,7 @@ export function GuestGroupTable({
                   Estado {sortBy === 'status' ? (sortAsc ? '▲' : '▼') : ''}
                 </th>
                 <th
-                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center' }}
+                  style={{ padding: '0.65rem 0.75rem', color: '#475569', cursor: 'pointer', textAlign: 'center', whiteSpace: 'nowrap' }}
                   onClick={() => {
                     if (sortBy === 'confirmed_count') setSortAsc(!sortAsc);
                     else { setSortBy('confirmed_count'); setSortAsc(true); }
@@ -387,7 +393,7 @@ export function GuestGroupTable({
                 >
                   Confirmados {sortBy === 'confirmed_count' ? (sortAsc ? '▲' : '▼') : ''}
                 </th>
-                <th style={{ padding: '0.65rem 0.75rem', color: '#475569', textAlign: 'right' }}>Acciones</th>
+                <th style={{ padding: '0.65rem 0.75rem', color: '#475569', textAlign: 'right', whiteSpace: 'nowrap' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -398,15 +404,15 @@ export function GuestGroupTable({
 
                   const statusBadge =
                     status === 'confirmed' ? (
-                      <span style={{ background: '#dcfce7', color: '#166534', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700 }}>
+                      <span style={{ background: '#dcfce7', color: '#166534', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                         🟢 CONFIRMADO
                       </span>
                     ) : status === 'declined' ? (
-                      <span style={{ background: '#fee2e2', color: '#991b1b', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700 }}>
+                      <span style={{ background: '#fee2e2', color: '#991b1b', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                         🔴 NO ASISTE
                       </span>
                     ) : (
-                      <span style={{ background: '#fef3c7', color: '#92400e', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700 }}>
+                      <span style={{ background: '#fef3c7', color: '#92400e', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                         🟡 PENDIENTE
                       </span>
                     );
@@ -427,7 +433,7 @@ export function GuestGroupTable({
 
                   return (
                     <tr key={g.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td data-label="Invitado / Grupo" style={{ padding: '0.65rem 0.75rem' }}>
+                      <td style={{ padding: '0.65rem 0.75rem' }}>
                         <div
                           onClick={() => setDetailGroup(g)}
                           style={{ fontWeight: 700, color: '#0f172a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
@@ -440,11 +446,11 @@ export function GuestGroupTable({
                         {g.email && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>✉️ {g.email}</div>}
                       </td>
 
-                      <td data-label="Cupo" style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700, color: '#475569' }}>
+                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700, color: '#475569' }}>
                         {g.max_guests}
                       </td>
 
-                      <td data-label="Personas" style={{ padding: '0.65rem 0.75rem' }}>
+                      <td style={{ padding: '0.65rem 0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{ color: '#334155' }}>
                             {g.guests.length > 0
@@ -470,11 +476,11 @@ export function GuestGroupTable({
                         </div>
                       </td>
 
-                      <td data-label="Estado" style={{ padding: '0.65rem 0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center' }}>
                         {statusBadge}
                       </td>
 
-                      <td data-label="Confirmados" style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>
+                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>
                         {status === 'confirmed' ? (
                           <span style={{ color: '#166534' }}>{conf?.guests_count || 0} personas</span>
                         ) : (
@@ -482,8 +488,8 @@ export function GuestGroupTable({
                         )}
                       </td>
 
-                      {/* Acciones Rápidas (Puntos 14, 15, 20, 34, 42 del Hito 8) */}
-                      <td data-label="Acciones" style={{ padding: '0.65rem 0.75rem', textAlign: 'right' }}>
+                      {/* Acciones Rápidas */}
+                      <td style={{ padding: '0.65rem 0.75rem', textAlign: 'right' }}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.25rem', flexWrap: 'wrap' }}>
                           <button
                             type="button"
@@ -603,6 +609,242 @@ export function GuestGroupTable({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Vista Móvil: Tarjetas individuales limpias y espaciosas */}
+        <div className="guest-cards-mobile">
+          {paginated.length > 0 ? (
+            paginated.map((g) => {
+              const conf = g.confirmation;
+              const status = conf?.status || 'pending';
+
+              const statusBadge =
+                status === 'confirmed' ? (
+                  <span style={{ background: '#dcfce7', color: '#166534', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    🟢 CONFIRMADO
+                  </span>
+                ) : status === 'declined' ? (
+                  <span style={{ background: '#fee2e2', color: '#991b1b', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    🔴 NO ASISTE
+                  </span>
+                ) : (
+                  <span style={{ background: '#fef3c7', color: '#92400e', padding: '0.2rem 0.6rem', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    🟡 PENDIENTE
+                  </span>
+                );
+
+              const fullUrl =
+                typeof window !== 'undefined'
+                  ? `${window.location.origin}${g.invitationUrl}`
+                  : g.invitationUrl;
+
+              const waMessage = formatWhatsAppMessage(whatsappTemplate, {
+                guestName: g.guests[0]?.name || g.name,
+                groupName: g.name,
+                allowedGuests: g.max_guests,
+                invitationUrl: fullUrl,
+                eventName,
+              });
+              const waLink = buildWhatsAppLink(g.phone, waMessage);
+
+              return (
+                <div
+                  key={g.id}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '0.85rem',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  {/* Header: Nombre + Estado */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                    <div>
+                      <div
+                        onClick={() => setDetailGroup(g)}
+                        style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <span>{g.name}</span>
+                        <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>↗</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.75rem', background: '#f1f5f9', color: '#475569', padding: '0.15rem 0.5rem', borderRadius: '0.35rem', fontWeight: 600 }}>
+                          Cupo: {g.max_guests} {g.max_guests === 1 ? 'persona' : 'personas'}
+                        </span>
+                        {status === 'confirmed' && (
+                          <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#166534', padding: '0.15rem 0.5rem', borderRadius: '0.35rem', fontWeight: 700 }}>
+                            {conf?.guests_count || 0} confirmados
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ flexShrink: 0 }}>
+                      {statusBadge}
+                    </div>
+                  </div>
+
+                  {/* Detalle: Teléfono / Email / Integrantes */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.82rem', color: '#64748b', background: '#f8fafc', padding: '0.65rem 0.75rem', borderRadius: '0.5rem' }}>
+                    {g.phone && <div>📞 {g.phone}</div>}
+                    {g.email && <div>✉️ {g.email}</div>}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.1rem' }}>
+                      <div style={{ color: '#334155' }}>
+                        <span style={{ fontWeight: 600, color: '#475569' }}>Personas: </span>
+                        {g.guests.length > 0
+                          ? g.guests.map((gu) => gu.name).join(', ')
+                          : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Sin integrantes</span>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPersonsGroup(g)}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          color: '#334155',
+                          fontWeight: 600,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        ✏️ +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Acciones */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', paddingTop: '0.35rem', borderTop: '1px solid #f1f5f9' }}>
+                    <button
+                      type="button"
+                      onClick={() => setDetailGroup(g)}
+                      style={{
+                        flex: '1 1 auto',
+                        minWidth: '70px',
+                        padding: '0.45rem 0.6rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #e2e8f0',
+                        background: '#ffffff',
+                        color: '#334155',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.3rem',
+                      }}
+                    >
+                      👁 Ficha
+                    </button>
+
+                    <a
+                      href={waLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: '1 1 auto',
+                        minWidth: '95px',
+                        padding: '0.45rem 0.6rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #bbf7d0',
+                        background: '#f0fdf4',
+                        color: '#16a34a',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.3rem',
+                      }}
+                    >
+                      💬 WhatsApp
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => setQrGroup(g)}
+                      style={{
+                        padding: '0.45rem 0.65rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #e2e8f0',
+                        background: '#ffffff',
+                        color: '#0f172a',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                      }}
+                      title="Ver Código QR"
+                    >
+                      📱
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDuplicate(g)}
+                      style={{
+                        padding: '0.45rem 0.65rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #e2e8f0',
+                        background: '#ffffff',
+                        color: '#475569',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                      }}
+                      title="Duplicar invitado"
+                    >
+                      📋
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setEditGroup(g)}
+                      style={{
+                        padding: '0.45rem 0.65rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #e2e8f0',
+                        background: '#ffffff',
+                        color: '#475569',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                      }}
+                      title="Editar"
+                    >
+                      ✏️
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(g)}
+                      style={{
+                        padding: '0.45rem 0.65rem',
+                        borderRadius: '0.45rem',
+                        border: '1px solid #fee2e2',
+                        background: '#fff5f5',
+                        color: '#ef4444',
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                      }}
+                      title="Eliminar"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ padding: '2.5rem', textAlign: 'center', color: '#94a3b8', background: '#ffffff', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+              No se encontraron invitados con los filtros seleccionados.
+            </div>
+          )}
         </div>
 
         {/* Paginación */}
