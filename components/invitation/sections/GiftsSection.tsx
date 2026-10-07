@@ -114,43 +114,54 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
             alignItems: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
             justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
             width: '100%',
+            position: 'relative',
             transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
               ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
               : undefined,
             transition: 'transform 0.15s ease',
           }}
         >
-          <ActionButton
-            label={copied ? '¡Copiado al portapapeles!' : 'Copiar Datos / Alias'}
-            icon={copied ? '✓' : '📋'}
-            onClick={handleCopy}
-            variant="secondary"
-            primaryColor={theme.colors.primary}
-            customBg={!hasBgImage && copied ? '#dcfce7' : undefined}
-            customColor={!hasBgImage && copied ? '#15803d' : undefined}
-            backgroundImage={sectionStyle?.buttonBackgroundImage}
-            backgroundScale={sectionStyle?.buttonBackgroundScale}
-            hideLabel={hideLabel}
-          />
-          {copied && hideLabel && (
-            <span
-              style={{
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: '#16a34a',
-                marginTop: '0.35rem',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                background: '#dcfce7',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '99px',
-                border: '1px solid #86efac',
-              }}
-            >
-              ✓ ¡Datos copiados al portapapeles!
-            </span>
-          )}
+          <div style={{ position: 'relative', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+            <ActionButton
+              label={copied ? '¡Copiado al portapapeles!' : 'Copiar Datos / Alias'}
+              icon={copied ? '✓' : '📋'}
+              onClick={handleCopy}
+              variant="secondary"
+              primaryColor={theme.colors.primary}
+              customBg={!hasBgImage && copied ? '#dcfce7' : undefined}
+              customColor={!hasBgImage && copied ? '#15803d' : undefined}
+              backgroundImage={sectionStyle?.buttonBackgroundImage}
+              backgroundScale={sectionStyle?.buttonBackgroundScale}
+              hideLabel={hideLabel}
+            />
+            {copied && hideLabel && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  marginTop: '0.4rem',
+                  zIndex: 50,
+                  pointerEvents: 'none',
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: '#16a34a',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  background: '#dcfce7',
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '99px',
+                  border: '1px solid #86efac',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
+                }}
+              >
+                ✓ ¡Datos copiados al portapapeles!
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </section>
