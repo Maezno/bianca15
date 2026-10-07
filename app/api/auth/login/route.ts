@@ -44,11 +44,28 @@ export async function POST(request: NextRequest) {
       const cookieStore = await cookies();
       const supabase = createClient(cookieStore);
       
-      const { error } = await supabase.auth.signInWithPassword({ email: username.trim(), password });
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email: username.trim(), password });
       
-      if (!error) {
+      if (!error && authData.user) {
         attempts.delete(ip);
-        const token = await createSessionToken();
+        
+        // Obtener rol del perfil
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, email, name, role')
+          .eq('id', authData.user.id)
+          .maybeSingle();
+
+        const role = (profile?.role || authData.user.user_metadata?.role || 'event_admin') as 'super_admin' | 'event_admin';
+        const name = profile?.name || authData.user.user_metadata?.name || username.split('@')[0];
+
+        const token = await createSessionToken({
+          userId: authData.user.id,
+          email: authData.user.email,
+          name,
+          role,
+        });
+
         const response = NextResponse.json({ success: true });
         if (token) {
           response.cookies.set(SESSION_COOKIE, token, {
@@ -61,7 +78,7 @@ export async function POST(request: NextRequest) {
         }
         return response;
       } else {
-        return NextResponse.json({ success: false, error: error.message || 'Error de credenciales en Supabase' }, { status: 401 });
+        return NextResponse.json({ success: false, error: error?.message || 'Error de credenciales en Supabase' }, { status: 401 });
       }
     } catch (err: any) {
       console.error('Supabase Auth error:', err);

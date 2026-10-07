@@ -80,6 +80,18 @@ export async function createAdminUser(data: { email: string; name: string; role:
       return { success: false, error: createError.message };
     }
 
+    if (userData.user) {
+      // Garantizar que la tabla profiles tenga el rol exacto guardado
+      await supabase
+        .from('profiles')
+        .upsert({
+          id: userData.user.id,
+          email: data.email,
+          name: data.name,
+          role: data.role,
+        });
+    }
+
     return { success: true, userId: userData.user.id };
   } catch (err) {
     return { success: false, error: 'Error inesperado al crear el usuario.' };
@@ -100,5 +112,28 @@ export async function deleteAdminUser(userId: string) {
     return { success: true };
   } catch (err) {
     return { success: false, error: 'Error inesperado al eliminar el usuario.' };
+  }
+}
+
+export async function changeAdminPassword(newPassword: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireAdmin();
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: 'La contraseña debe tener al menos 6 caracteres.' };
+  }
+
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.admin.updateUserById(user.id, {
+      password: newPassword,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error al actualizar la contraseña.' };
   }
 }

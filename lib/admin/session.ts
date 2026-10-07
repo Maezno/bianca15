@@ -34,12 +34,20 @@ export function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export async function createSessionToken(): Promise<string | null> {
+export interface SessionData {
+  userId?: string;
+  email?: string;
+  name?: string;
+  role?: 'super_admin' | 'event_admin';
+}
+
+export async function createSessionToken(data?: SessionData): Promise<string | null> {
   const secret = getSecret();
   if (!secret) return null;
   const exp = Date.now() + SESSION_MAX_AGE_S * 1000;
   const nonce = toHex(crypto.getRandomValues(new Uint8Array(16)).buffer as ArrayBuffer);
-  const payload = `${exp}.${nonce}`;
+  const dataB64 = data ? Buffer.from(JSON.stringify(data)).toString('base64url') : 'none';
+  const payload = `${exp}.${nonce}.${dataB64}`;
   return `${payload}.${await hmac(payload, secret)}`;
 }
 
@@ -48,8 +56,31 @@ export async function verifySessionToken(token: string | undefined | null): Prom
   const secret = getSecret();
   if (!secret) return false;
   const parts = token.split('.');
-  if (parts.length !== 3) return false;
-  const [exp, nonce, sig] = parts;
-  if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
-  return safeEqual(sig, await hmac(`${exp}.${nonce}`, secret));
+  if (parts.length === 3) {
+    // Compatibilidad retroactiva con tokens viejos: <exp>.<nonce>.<sig>
+    const [exp, nonce, sig] = parts;
+    if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
+    return safeEqual(sig, await hmac(`${exp}.${nonce}`, secret));
+  }
+  if (parts.length === 4) {
+    // Formato con datos: <exp>.<nonce>.<dataB64>.<sig>
+    const [exp, nonce, dataB64, sig] = parts;
+    if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
+    return safeEqual(sig, await hmac(`${exp}.${nonce}.${dataB64}`, secret));
+  }
+  return false;
+}
+
+export async function getSessionData(token: string | undefined | null): Promise<SessionData | null> {
+  const isValid = await verifySessionToken(token);
+  if (!isValid || !token) return null;
+  const parts = token.split('.');
+  if (parts.length === 4 && parts[2] !== 'none') {
+    try {
+      return JSON.parse(Buffer.from(parts[2], 'base64url').toString('utf8'));
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }

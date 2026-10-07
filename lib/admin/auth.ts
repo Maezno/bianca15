@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { verifySessionToken, SESSION_COOKIE } from './session';
+import { verifySessionToken, getSessionData, SESSION_COOKIE } from './session';
 import type { AdminUser } from './types';
 
 // Default mock admin user for local development when Supabase credentials are not yet configured
@@ -14,12 +14,23 @@ const DEMO_ADMIN_USER: AdminUser = {
   role: 'super_admin',
 };
 
-async function hasValidLocalSession(): Promise<boolean> {
+async function getLocalSessionUser(): Promise<AdminUser | null> {
   try {
     const store = await cookies();
-    return await verifySessionToken(store.get(SESSION_COOKIE)?.value);
+    const cookieVal = store.get(SESSION_COOKIE)?.value;
+    const sessionData = await getSessionData(cookieVal);
+    if (sessionData && sessionData.userId) {
+      return {
+        id: sessionData.userId,
+        email: sessionData.email || '',
+        name: sessionData.name || 'Admin',
+        role: sessionData.role || 'event_admin',
+      };
+    }
+    const isValid = await verifySessionToken(cookieVal);
+    return isValid ? DEMO_ADMIN_USER : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -35,7 +46,7 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
+    return await getLocalSessionUser();
   }
 
   try {
@@ -43,8 +54,8 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      // Sin usuario Supabase: solo se permite la sesión local firmada
-      return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
+      // Sin usuario Supabase en la cookie auth: revisar sesión firmada
+      return await getLocalSessionUser();
     }
 
     const { data: profile } = await supabase
@@ -69,7 +80,7 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
       role: profile.role as AdminUser['role'],
     };
   } catch {
-    return (await hasValidLocalSession()) ? DEMO_ADMIN_USER : null;
+    return await getLocalSessionUser();
   }
 }
 
