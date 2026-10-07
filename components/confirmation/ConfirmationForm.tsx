@@ -389,15 +389,15 @@ export function ConfirmationForm({
                 marginTop: '1.5rem',
                 display: 'flex',
                 flexDirection: buttonsLayout === 'row' ? 'row' : 'column',
-                gap: `${effectiveGap}px`,
+                gap: `calc(${effectiveGap}px * var(--desktop-btn-scale, 1))`,
                 justifyContent: buttonsAlign === 'left' ? 'flex-start' : buttonsAlign === 'right' ? 'flex-end' : 'center',
                 alignItems: 'center',
                 flexWrap: buttonsLayout === 'row' ? 'nowrap' : 'wrap',
                 width: '100%',
-                maxWidth: buttonsLayout === 'row' ? `${Math.max(260, Math.round(360 * scale))}px` : '360px',
+                maxWidth: buttonsLayout === 'row' ? `calc(${Math.max(260, Math.round(360 * scale))}px * var(--desktop-btn-scale, 1))` : `calc(360px * var(--desktop-btn-scale, 1))`,
                 margin: '1.5rem auto 0 auto',
                 transform: (buttonsOffsetX || buttonsOffsetY)
-                  ? `translate(${buttonsOffsetX ?? 0}px, ${buttonsOffsetY ?? 0}px)`
+                  ? `translate(calc(${buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
                   : undefined,
                 transition: 'transform 0.15s ease',
               }}
@@ -418,8 +418,8 @@ export function ConfirmationForm({
                         backgroundPosition: 'center',
                         backgroundColor: 'transparent',
                         boxShadow: 'none',
-                        minHeight: `${computedHeight}px`,
-                        transform: scale !== 1 ? `scale(${scale})` : undefined,
+                        minHeight: `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`,
+                        transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
                         border: 'none',
                         color: hideButtonLabel ? 'transparent' : '#fff',
                       }
@@ -447,8 +447,8 @@ export function ConfirmationForm({
                         backgroundPosition: 'center',
                         backgroundColor: 'transparent',
                         boxShadow: 'none',
-                        minHeight: `${computedHeight}px`,
-                        transform: scale !== 1 ? `scale(${scale})` : undefined,
+                        minHeight: `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`,
+                        transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
                         border: 'none',
                         color: hideButtonLabel ? 'transparent' : '#374151',
                       }

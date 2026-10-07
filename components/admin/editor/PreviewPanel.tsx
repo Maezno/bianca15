@@ -329,7 +329,7 @@ export function PreviewPanel({
       >
         <div
           style={{
-            width: device === 'desktop' ? '100%' : 'min(390px, 100%)',
+            width: getWidth(),
             maxWidth: '100%',
             height: device === 'desktop' ? '100%' : '780px',
             background: '#ffffff',

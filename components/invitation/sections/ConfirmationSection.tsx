@@ -16,6 +16,9 @@ export function ConfirmationSection({
   const [modalMode, setModalMode] = useState<'attend' | 'decline'>('attend');
   const sectionStyle = event.designConfig?.layout?.sectionStyles?.['confirmation'];
   const titleOffsetY = sectionStyle?.titleOffsetY;
+  const textOffsetX = sectionStyle?.contentOffsetX ?? 0;
+  const textOffsetY = sectionStyle?.contentOffsetY ?? 0;
+  const hasTextOffset = textOffsetX !== 0 || textOffsetY !== 0;
 
   const openAttendModal = () => {
     setModalMode('attend');
@@ -45,52 +48,60 @@ export function ConfirmationSection({
         }}
       >
         <div
-          data-heading-container="true"
           style={{
-            textAlign: 'center',
-            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 24 + titleOffsetY)}px` : '1.5rem',
-            transition: 'margin-bottom 0.15s ease',
             width: '100%',
+            transform: hasTextOffset ? `translate(${textOffsetX}px, ${textOffsetY}px)` : undefined,
+            transition: 'transform 0.15s ease',
           }}
         >
-          {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
-            <>
-              <span
-                data-badge="true"
-                style={{
-                  display: 'block',
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  color: sectionStyle?.titleColor || theme.colors.primary,
-                  fontWeight: 700,
-                  textAlign: 'center',
-                }}
-              >
-                CONFIRMACIÓN DE ASISTENCIA
-              </span>
-              <h2
-                data-heading="true"
-                style={{
-                  fontFamily: theme.typography.headingFont,
-                  fontSize: '1.5rem',
-                  color: sectionStyle?.titleColor || theme.colors.text,
-                  margin: '0.35rem 0 0.5rem 0',
-                  fontWeight: 700,
-                  textAlign: 'center',
-                }}
-              >
-                {guestGroup.name}
-              </h2>
-            </>
-          )}
-          {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
-            <p data-body="true" style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0, textAlign: 'center' }}>
-              {guestGroup.maxGuests === 1
-                ? 'Tenés 1 lugar reservado.'
-                : `Tienen ${guestGroup.maxGuests} lugares reservados.`}
-            </p>
-          )}
+          <div
+            data-heading-container="true"
+            style={{
+              textAlign: 'center',
+              marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 24 + titleOffsetY)}px` : '1.5rem',
+              transition: 'margin-bottom 0.15s ease',
+              width: '100%',
+            }}
+          >
+            {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+              <>
+                <span
+                  data-badge="true"
+                  style={{
+                    display: 'block',
+                    fontSize: '0.8rem',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: sectionStyle?.titleColor || theme.colors.primary,
+                    fontWeight: 700,
+                    textAlign: 'center',
+                  }}
+                >
+                  CONFIRMACIÓN DE ASISTENCIA
+                </span>
+                <h2
+                  data-heading="true"
+                  style={{
+                    fontFamily: theme.typography.headingFont,
+                    fontSize: '1.5rem',
+                    color: sectionStyle?.titleColor || theme.colors.text,
+                    margin: '0.35rem 0 0.5rem 0',
+                    fontWeight: 700,
+                    textAlign: 'center',
+                  }}
+                >
+                  {guestGroup.name}
+                </h2>
+              </>
+            )}
+            {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+              <p data-body="true" style={{ fontSize: '0.95rem', color: theme.colors.textMuted, margin: 0, textAlign: 'center' }}>
+                {guestGroup.maxGuests === 1
+                  ? 'Tenés 1 lugar reservado.'
+                  : `Tienen ${guestGroup.maxGuests} lugares reservados.`}
+              </p>
+            )}
+          </div>
         </div>
 
         <ConfirmationForm
@@ -147,64 +158,72 @@ export function ConfirmationSection({
           }}
         />
 
-        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
-          <div
-            data-heading-container="true"
-            style={{
-              marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-              transition: 'margin-bottom 0.15s ease',
-              textAlign: 'center',
-              width: '100%',
-            }}
-          >
-            <span
-              data-badge="true"
+        <div
+          style={{
+            width: '100%',
+            transform: hasTextOffset ? `translate(${textOffsetX}px, ${textOffsetY}px)` : undefined,
+            transition: 'transform 0.15s ease',
+          }}
+        >
+          {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+            <div
+              data-heading-container="true"
               style={{
-                display: 'inline-block',
-                fontSize: '0.8rem',
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-                color: sectionStyle?.titleColor || theme.colors.primary,
-                fontWeight: 700,
-                marginBottom: '0.35rem',
+                marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+                transition: 'margin-bottom 0.15s ease',
+                textAlign: 'center',
+                width: '100%',
+              }}
+            >
+              <span
+                data-badge="true"
+                style={{
+                  display: 'inline-block',
+                  fontSize: '0.8rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: sectionStyle?.titleColor || theme.colors.primary,
+                  fontWeight: 700,
+                  marginBottom: '0.35rem',
+                  textAlign: 'center',
+                }}
+              >
+                CONFIRMACIÓN DE ASISTENCIA
+              </span>
+
+              <h2
+                data-heading="true"
+                style={{
+                  fontFamily: theme.typography.headingFont,
+                  fontSize: '1.65rem',
+                  color: sectionStyle?.titleColor || theme.colors.text,
+                  margin: '0.25rem 0 0.75rem 0',
+                  fontWeight: 500,
+                  lineHeight: 1.25,
+                  textAlign: 'center',
+                }}
+              >
+                {sectionStyle?.customTitle || '¿Vas a acompañarme?'}
+              </h2>
+            </div>
+          )}
+
+          {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+            <p
+              data-body="true"
+              style={{
+                fontSize: '0.95rem',
+                color: theme.colors.textMuted,
+                maxWidth: '430px',
+                margin: '0 auto 1.75rem auto',
+                lineHeight: 1.6,
                 textAlign: 'center',
               }}
             >
-              CONFIRMACIÓN DE ASISTENCIA
-            </span>
-
-            <h2
-              data-heading="true"
-              style={{
-                fontFamily: theme.typography.headingFont,
-                fontSize: '1.65rem',
-                color: sectionStyle?.titleColor || theme.colors.text,
-                margin: '0.25rem 0 0.75rem 0',
-                fontWeight: 500,
-                lineHeight: 1.25,
-                textAlign: 'center',
-              }}
-            >
-              {sectionStyle?.customTitle || '¿Vas a acompañarme?'}
-            </h2>
-          </div>
-        )}
-
-        {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
-          <p
-            data-body="true"
-            style={{
-              fontSize: '0.95rem',
-              color: theme.colors.textMuted,
-              maxWidth: '430px',
-              margin: '0 auto 1.75rem auto',
-              lineHeight: 1.6,
-              textAlign: 'center',
-            }}
-          >
-            {sectionStyle?.customSubtitle || 'Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.'}
-          </p>
-        )}
+              {sectionStyle?.customSubtitle || 'Por favor confirmanos si vas a asistir para que podamos organizar todos los detalles y tener tu lugar listo en esta noche inolvidable.'}
+            </p>
+          )}
+        </div>
 
         {/* Botones de acción principales */}
         {(() => {
@@ -223,17 +242,17 @@ export function ConfirmationSection({
               style={{
                 display: 'flex',
                 flexDirection: sectionStyle?.buttonsLayout === 'row' ? 'row' : 'column',
-                gap: `${effectiveGap}px`,
+                gap: `calc(${effectiveGap}px * var(--desktop-btn-scale, 1))`,
                 maxWidth: sectionStyle?.buttonsLayout === 'row'
-                  ? (hasBgImage ? `${Math.max(260, Math.round(360 * ((bgScale ?? 100) / 100)))}px` : '420px')
-                  : '360px',
+                  ? (hasBgImage ? `calc(${Math.max(260, Math.round(360 * ((bgScale ?? 100) / 100)))}px * var(--desktop-btn-scale, 1))` : `calc(420px * var(--desktop-btn-scale, 1))`)
+                  : `calc(360px * var(--desktop-btn-scale, 1))`,
                 margin: '0 auto',
                 width: '100%',
                 justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
                 alignItems: 'center',
                 flexWrap: sectionStyle?.buttonsLayout === 'row' ? 'nowrap' : 'wrap',
                 transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
-                  ? `translate(${sectionStyle?.buttonsOffsetX ?? 0}px, ${sectionStyle?.buttonsOffsetY ?? 0}px)`
+                  ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
                   : undefined,
                 transition: 'transform 0.15s ease',
               }}

@@ -185,7 +185,7 @@
             "wordSpacing": -1,
             "titleOffsetY": -6,
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/2fd678cb-db4b-4c5a-914a-cea4e6990979.webp",
-            "backgroundSize": "120% auto",
+            "backgroundSize": "70% auto",
             "backgroundSizeMobile": "140% auto",
             "titleColor": "#ffffff",
             "textColor": "#ffffff",
@@ -230,7 +230,7 @@
           },
           "confirmation": {
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/b8165cd3-d7a0-4254-979f-cda21cc2d948.webp",
-            "backgroundSize": "120% auto",
+            "backgroundSize": "75% auto",
             "hideTitle": true,
             "hideSubtitle": true,
             "noBackground": true,
@@ -240,7 +240,7 @@
             "declineButtonBackgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/f38258e4-2830-4e06-9444-2feb4e26815f.webp",
             "buttonsLayout": "row",
             "verticalGap": 12,
-            "contentOffsetY": 86,
+            "contentOffsetY": 118,
             "buttonBackgroundScale": 144,
             "bodyFontSize": 12,
             "hideButtonLabel": true,
@@ -253,6 +253,24 @@
             "noBorder": true,
             "hideText": true,
             "cardGap": 0
+          },
+          "photos": {
+            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/7d814a8d-2512-4ac7-847f-c17c9d620817.webp",
+            "backgroundSize": "60% auto",
+            "backgroundSizeMobile": "100% auto",
+            "noBorder": true,
+            "noBackground": true,
+            "buttonBackgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/94905d61-7857-4ca0-a1a3-a0de3a6f294b.webp",
+            "buttonBackgroundScale": 160,
+            "hideButtonLabel": true,
+            "contentOffsetY": -28,
+            "titleOffsetY": -6,
+            "verticalGap": 10,
+            "wordSpacing": 3,
+            "showQr": true,
+            "titleFontSize": 44,
+            "bodyFontSize": 16,
+            "buttonsOffsetY": 70
           }
         },
         "desktopSidebars": {
@@ -274,7 +292,7 @@
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-10-06T17:56:31.463Z"
+    "updated_at": "2026-10-07T03:49:12.009Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",

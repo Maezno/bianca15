@@ -24,6 +24,8 @@ interface ShareSectionProps {
   hideTitle?: boolean;
   hideSubtitle?: boolean;
   hideText?: boolean;
+  contentOffsetX?: number;
+  contentOffsetY?: number;
 }
 
 export function ShareSection({
@@ -48,6 +50,8 @@ export function ShareSection({
   hideTitle,
   hideSubtitle,
   hideText,
+  contentOffsetX,
+  contentOffsetY,
 }: ShareSectionProps) {
   const [copied, setCopied] = useState(false);
 
@@ -103,32 +107,45 @@ export function ShareSection({
         boxSizing: 'border-box',
       }}
     >
-      {!hideTitle && !hideText && (
-        <div
-          data-heading-container="true"
-          style={{
-            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-            transition: 'margin-bottom 0.15s ease',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <h3
-            data-heading="true"
-            style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, color: titleColor || textColor, textAlign: 'center' }}
+      {(() => {
+        const hasTextOffset = (contentOffsetX ?? 0) !== 0 || (contentOffsetY ?? 0) !== 0;
+        return (
+          <div
+            style={{
+              width: '100%',
+              transform: hasTextOffset ? `translate(${contentOffsetX ?? 0}px, ${contentOffsetY ?? 0}px)` : undefined,
+              transition: 'transform 0.15s ease',
+            }}
           >
-            Compartir Invitación
-          </h3>
-        </div>
-      )}
-      {!hideSubtitle && !hideText && (
-        <p
-          data-body="true"
-          style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor, textAlign: 'center' }}
-        >
-          Guardá o compartí este enlace con tu grupo familiar.
-        </p>
-      )}
+            {!hideTitle && !hideText && (
+              <div
+                data-heading-container="true"
+                style={{
+                  marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+                  transition: 'margin-bottom 0.15s ease',
+                  textAlign: 'center',
+                  width: '100%',
+                }}
+              >
+                <h3
+                  data-heading="true"
+                  style={{ fontSize: '1.15rem', fontWeight: 500, margin: 0, color: titleColor || textColor, textAlign: 'center' }}
+                >
+                  Compartir Invitación
+                </h3>
+              </div>
+            )}
+            {!hideSubtitle && !hideText && (
+              <p
+                data-body="true"
+                style={{ fontSize: '0.875rem', opacity: 0.8, margin: '0 0 1.25rem 0', color: textColor, textAlign: 'center' }}
+              >
+                Guardá o compartí este enlace con tu grupo familiar.
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {(() => {
         const scale = (buttonBackgroundScale && buttonBackgroundScale > 0) ? buttonBackgroundScale / 100 : 1;
@@ -141,15 +158,15 @@ export function ShareSection({
             style={{
               display: 'flex',
               flexDirection: buttonsLayout === 'column' ? 'column' : 'row',
-              gap: `${effectiveGap}px`,
+              gap: `calc(${effectiveGap}px * var(--desktop-btn-scale, 1))`,
               justifyContent: buttonsAlign === 'left' ? 'flex-start' : buttonsAlign === 'right' ? 'flex-end' : 'center',
               alignItems: 'center',
               flexWrap: buttonsLayout === 'column' ? 'wrap' : 'nowrap',
-              maxWidth: buttonsLayout === 'column' ? '360px' : (buttonBackgroundImage ? `${Math.max(260, Math.round(360 * scale))}px` : '420px'),
+              maxWidth: buttonsLayout === 'column' ? `calc(360px * var(--desktop-btn-scale, 1))` : (buttonBackgroundImage ? `calc(${Math.max(260, Math.round(360 * scale))}px * var(--desktop-btn-scale, 1))` : `calc(420px * var(--desktop-btn-scale, 1))`),
               margin: '0 auto',
               width: '100%',
               transform: (buttonsOffsetX || buttonsOffsetY)
-                ? `translate(${buttonsOffsetX ?? 0}px, ${buttonsOffsetY ?? 0}px)`
+                ? `translate(calc(${buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
                 : undefined,
               transition: 'transform 0.15s ease',
             }}
@@ -160,7 +177,7 @@ export function ShareSection({
               style={{
                 flex: buttonsLayout === 'column' ? undefined : '1 1 0',
                 width: buttonsLayout === 'column' ? '100%' : 'auto',
-                minHeight: buttonBackgroundImage ? `${computedHeight}px` : '44px',
+                minHeight: buttonBackgroundImage ? `calc(${computedHeight}px * var(--desktop-btn-scale, 1))` : `calc(44px * min(var(--desktop-btn-scale, 1), 1.15))`,
                 minWidth: 0,
                 position: 'relative',
                 padding: buttonBackgroundImage ? (hideButtonLabel ? '0' : '0.6rem 1.2rem') : '0.65rem 1rem',
@@ -171,7 +188,7 @@ export function ShareSection({
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                transform: (buttonBackgroundImage && scale !== 1) ? `scale(${scale})` : undefined,
+                transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
                 color: hideButtonLabel && buttonBackgroundImage ? 'transparent' : btnColor,
                 fontWeight: 700,
                 fontSize: '0.875rem',

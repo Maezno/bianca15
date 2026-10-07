@@ -168,15 +168,19 @@ body {
 
 
 /* ── Tarjetas de sección de la invitación ────────────────────────────────── */
-/* En modo desktop el ancho de las tarjetas es de 1000px y puede salirse de la pantalla */
+/* En modo desktop el ancho de las tarjetas coincide con el marco central para no distorsionarse */
+:root {
+  --desktop-btn-scale: calc(var(--central-width, 480px) / 390);
+}
+
 .invitation-card-item {
-  width: 1000px;
-  max-width: min(1000px, 100%);
+  width: var(--central-width, 480px);
+  max-width: 100%;
   flex-shrink: 0;
   box-sizing: border-box;
   margin-left: auto;
   margin-right: auto;
-  background-size: var(--bg-size-desktop, cover);
+  background-size: var(--bg-size-desktop, var(--bg-size-mobile, 100% auto));
   font-family: var(--card-body-font, inherit);
   text-align: center;
 }
@@ -377,6 +381,11 @@ body {
 
 /* En modo móvil se ajusta al ancho de la pantalla pegado perfectamente a los costados */
 @media (max-width: 768px) {
+  :root,
+  .invitation-card-item {
+    --desktop-btn-scale: 1 !important;
+  }
+
   .invitation-card-item {
     width: 100% !important;
     max-width: 100% !important;

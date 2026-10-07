@@ -64,6 +64,10 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
     return null;
   }
 
+  const textOffsetX = sectionStyle?.contentOffsetX ?? 0;
+  const textOffsetY = sectionStyle?.contentOffsetY ?? 0;
+  const hasTextOffset = textOffsetX !== 0 || textOffsetY !== 0;
+
   return (
     <section
       aria-label="Álbum de fotos compartido"
@@ -78,62 +82,70 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
-        <div
-          data-heading-container="true"
-          style={{
-            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-            transition: 'margin-bottom 0.15s ease',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <span
-            data-badge="true"
+      <div
+        style={{
+          width: '100%',
+          transform: hasTextOffset ? `translate(${textOffsetX}px, ${textOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+        }}
+      >
+        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+          <div
+            data-heading-container="true"
             style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: sectionStyle?.titleColor || theme.colors.primary,
-              fontWeight: 700,
-              marginBottom: '0.35rem',
+              marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+              transition: 'margin-bottom 0.15s ease',
               textAlign: 'center',
+              width: '100%',
             }}
           >
-            ÁLBUM DE FOTOS
-          </span>
-          <h2
-            data-heading="true"
-            style={{
-              fontFamily: theme.typography.headingFont,
-              fontSize: '1.35rem',
-              color: sectionStyle?.titleColor || theme.colors.text,
-              margin: '0.25rem 0 0.5rem 0',
-              fontWeight: 500,
-              textAlign: 'center',
-            }}
-          >
-            {title}
-          </h2>
-        </div>
-      )}
+            <span
+              data-badge="true"
+              style={{
+                display: 'block',
+                fontSize: '0.8rem',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                color: sectionStyle?.titleColor || theme.colors.primary,
+                fontWeight: 700,
+                marginBottom: '0.35rem',
+                textAlign: 'center',
+              }}
+            >
+              ÁLBUM DE FOTOS
+            </span>
+            <h2
+              data-heading="true"
+              style={{
+                fontFamily: theme.typography.headingFont,
+                fontSize: '1.35rem',
+                color: sectionStyle?.titleColor || theme.colors.text,
+                margin: '0.25rem 0 0.5rem 0',
+                fontWeight: 500,
+                textAlign: 'center',
+              }}
+            >
+              {title}
+            </h2>
+          </div>
+        )}
 
-      {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
-        <p
-          data-body="true"
-          style={{
-            fontSize: '0.9rem',
-            color: theme.colors.textMuted,
-            maxWidth: '380px',
-            margin: '0 auto 1.25rem auto',
-            lineHeight: 1.5,
-            textAlign: 'center',
-          }}
-        >
-          {description}
-        </p>
-      )}
+        {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
+          <p
+            data-body="true"
+            style={{
+              fontSize: '0.9rem',
+              color: theme.colors.textMuted,
+              maxWidth: '380px',
+              margin: '0 auto 1.25rem auto',
+              lineHeight: 1.5,
+              textAlign: 'center',
+            }}
+          >
+            {description}
+          </p>
+        )}
+      </div>
 
       {/* QR del Álbum */}
       {isQrEnabled && qrUrl && (
@@ -168,7 +180,7 @@ export function PhotosSection({ event, theme }: SectionBaseProps) {
             display: 'flex',
             justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
             transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
-              ? `translate(${sectionStyle?.buttonsOffsetX ?? 0}px, ${sectionStyle?.buttonsOffsetY ?? 0}px)`
+              ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
               : undefined,
             transition: 'transform 0.15s ease',
           }}

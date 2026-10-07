@@ -8,6 +8,9 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
 
   const sectionStyle = event.designConfig?.layout?.sectionStyles?.['gifts'];
   const titleOffsetY = sectionStyle?.titleOffsetY;
+  const textOffsetX = sectionStyle?.contentOffsetX ?? 0;
+  const textOffsetY = sectionStyle?.contentOffsetY ?? 0;
+  const hasTextOffset = textOffsetX !== 0 || textOffsetY !== 0;
 
   const handleCopy = () => {
     if (!event.giftsText) return;
@@ -35,48 +38,54 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
           : '0 4px 15px rgba(0, 0, 0, 0.04)',
       }}
     >
-      {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
-        <div
-          data-heading-container="true"
-          style={{
-            marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
-            transition: 'margin-bottom 0.15s ease',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <span
-            data-badge="true"
+      <div
+        style={{
+          width: '100%',
+          transform: hasTextOffset ? `translate(${textOffsetX}px, ${textOffsetY}px)` : undefined,
+          transition: 'transform 0.15s ease',
+        }}
+      >
+        {!sectionStyle?.hideTitle && !sectionStyle?.hideText && (
+          <div
+            data-heading-container="true"
             style={{
-              display: 'block',
-              fontSize: '0.8rem',
-              color: sectionStyle?.titleColor || theme.colors.primary,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              fontWeight: 700,
-              marginBottom: '0.35rem',
+              marginBottom: titleOffsetY !== undefined ? `${Math.max(0, 8 + titleOffsetY)}px` : '0.5rem',
+              transition: 'margin-bottom 0.15s ease',
               textAlign: 'center',
+              width: '100%',
             }}
           >
-            MESA DE REGALOS
-          </span>
-          <h2
-            data-heading="true"
-            style={{
-              fontFamily: theme.typography.headingFont,
-              fontSize: '1.35rem',
-              color: sectionStyle?.titleColor || theme.colors.text,
-              margin: '0.25rem 0 0.5rem 0',
-              fontWeight: 500,
-              textAlign: 'center',
-            }}
-          >
-            {sectionStyle?.customTitle || 'Regalos'}
-          </h2>
-        </div>
-      )}
+            <span
+              data-badge="true"
+              style={{
+                display: 'block',
+                fontSize: '0.8rem',
+                color: sectionStyle?.titleColor || theme.colors.primary,
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                fontWeight: 700,
+                marginBottom: '0.35rem',
+                textAlign: 'center',
+              }}
+            >
+              MESA DE REGALOS
+            </span>
+            <h2
+              data-heading="true"
+              style={{
+                fontFamily: theme.typography.headingFont,
+                fontSize: '1.35rem',
+                color: sectionStyle?.titleColor || theme.colors.text,
+                margin: '0.25rem 0 0.5rem 0',
+                fontWeight: 500,
+                textAlign: 'center',
+              }}
+            >
+              {sectionStyle?.customTitle || 'Regalos'}
+            </h2>
+          </div>
+        )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
         {!sectionStyle?.hideSubtitle && !sectionStyle?.hideText && (
           <p
             data-body="true"
@@ -85,7 +94,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
               fontSize: '1rem',
               color: sectionStyle?.textColor || theme.colors.text,
               lineHeight: 1.6,
-              margin: 0,
+              margin: '0 0 1rem 0',
               textAlign: 'center',
               letterSpacing: '0.02em',
               fontWeight: 600,
@@ -94,7 +103,9 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
             {sectionStyle?.customSubtitle || event.giftsText}
           </p>
         )}
+      </div>
 
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
         {/* Botón Copiar Alias con soporte completo de diseño */}
         <div
           style={{
@@ -104,7 +115,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
             justifyContent: sectionStyle?.buttonsAlign === 'left' ? 'flex-start' : sectionStyle?.buttonsAlign === 'right' ? 'flex-end' : 'center',
             width: '100%',
             transform: (sectionStyle?.buttonsOffsetX || sectionStyle?.buttonsOffsetY)
-              ? `translate(${sectionStyle?.buttonsOffsetX ?? 0}px, ${sectionStyle?.buttonsOffsetY ?? 0}px)`
+              ? `translate(calc(${sectionStyle?.buttonsOffsetX ?? 0}px * var(--desktop-btn-scale, 1)), calc(${sectionStyle?.buttonsOffsetY ?? 0}px * var(--desktop-btn-scale, 1)))`
               : undefined,
             transition: 'transform 0.15s ease',
           }}

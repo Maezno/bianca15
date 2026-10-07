@@ -30,6 +30,8 @@ export function ShareSection({ event, theme, guestGroup }: SectionBaseProps) {
         hideTitle={sectionStyle?.hideTitle}
         hideSubtitle={sectionStyle?.hideSubtitle}
         hideText={sectionStyle?.hideText}
+        contentOffsetX={sectionStyle?.contentOffsetX}
+        contentOffsetY={sectionStyle?.contentOffsetY}
       />
     </section>
   );

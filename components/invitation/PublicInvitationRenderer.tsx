@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { PublicEvent } from '@/types/event';
@@ -338,6 +338,7 @@ interface SectionCardItemProps {
   onUpdateSectionHeight?: (sectionId: string, height: number) => void;
   defaultHeight: number;
   defaultHeightMobile?: number;
+  centralWidth?: number;
 }
 
 function SectionCardItem({
@@ -355,6 +356,7 @@ function SectionCardItem({
   onUpdateSectionHeight,
   defaultHeight,
   defaultHeightMobile,
+  centralWidth = 480,
 }: SectionCardItemProps) {
   const [naturalDimensions, setNaturalDimensions] = useState<{ width: number; height: number } | null>(null);
   const [isMobileScreen, setIsMobileScreen] = useState(false);
@@ -402,8 +404,8 @@ function SectionCardItem({
     : (naturalDimensions && naturalDimensions.height > 0 ? (naturalDimensions.width / naturalDimensions.height) : null);
 
   // Estilos de fondo: escala diferenciada Desktop / Móvil
-  const bgSizeDesktop = sectionStyle?.backgroundSize || 'cover';
   const bgSizeMobile = sectionStyle?.backgroundSizeMobile || '100% auto';
+  const bgSizeDesktop = sectionStyle?.backgroundSize || bgSizeMobile;
   const bgPos = sectionStyle?.backgroundPosition || 'center';
   const bgImageStyle = hasBgImage ? ({
     backgroundImage: `url("${sectionStyle?.backgroundImage}")`,
@@ -447,6 +449,10 @@ function SectionCardItem({
   const contentOffsetY = sectionStyle?.contentOffsetY ?? 0;
   const hasContentOffset = contentOffsetX !== 0 || contentOffsetY !== 0;
 
+  // Las secciones con botones gestionan contentOffset internamente solo en su bloque de texto,
+  // para que los botones nunca se muevan con el slider de texto.
+  const isSectionWithButtons = ['location', 'confirmation', 'gifts', 'photos', 'share'].includes(sectionId);
+
   const cardTypographyStyles: React.CSSProperties = {
     fontFamily: sectionTheme?.typography.bodyFont,
     '--card-heading-font': sectionTheme?.typography.headingFont,
@@ -485,7 +491,7 @@ function SectionCardItem({
     boxSizing: 'border-box',
     position: 'relative',
     zIndex: 1,
-    transform: hasContentOffset ? `translate(${contentOffsetX}px, ${contentOffsetY}px)` : undefined,
+    transform: (!isSectionWithButtons && hasContentOffset) ? `translate(${contentOffsetX}px, ${contentOffsetY}px)` : undefined,
     transition: 'transform 0.15s ease',
   };
 
@@ -493,9 +499,9 @@ function SectionCardItem({
   const naturalImageHeight = sectionStyle?.imageHeight || naturalDimensions?.height;
   const naturalImageWidth = sectionStyle?.imageWidth || naturalDimensions?.width;
 
-  // En modo móvil (pantalla ≤ 768px), el alto proporcional al ancho de la pantalla:
+  // En modo móvil (pantalla ≤ 768px), el alto proporcional al ancho base móvil (390px):
   const responsiveImageHeight = (naturalImageWidth && naturalImageHeight)
-    ? Math.round((typeof window !== 'undefined' ? Math.min(window.innerWidth, 560) : 390) * (naturalImageHeight / naturalImageWidth))
+    ? Math.round(390 * (naturalImageHeight / naturalImageWidth))
     : undefined;
 
   // Factor de escala configurado para el fondo (ej. "120% auto" -> factor 1.2; "150% auto" -> factor 1.5)
@@ -512,22 +518,35 @@ function SectionCardItem({
   const desktopBgScale = parseBgScale(sectionStyle?.backgroundSize);
   const mobileBgScale = parseBgScale(sectionStyle?.backgroundSizeMobile);
 
-  // En Desktop: si la tarjeta tiene fondo, toma directamente la altura del PNG multiplicada por la escala del fondo
-  // Si no tiene fondo, utiliza el valor personalizado de sectionHeights o el defaultHeight
-  const baseDesktopHeight = hasBgImage
-    ? (naturalImageHeight || layoutSectionHeight || defaultHeight)
-    : (layoutSectionHeight || defaultHeight);
-  const effectiveDesktopHeight = hasBgImage
-    ? Math.round(baseDesktopHeight * desktopBgScale)
-    : baseDesktopHeight;
+  // Proporción de escala entre Desktop (marco central) y Móvil (ancho base 390px)
+  const desktopRatio = (centralWidth && centralWidth > 0) ? (centralWidth / 390) : 1.23;
 
-  // En Móvil: si la tarjeta tiene fondo, se adapta proporcionalmente a la pantalla y a la escala del fondo para evitar recortes
-  const baseMobileHeight = hasBgImage
-    ? (responsiveImageHeight || naturalImageHeight || layoutMobileHeight || (defaultHeightMobile ?? baseDesktopHeight))
-    : (layoutMobileHeight || (defaultHeightMobile ?? baseDesktopHeight));
-  const effectiveMobileHeight = hasBgImage
-    ? Math.round(baseMobileHeight * mobileBgScale)
-    : baseMobileHeight;
+  // En Móvil: Si el usuario ajustó la altura (layoutMobileHeight), se respeta ese valor.
+  // De lo contrario, se adapta a la imagen proporcionalmente.
+  const baseMobileHeight = layoutMobileHeight
+    ? layoutMobileHeight
+    : (responsiveImageHeight || naturalImageHeight || (defaultHeightMobile ?? defaultHeight));
+  const effectiveMobileHeight = layoutMobileHeight
+    ? layoutMobileHeight
+    : (hasBgImage ? Math.round(baseMobileHeight * mobileBgScale) : baseMobileHeight);
+
+  // En Desktop: Para que no se distorsione ni cambien los tamaños respecto a móvil,
+  // la tarjeta mantiene la misma proporción de aspecto calculada a partir de la altura de móvil
+  // multiplicada por la proporción de ancho (centralWidth / 390). Si el usuario fijó layoutSectionHeight, se respeta.
+  const baseDesktopHeight = layoutSectionHeight
+    ? layoutSectionHeight
+    : (layoutMobileHeight
+        ? Math.round(layoutMobileHeight * desktopRatio)
+        : (naturalImageWidth && naturalImageHeight
+            ? Math.round(centralWidth * (naturalImageHeight / naturalImageWidth))
+            : defaultHeight));
+  const effectiveDesktopHeight = layoutSectionHeight
+    ? layoutSectionHeight
+    : (layoutMobileHeight
+        ? Math.round(effectiveMobileHeight * desktopRatio)
+        : (hasBgImage
+            ? Math.round(baseDesktopHeight * (sectionStyle?.backgroundSize ? desktopBgScale : mobileBgScale))
+            : baseDesktopHeight));
 
   if (!isFixed) {
     return (
@@ -910,6 +929,7 @@ export function PublicInvitationRenderer({
         boxSizing: 'border-box',
         width: '100%',
         '--central-width': `${centralWidth}px`,
+        '--desktop-btn-scale': `calc(${centralWidth} / 390)`,
       } as React.CSSProperties}
     >
       {/* Bandas laterales para modo Desktop (Marco / Enfoque Móvil) */}
@@ -1013,6 +1033,7 @@ export function PublicInvitationRenderer({
               onUpdateSectionHeight={onUpdateSectionHeight}
               defaultHeight={defaultHeight}
               defaultHeightMobile={defaultHeightMobile}
+              centralWidth={centralWidth}
             />
           );
         })}
