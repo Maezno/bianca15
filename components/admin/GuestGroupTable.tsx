@@ -130,20 +130,28 @@ export function GuestGroupTable({
     const msg = `¿Eliminar la invitación de "${g.name}"?\n\nEsta acción eliminará su URL personalizada y cualquier confirmación asociada.`;
     if (!confirm(msg)) return;
 
-    const res = await deleteAdminGuestGroup(g.id);
-    if (res.success) {
-      onRefresh();
-    } else {
-      alert(res.error || 'No se pudo eliminar el grupo.');
+    try {
+      const res = await deleteAdminGuestGroup(g.id);
+      if (res.success) {
+        onRefresh();
+      } else {
+        alert(res.error || 'No se pudo eliminar el grupo.');
+      }
+    } catch (err) {
+      alert('Error de conexión o permisos al intentar eliminar: ' + String(err));
     }
   };
 
   const handleDuplicate = async (g: AdminGuestGroupItem) => {
-    const res = await duplicateAdminGuestGroup(g.id);
-    if (res.success) {
-      onRefresh();
-    } else {
-      alert(res.error || 'No se pudo duplicar el grupo.');
+    try {
+      const res = await duplicateAdminGuestGroup(g.id);
+      if (res.success) {
+        onRefresh();
+      } else {
+        alert(res.error || 'No se pudo duplicar el grupo.');
+      }
+    } catch (err) {
+      alert('Error de conexión al intentar duplicar: ' + String(err));
     }
   };
 

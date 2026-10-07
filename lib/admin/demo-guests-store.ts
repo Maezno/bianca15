@@ -172,3 +172,10 @@ export function addDemoGuestGroupFromRsvp(input: AddPublicRsvpInput): AdminGuest
   saveDemoGuestGroups(groups);
   return newGroup;
 }
+
+export function deleteDemoGuestGroup(groupId: string): boolean {
+  const groups = loadDemoGuestGroups();
+  const filtered = groups.filter((g) => g.id !== groupId);
+  saveDemoGuestGroups(filtered);
+  return filtered.length < groups.length;
+}

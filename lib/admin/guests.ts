@@ -7,7 +7,8 @@ import { generateToken } from '@/lib/utils/token';
 import type { AdminGuestGroupItem, CreateAdminGroupInput, UpdateAdminGroupInput, CsvValidatedRow } from './types';
 import type { Guest, Confirmation, Attendee } from '@/types/database';
 
-import { loadDemoGuestGroups, saveDemoGuestGroups } from './demo-guests-store';
+import { loadDemoGuestGroups, saveDemoGuestGroups, deleteDemoGuestGroup } from './demo-guests-store';
+import { getAdminClient } from '@/lib/supabase/admin';
 
 export async function getAdminGuestGroups(
   eventId: string,
@@ -228,24 +229,43 @@ export async function updateAdminGuestGroup(
 export async function deleteAdminGuestGroup(
   groupId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAdmin();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return { success: true };
-  }
-
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.from('guest_groups').delete().eq('id', groupId);
+    await requireAdmin();
 
-    if (error) {
-      return { success: false, error: 'No se pudo eliminar el grupo.' };
+    // 1. Eliminar del store demo si existe allí
+    deleteDemoGuestGroup(groupId);
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      const adminClient = getAdminClient();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
+
+      // Intentar primero con la función RPC con SECURITY DEFINER (bypass de RLS garantizado)
+      if (isUuid) {
+        const { data: rpcRes, error: rpcErr } = await adminClient.rpc('delete_guest_group_by_id', {
+          p_group_id: groupId,
+        });
+
+        if (!rpcErr && rpcRes && (rpcRes as { success?: boolean }).success) {
+          return { success: true };
+        }
+      }
+
+      // Respaldo directo vía cliente administrativo
+      const { error } = await adminClient.from('guest_groups').delete().eq('id', groupId);
+      if (error) {
+        console.error('[deleteAdminGuestGroup] Error al eliminar en Supabase:', error);
+        return { success: false, error: `No se pudo eliminar el grupo: ${error.message}` };
+      }
     }
 
     return { success: true };
-  } catch {
+  } catch (err) {
+    console.error('[deleteAdminGuestGroup] Excepción inesperada:', err);
     return { success: false, error: 'Error inesperado al eliminar el grupo.' };
   }
 }
