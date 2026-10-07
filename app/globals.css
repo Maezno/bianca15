@@ -516,3 +516,13 @@ body {
 .invitation-card-item .btn-interactive:active {
   transform: scale(0.965);
 }
+
+/* Eliminar sombras en el texto dentro de modales, popups y diálogos */
+[role="dialog"],
+[role="dialog"] *,
+.modal-panel,
+.modal-panel *,
+[data-popup="true"],
+[data-popup="true"] * {
+  text-shadow: none !important;
+}

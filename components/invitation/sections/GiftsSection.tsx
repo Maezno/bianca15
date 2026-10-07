@@ -155,6 +155,7 @@ export function GiftsSection({ event, theme }: SectionBaseProps) {
                   padding: '0.25rem 0.65rem',
                   borderRadius: '99px',
                   border: '1px solid #86efac',
+                  textShadow: 'none',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
                 }}
               >
