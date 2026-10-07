@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { submitPublicRsvp } from '@/lib/confirmations/public-rsvp';
 import type { TemplateTheme } from '@/templates/types';
 
@@ -23,6 +24,7 @@ export function RsvpModal({
   theme,
   initialMode = 'attend',
 }: RsvpModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<'attend' | 'decline'>(initialMode);
   // Nuevo estado para el paso. Si asiste, arranca en paso 1 (selección de tipo). Si declina, va directo al paso 2.
   const [step, setStep] = useState<1 | 2>(initialMode === 'attend' ? 1 : 2);
@@ -34,6 +36,10 @@ export function RsvpModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -56,7 +62,7 @@ export function RsvpModal({
     };
   }, [isOpen, initialMode]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const primaryColor = theme?.colors?.primary || '#9333ea';
   const headingFont = theme?.typography?.headingFont || 'inherit';
@@ -118,7 +124,7 @@ export function RsvpModal({
     });
   };
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
@@ -800,4 +806,6 @@ export function RsvpModal({
         </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
