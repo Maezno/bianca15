@@ -236,6 +236,7 @@ export interface SectionStyle {
    * Escala o tamaño del fondo PNG de los botones (%: ej. 100 por defecto, 40 a 160).
    */
   buttonBackgroundScale?: number;
+  buttonDesktopScale?: number;
   /**
    * Título personalizado para esta tarjeta (anula el título por defecto del evento o sección).
    */
@@ -418,3 +419,4 @@ export interface PublicEvent {
   sectionConfig?: EventSectionConfig;
   whatsappTemplate?: string;
 }
+

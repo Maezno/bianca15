@@ -177,7 +177,7 @@ export function ShareSection({
               style={{
                 flex: buttonsLayout === 'column' ? undefined : '1 1 0',
                 width: buttonsLayout === 'column' ? '100%' : 'auto',
-                minHeight: buttonBackgroundImage ? `calc(${computedHeight}px * var(--desktop-btn-scale, 1))` : `calc(44px * min(var(--desktop-btn-scale, 1), 1.15))`,
+                minHeight: buttonBackgroundImage ? `calc(${computedHeight}px * var(--desktop-btn-scale, 1))` : `calc(44px * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15)))`,
                 minWidth: 0,
                 position: 'relative',
                 padding: buttonBackgroundImage ? (hideButtonLabel ? '0' : '0.6rem 1.2rem') : '0.65rem 1rem',
@@ -188,7 +188,7 @@ export function ShareSection({
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
-                transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
+                transform: `scale(calc(${scale} * var(--desktop-btn-visual-scale, var(--desktop-btn-scale, 1))))`,
                 color: hideButtonLabel && buttonBackgroundImage ? 'transparent' : btnColor,
                 fontWeight: 700,
                 fontSize: '0.875rem',
@@ -235,3 +235,6 @@ export function ShareSection({
     </div>
   );
 }
+
+
+

@@ -3867,7 +3867,8 @@ export function DesignTab({
                           style.buttonsOffsetX !== undefined ||
                           style.buttonsOffsetY !== undefined ||
                           style.buttonsGap !== undefined ||
-                          style.buttonBackgroundScale !== undefined) && (
+                          style.buttonBackgroundScale !== undefined ||
+                          style.buttonDesktopScale !== undefined) && (
                           <button
                             type="button"
                             onClick={() => updateSectionStyle(sec.id, {
@@ -3877,6 +3878,7 @@ export function DesignTab({
                               buttonsOffsetY: undefined,
                               buttonsGap: undefined,
                               buttonBackgroundScale: undefined,
+                              buttonDesktopScale: undefined,
                             })}
                             style={{ background: 'none', border: 'none', color: '#15803d', fontSize: '0.62rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                           >
@@ -4816,3 +4818,4 @@ export function DesignTab({
     </div>
   );
 }
+

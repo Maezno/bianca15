@@ -419,7 +419,7 @@ export function ConfirmationForm({
                         backgroundColor: 'transparent',
                         boxShadow: 'none',
                         minHeight: `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`,
-                        transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
+                        transform: `scale(calc(${scale} * var(--desktop-btn-visual-scale, var(--desktop-btn-scale, 1))))`,
                         border: 'none',
                         color: hideButtonLabel ? 'transparent' : '#fff',
                       }
@@ -448,7 +448,7 @@ export function ConfirmationForm({
                         backgroundColor: 'transparent',
                         boxShadow: 'none',
                         minHeight: `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`,
-                        transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
+                        transform: `scale(calc(${scale} * var(--desktop-btn-visual-scale, var(--desktop-btn-scale, 1))))`,
                         border: 'none',
                         color: hideButtonLabel ? 'transparent' : '#374151',
                       }
@@ -877,3 +877,5 @@ export function ConfirmationForm({
 
   return null;
 }
+
+

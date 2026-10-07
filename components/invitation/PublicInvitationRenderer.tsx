@@ -469,6 +469,7 @@ function SectionCardItem({
     '--card-title-offset-y': cardTitleOffsetY,
     '--card-text-align': cardTextAlign,
     textAlign: cardTextAlign,
+    '--desktop-btn-visual-scale': sectionStyle?.buttonDesktopScale !== undefined ? (sectionStyle.buttonDesktopScale / 100) : 'min(var(--desktop-btn-scale, 1), 1.25)',
   } as React.CSSProperties;
 
   const cardClasses = [
@@ -1041,3 +1042,5 @@ export function PublicInvitationRenderer({
     </div>
   );
 }
+
+

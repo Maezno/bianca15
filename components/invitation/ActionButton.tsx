@@ -54,9 +54,9 @@ export function ActionButton({
       alignItems: 'center',
       justifyContent: 'center',
       gap: hideLabel ? 0 : '0.5rem',
-      padding: backgroundImage ? (hideLabel ? '0' : '0.6rem 1.2rem') : 'calc(0.65rem * min(var(--desktop-btn-scale, 1), 1.15)) calc(1.25rem * min(var(--desktop-btn-scale, 1), 1.15))',
+      padding: backgroundImage ? (hideLabel ? '0' : '0.6rem 1.2rem') : 'calc(0.65rem * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15))) calc(1.25rem * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15)))',
       borderRadius: backgroundImage ? '0.75rem' : '99px',
-      fontSize: 'calc(0.875rem * min(var(--desktop-btn-scale, 1), 1.15))',
+      fontSize: 'calc(0.875rem * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15)))',
       fontWeight: 700,
       textDecoration: 'none',
       cursor: 'pointer',
@@ -67,7 +67,7 @@ export function ActionButton({
       minWidth: computedMinWidth ? `calc(${computedMinWidth}px * var(--desktop-btn-scale, 1))` : 0,
       minHeight: backgroundImage
         ? `calc(${computedHeight}px * var(--desktop-btn-scale, 1))`
-        : `calc(44px * min(var(--desktop-btn-scale, 1), 1.15))`,
+        : `calc(44px * var(--desktop-btn-visual-scale, min(var(--desktop-btn-scale, 1), 1.15)))`,
       maxWidth: '100%',
       textAlign: 'center',
       position: 'relative',
@@ -141,7 +141,7 @@ export function ActionButton({
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
-            transform: `scale(calc(${scale} * var(--desktop-btn-scale, 1)))`,
+            transform: `scale(calc(${scale} * var(--desktop-btn-visual-scale, var(--desktop-btn-scale, 1))))`,
             transformOrigin: 'center',
             pointerEvents: 'none',
           }}
@@ -181,3 +181,6 @@ export function ActionButton({
     </button>
   );
 }
+
+
+
