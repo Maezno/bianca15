@@ -261,6 +261,14 @@ export interface SectionStyle {
    * Si es false, oculta el código QR en la tarjeta del álbum de fotos.
    */
   showQr?: boolean;
+  /**
+   * Teléfono de contacto / WhatsApp para el footer o cierre de invitación.
+   */
+  contactPhone?: string;
+  /**
+   * Texto de contacto para el footer o cierre de invitación.
+   */
+  contactText?: string;
 }
 
 export type DesktopSidebarsStyle = 'black' | 'blur' | 'transparent' | 'image';

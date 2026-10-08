@@ -84,6 +84,66 @@ export function FooterSection({ event, theme }: SectionBaseProps) {
           {subtitle}
         </p>
       )}
+
+      {/* Información y consultas de contacto */}
+      {(() => {
+        const contactText = sectionStyle?.contactText || (sectionStyle?.contactPhone ? `Información y consultas al ${sectionStyle.contactPhone}` : (event.slug === 'bianca-15' ? 'Información y consultas al +542945638000' : null));
+        const contactPhone = sectionStyle?.contactPhone || (event.slug === 'bianca-15' ? '+542945638000' : null);
+
+        if (!contactText) return null;
+
+        const cleanPhone = contactPhone ? contactPhone.replace(/[^\d+]/g, '') : null;
+        const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : null;
+
+        return (
+          <div
+            style={{
+              marginTop: (showTitle || showSubtitle) ? '0.75rem' : 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.25rem',
+            }}
+          >
+            {whatsappUrl ? (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  color: sectionStyle?.textColor || theme.colors.textMuted,
+                  textDecoration: 'none',
+                  fontSize: typeof sectionStyle?.bodyFontSize === 'number'
+                    ? `${sectionStyle.bodyFontSize}px`
+                    : (sectionStyle?.bodyFontSize || '0.85rem'),
+                  opacity: 0.9,
+                  transition: 'opacity 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.9')}
+              >
+                <span>{contactText}</span>
+              </a>
+            ) : (
+              <span
+                style={{
+                  color: sectionStyle?.textColor || theme.colors.textMuted,
+                  fontSize: typeof sectionStyle?.bodyFontSize === 'number'
+                    ? `${sectionStyle.bodyFontSize}px`
+                    : (sectionStyle?.bodyFontSize || '0.85rem'),
+                  opacity: 0.9,
+                }}
+              >
+                {contactText}
+              </span>
+            )}
+          </div>
+        );
+      })()}
     </footer>
   );
 }
