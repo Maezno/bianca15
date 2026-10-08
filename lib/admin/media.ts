@@ -9,7 +9,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { getCurrentAdminUser, requireAdmin } from './auth';
 import type { AdminEventMedia } from './types';
 import type { EventMediaRow, EventRow } from '@/types/database';
@@ -103,7 +103,7 @@ export async function getEventMedia(eventId: string): Promise<AdminEventMedia[]>
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     // Obtener evento para verificar si alguna imagen es cover_image
     const { data: eventData } = await supabase
@@ -291,7 +291,7 @@ export async function uploadEventMedia(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     // 1. Subir a Supabase Storage bucket 'event-assets'
     const arrayBuffer = await file.arrayBuffer();
@@ -424,7 +424,7 @@ export async function deleteEventMedia(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     // Obtener la imagen
     const { data: media, error: findError } = await supabase
@@ -570,7 +570,7 @@ export async function uploadEventFont(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 

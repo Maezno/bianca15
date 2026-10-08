@@ -105,3 +105,19 @@ En Vercel (`Settings -> Environment Variables`), las siguientes variables deben 
    - URL: `http://localhost:3000/admin/login`
    - Super Admin Local: Usuario `maezno` / Contraseña `vpcwy720-`
    - O iniciar con cualquier correo/contraseña creado en el panel de usuarios.
+
+---
+
+## 🔐 5. Permisos Administrativos y Supabase RLS
+
+1. **Roles de usuario:**
+   - `super_admin`: Acceso completo a todos los eventos globales en el panel.
+   - `event_admin`: Acceso restringido por defecto a los eventos asociados en la tabla `event_admins`. Si no tiene asignaciones explícitas, el sistema muestra todos los eventos disponibles por defecto.
+
+2. **Acceso administrativo en Servidor (`getAdminClient`):**
+   - Las operaciones del panel administrativo (`lib/admin/events.ts`, `lib/admin/guests.ts`, `lib/admin/confirmations.ts`, `lib/admin/users.ts`) utilizan el cliente con Service Role (`getAdminClient`) para evitar que políticas RLS bloqueen consultas válidas de administradores autenticados.
+
+3. **Manejo de cookies y sesiones:**
+   - Al iniciar sesión como admin local (`maezno`), se eliminan cookies residuales de Supabase (`sb-*`) para evitar conflictos de identidad entre sesiones previas en el mismo navegador.
+   - Al cerrar sesión (`/api/auth/logout`), se purgan tanto `admin-session` como las cookies de Supabase.
+

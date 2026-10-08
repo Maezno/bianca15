@@ -2,7 +2,7 @@
 
 import { requireAdmin } from './auth';
 
-import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { generateCsvExport } from './csv';
 
 export interface AdminConfirmationRow {
@@ -56,7 +56,7 @@ export async function getAdminConfirmations(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: groups, error } = await supabase
       .from('guest_groups')

@@ -25,5 +25,16 @@ export async function POST(_request: NextRequest) {
     maxAge: 0,
     path: '/',
   });
+
+  const requestCookies = _request.cookies.getAll();
+  for (const c of requestCookies) {
+    if (c.name.startsWith('sb-')) {
+      response.cookies.set(c.name, '', {
+        path: '/',
+        maxAge: 0,
+      });
+    }
+  }
+
   return response;
 }

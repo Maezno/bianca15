@@ -122,5 +122,17 @@ export async function POST(request: NextRequest) {
     maxAge: SESSION_MAX_AGE_S,
     path: '/',
   });
+
+  // Limpiar cookies residuales de Supabase para evitar conflictos de sesión
+  const requestCookies = request.cookies.getAll();
+  for (const c of requestCookies) {
+    if (c.name.startsWith('sb-')) {
+      response.cookies.set(c.name, '', {
+        path: '/',
+        maxAge: 0,
+      });
+    }
+  }
+
   return response;
 }

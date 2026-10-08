@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
+import { getAdminClient } from '@/lib/supabase/admin';
 import { getCurrentAdminUser, requireAdmin } from './auth';
 import type { AdminEventSummary, AdminEventStats, CreateEventInput, UpdateEventInput } from './types';
 import type { EventRow } from '@/types/database';
@@ -29,17 +29,29 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
   if (!user) return [];
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return getDemoEventsList();
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
-    const { data: events, error } = await supabase
+    // Si es event_admin, revisar si tiene eventos restringidos asignados en event_admins
+    let allowedEventIds: string[] | null = null;
+    if (user.role === 'event_admin') {
+      const { data: assignments } = await supabase
+        .from('event_admins')
+        .select('event_id')
+        .eq('user_id', user.id);
+
+      if (assignments && assignments.length > 0) {
+        allowedEventIds = assignments.map((a: { event_id: string }) => a.event_id);
+      }
+    }
+
+    let query = supabase
       .from('events')
       .select(`
         id, slug, name, title, type, template_id, template_version, status, date, start_time, location, address,
@@ -50,7 +62,14 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
       `)
       .order('created_at', { ascending: false });
 
+    if (allowedEventIds && allowedEventIds.length > 0) {
+      query = query.in('id', allowedEventIds);
+    }
+
+    const { data: events, error } = await query;
+
     if (error || !events) {
+      console.error('Error al consultar eventos en Supabase:', error);
       return getDemoEventsList();
     }
 
@@ -231,7 +250,7 @@ export async function getAdminEventById(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: event, error: eventError } = await supabase
       .from('events')
@@ -367,7 +386,7 @@ export async function createEvent(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const { data, error } = await supabase
       .from('events')
       .insert({
@@ -428,15 +447,14 @@ export async function updateEvent(
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return { success: true };
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const updateData: Record<string, unknown> = {};
 
     if (input.name !== undefined) updateData.name = input.name.trim();
@@ -493,8 +511,7 @@ export async function duplicateEvent(
   const newName = `${original.name} (Copia)`;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     const newId = createDemoEvent({
@@ -520,7 +537,7 @@ export async function duplicateEvent(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const { data, error } = await supabase
       .from('events')
       .insert({

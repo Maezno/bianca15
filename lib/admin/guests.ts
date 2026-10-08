@@ -2,7 +2,6 @@
 
 import { requireAdmin } from './auth';
 
-import { createClient } from '@/lib/supabase/server';
 import { generateToken } from '@/lib/utils/token';
 import type { AdminGuestGroupItem, CreateAdminGroupInput, UpdateAdminGroupInput, CsvValidatedRow } from './types';
 import type { Guest, Confirmation, Attendee } from '@/types/database';
@@ -29,7 +28,7 @@ export async function getAdminGuestGroups(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: groups, error } = await supabase
       .from('guest_groups')
@@ -126,7 +125,7 @@ export async function createAdminGuestGroup(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: group, error } = await supabase
       .from('guest_groups')
@@ -186,7 +185,7 @@ export async function updateAdminGuestGroup(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: conf } = await supabase
       .from('confirmations')
@@ -283,7 +282,7 @@ export async function addGuestPerson(
   if (!supabaseUrl || !supabaseKey) return { success: true };
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const { error } = await supabase.from('guests').insert({
       group_id: groupId,
       name: name.trim(),
@@ -306,7 +305,7 @@ export async function removeGuestPerson(
   if (!supabaseUrl || !supabaseKey) return { success: true };
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
     const { error } = await supabase.from('guests').delete().eq('id', guestId);
 
     if (error) return { success: false, error: 'No se pudo quitar el invitado.' };
@@ -335,7 +334,7 @@ export async function importCsvGuestGroups(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const groupsMap = new Map<string, { maxGuests: number; phone?: string; guests: string[] }>();
 
@@ -424,7 +423,7 @@ export async function duplicateAdminGuestGroup(
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const { data: original, error: origErr } = await supabase
       .from('guest_groups')
