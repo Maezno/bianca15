@@ -89,11 +89,38 @@ export function FloatingMusicPlayer({
     window.addEventListener('click', onUserInteraction, { passive: true });
     window.addEventListener('touchend', onUserInteraction, { passive: true });
 
+    // Pausar la música si el usuario cambia de pestaña, minimiza la app o sale de la página
+    const handleVisibilityChange = () => {
+      const currentAudio = audioRef.current || window.__invitationAudio;
+      if (!currentAudio) return;
+      if (document.hidden) {
+        currentAudio.pause();
+      }
+    };
+
+    const handlePageHide = () => {
+      const currentAudio = audioRef.current || window.__invitationAudio;
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('beforeunload', handlePageHide);
+
     return () => {
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       window.removeEventListener('play-invitation-music', handleCustomPlay);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('beforeunload', handlePageHide);
       removeListeners();
+      // Si el componente se desmonta (navegación a otra ruta), pausar el audio
+      if (window.__invitationAudio) {
+        window.__invitationAudio.pause();
+      }
     };
   }, [audioSrc, defaultVolume]);
 
