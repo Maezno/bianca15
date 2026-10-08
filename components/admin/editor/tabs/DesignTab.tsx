@@ -2124,9 +2124,12 @@ export function DesignTab({
               style.albumUrl !== undefined ||
               style.qrUrl !== undefined ||
               style.showQr !== undefined ||
-              style.buttonText !== undefined
+              style.buttonText !== undefined ||
+              style.showStartButton !== undefined ||
+              style.startButtonText !== undefined ||
+              style.buttonBg !== undefined
             );
-            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.hideTitle || style.hideSubtitle || style.customTitle !== undefined || style.customSubtitle !== undefined || style.buttonBackgroundImage || style.buttonsLayout !== undefined || style.buttonBackgroundScale !== undefined || style.albumUrl !== undefined || style.qrUrl !== undefined || style.showQr !== undefined || style.buttonText !== undefined;
+            const hasAnyStyle = hasBg || style.noBackground || style.noBorder || hasFont || style.hideText || style.hideTitle || style.hideSubtitle || style.customTitle !== undefined || style.customSubtitle !== undefined || style.buttonBackgroundImage || style.buttonsLayout !== undefined || style.buttonBackgroundScale !== undefined || style.albumUrl !== undefined || style.qrUrl !== undefined || style.showQr !== undefined || style.buttonText !== undefined || style.showStartButton !== undefined || style.startButtonText !== undefined || style.buttonBg !== undefined;
             return (
               <div
                 key={sec.id}
@@ -3745,7 +3748,7 @@ export function DesignTab({
                   </div>
 
                   {/* Fondo PNG de botones */}
-                  {['location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
+                  {['hero', 'location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
                     <div style={{ background: '#fff7ed', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #fed7aa', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9a3412' }}>
                         🖼️ Fondo PNG de botones
@@ -3755,7 +3758,9 @@ export function DesignTab({
                     </span>
                     <ButtonImageRow
                       label={
-                        sec.id === 'location'
+                        sec.id === 'hero'
+                          ? 'Fondo PNG Botón «Empezar»'
+                          : sec.id === 'location'
                           ? 'Botones de esta tarjeta (ambos)'
                           : sec.id === 'gifts'
                           ? 'Fondo PNG Botón «Copiar Datos / Alias»'
@@ -3854,7 +3859,7 @@ export function DesignTab({
                   )}
 
                   {/* 🔘 Posición y Disposición de Botones (General y cuando hay 2 botones) */}
-                  {['location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
+                  {['hero', 'location', 'confirmation', 'photos', 'gifts', 'share'].includes(sec.id) && (
                     <div style={{ background: '#f0fdf4', padding: '0.55rem', borderRadius: '0.4rem', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#166534' }}>
@@ -4186,6 +4191,101 @@ export function DesignTab({
                           </span>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* 🎵 Configuración del Botón de Inicio («Empezar» con música) para sec.id === 'hero' */}
+                  {sec.id === 'hero' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', background: '#f5f3ff', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ddd6fe' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#5b21b6', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          🎵 Botón de Inicio («Empezar» / Música)
+                        </span>
+                        {(style.showStartButton !== undefined || style.startButtonText !== undefined || style.buttonText !== undefined || style.buttonBg !== undefined) && (
+                          <button
+                            type="button"
+                            onClick={() => updateSectionStyle(sec.id, { showStartButton: undefined, startButtonText: undefined, buttonText: undefined, buttonBg: undefined })}
+                            style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: '0.68rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                          >
+                            Restablecer
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Mostrar / Ocultar botón */}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.74rem', fontWeight: 600, color: '#4c1d95', cursor: 'pointer', userSelect: 'none' }}>
+                        <input
+                          type="checkbox"
+                          checked={style.showStartButton !== false}
+                          onChange={(e) => updateSectionStyle(sec.id, { showStartButton: e.target.checked })}
+                          style={{ accentColor: '#7c3aed', cursor: 'pointer' }}
+                        />
+                        Mostrar botón en la portada
+                      </label>
+
+                      {/* Texto del Botón */}
+                      {style.showStartButton !== false && (
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#5b21b6' }}>
+                                🏷️ Texto del botón:
+                              </label>
+                              {(style.startButtonText || style.buttonText) && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { startButtonText: undefined, buttonText: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (predeterminado)
+                                </button>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={style.startButtonText ?? style.buttonText ?? ''}
+                              placeholder="Empezar (o ej: Ingresar, Abrir)"
+                              onChange={(e) => updateSectionStyle(sec.id, { startButtonText: e.target.value, buttonText: e.target.value })}
+                              style={{
+                                width: '100%',
+                                padding: '0.45rem 0.6rem',
+                                border: `1px solid ${style.startButtonText || style.buttonText ? '#a78bfa' : '#cbd5e1'}`,
+                                borderRadius: '0.35rem',
+                                fontSize: '0.78rem',
+                                boxSizing: 'border-box',
+                                background: '#ffffff',
+                                color: '#1e293b',
+                              }}
+                            />
+                            <span style={{ fontSize: '0.62rem', color: '#6d28d9' }}>
+                              Al presionarlo, activa la reproducción de música y navega automáticamente hacia la segunda sección.
+                            </span>
+                          </div>
+
+                          {/* Color de fondo si no usa imagen PNG */}
+                          {!style.buttonBackgroundImage && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 600 }}>Color de fondo:</span>
+                              <input
+                                type="color"
+                                value={style.buttonBg || '#9333ea'}
+                                onChange={(e) => updateSectionStyle(sec.id, { buttonBg: e.target.value })}
+                                style={{ width: '28px', height: '22px', padding: 0, border: '1px solid #c084fc', borderRadius: '0.25rem', cursor: 'pointer', background: 'none' }}
+                                title="Color de fondo del botón"
+                              />
+                              {style.buttonBg && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateSectionStyle(sec.id, { buttonBg: undefined })}
+                                  style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: '0.65rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                >
+                                  (usar primario)
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   )}
 

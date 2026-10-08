@@ -169,6 +169,22 @@ export interface SectionStyle {
    */
   hideText?: boolean;
   /**
+   * Si es true, muestra un botón en la sección Hero para comenzar la invitación.
+   */
+  showStartButton?: boolean;
+  /**
+   * Texto del botón de comenzar en la sección Hero (ej. 'Empezar').
+   */
+  startButtonText?: string;
+  /**
+   * Color de fondo personalizado para el botón principal/hero.
+   */
+  buttonBg?: string;
+  /**
+   * Color de texto personalizado para el botón principal/hero.
+   */
+  buttonTextColor?: string;
+  /**
    * Desplazamiento horizontal de todo el contenido de texto (px).
    * Negativo = izquierda, positivo = derecha.
    */

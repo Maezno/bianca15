@@ -452,7 +452,7 @@ function SectionCardItem({
 
   // Las secciones con botones gestionan contentOffset internamente solo en su bloque de texto,
   // para que los botones nunca se muevan con el slider de texto.
-  const isSectionWithButtons = ['location', 'confirmation', 'gifts', 'photos', 'share'].includes(sectionId);
+  const isSectionWithButtons = ['hero', 'location', 'confirmation', 'gifts', 'photos', 'share'].includes(sectionId);
 
   const cardTypographyStyles: React.CSSProperties = {
     fontFamily: sectionTheme?.typography.bodyFont,
