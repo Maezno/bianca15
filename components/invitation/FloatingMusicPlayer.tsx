@@ -8,85 +8,102 @@ interface FloatingMusicPlayerProps {
   defaultVolume?: number;
 }
 
+// Declaración para TypeScript
+declare global {
+  interface Window {
+    __invitationAudio?: HTMLAudioElement;
+    __playInvitationMusic?: () => void;
+  }
+}
+
 export function FloatingMusicPlayer({
   audioSrc = '/audio/alices-theme.mp3',
   primaryColor = '#9333ea',
   defaultVolume = 0.70,
 }: FloatingMusicPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(audioSrc);
-    audio.loop = true;
-    audio.muted = false;
-    audio.volume = defaultVolume;
+    // Reutilizar o instanciar el elemento de audio único
+    let audio = window.__invitationAudio;
+    if (!audio) {
+      audio = new Audio(audioSrc);
+      audio.loop = true;
+      audio.volume = defaultVolume;
+      window.__invitationAudio = audio;
+    } else {
+      if (typeof window !== 'undefined' && audio.src && !audio.src.endsWith(audioSrc)) {
+        audio.src = audioSrc;
+      }
+      audio.volume = defaultVolume;
+    }
     audioRef.current = audio;
 
-    // Intentar reproducción automática inmediata al montar
-    const tryAutoplay = () => {
-      if (audioRef.current) {
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-            setHasInteracted(true);
-            removeListeners();
-          })
-          .catch(() => {
-            // El navegador bloqueó el autoplay sin interacción, queda esperando el primer toque
-          });
-      }
+    // Sincronizar el estado de reproducción con eventos nativos
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+
+    if (!audio.paused) {
+      setIsPlaying(true);
+    }
+
+    const playAudio = () => {
+      const currentAudio = audioRef.current || window.__invitationAudio;
+      if (!currentAudio) return;
+      currentAudio.play().catch((err) => {
+        // Bloqueo esperado de navegador si no hubo gesto previo
+        console.warn('Reproducción de audio a la espera de interacción:', err);
+      });
     };
 
-    tryAutoplay();
+    // Exponer la función globalmente para que el botón "Empezar" la invoque directamente
+    window.__playInvitationMusic = playAudio;
 
-    const startAudioOnInteraction = () => {
-      if (audioRef.current && !audioRef.current.paused) {
-        setIsPlaying(true);
-        removeListeners();
-        return;
+    const handleCustomPlay = () => playAudio();
+    window.addEventListener('play-invitation-music', handleCustomPlay);
+
+    // Intentar reproducir de inmediato (si el navegador lo permite)
+    playAudio();
+
+    // Desbloquear con cualquier primer clic o toque en la pantalla
+    const onUserInteraction = () => {
+      const currentAudio = audioRef.current || window.__invitationAudio;
+      if (currentAudio && currentAudio.paused) {
+        currentAudio.play().then(() => {
+          removeListeners();
+        }).catch(() => {
+          // Si falla, los listeners quedan activos para la siguiente interacción
+        });
       }
-      if (audioRef.current) {
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          setHasInteracted(true);
-        }).catch(() => {});
-      }
-      removeListeners();
     };
 
     const removeListeners = () => {
-      window.removeEventListener('click', startAudioOnInteraction);
-      window.removeEventListener('touchstart', startAudioOnInteraction);
-      window.removeEventListener('scroll', startAudioOnInteraction);
-      window.removeEventListener('pointerdown', startAudioOnInteraction);
+      window.removeEventListener('click', onUserInteraction);
+      window.removeEventListener('touchend', onUserInteraction);
     };
 
-    window.addEventListener('click', startAudioOnInteraction, { once: true, passive: true });
-    window.addEventListener('touchstart', startAudioOnInteraction, { once: true, passive: true });
-    window.addEventListener('scroll', startAudioOnInteraction, { once: true, passive: true });
-    window.addEventListener('pointerdown', startAudioOnInteraction, { once: true, passive: true });
+    window.addEventListener('click', onUserInteraction, { passive: true });
+    window.addEventListener('touchend', onUserInteraction, { passive: true });
 
     return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      window.removeEventListener('play-invitation-music', handleCustomPlay);
       removeListeners();
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
     };
   }, [audioSrc, defaultVolume]);
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
+    const audio = audioRef.current || window.__invitationAudio;
+    if (!audio) return;
+    if (!audio.paused) {
+      audio.pause();
     } else {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-        setHasInteracted(true);
-      }).catch((err) => {
+      audio.play().catch((err) => {
         console.error('Error al reproducir audio:', err);
       });
     }

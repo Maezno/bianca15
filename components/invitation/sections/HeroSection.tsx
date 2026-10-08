@@ -214,6 +214,27 @@ export function HeroSection({ event, theme, guestGroup }: SectionBaseProps) {
           <ActionButton
             label={buttonText}
             onClick={() => {
+              // 1. Iniciar la reproducción de música inmediatamente en el evento de clic
+              try {
+                if (typeof window !== 'undefined') {
+                  if (window.__playInvitationMusic) {
+                    window.__playInvitationMusic();
+                  } else if (window.__invitationAudio) {
+                    window.__invitationAudio.play().catch(() => {});
+                  } else {
+                    const audio = new Audio('/audio/alices-theme.mp3');
+                    audio.loop = true;
+                    audio.volume = 0.70;
+                    window.__invitationAudio = audio;
+                    audio.play().catch(() => {});
+                  }
+                  window.dispatchEvent(new CustomEvent('play-invitation-music'));
+                }
+              } catch (e) {
+                console.warn('Error al activar música:', e);
+              }
+
+              // 2. Scroll suave a la siguiente sección
               const heroSection = document.getElementById('section-hero');
               if (heroSection && heroSection.nextElementSibling) {
                 heroSection.nextElementSibling.scrollIntoView({ behavior: 'smooth' });
