@@ -23,14 +23,34 @@ export function FloatingMusicPlayer({
     audio.volume = defaultVolume;
     audioRef.current = audio;
 
+    // Intentar reproducción automática inmediata al montar
+    const tryAutoplay = () => {
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+            setHasInteracted(true);
+            removeListeners();
+          })
+          .catch(() => {
+            // El navegador bloqueó el autoplay sin interacción, queda esperando el primer toque
+          });
+      }
+    };
+
+    tryAutoplay();
+
     const startAudioOnInteraction = () => {
-      if (audioRef.current && !hasInteracted) {
+      if (audioRef.current && !audioRef.current.paused) {
+        setIsPlaying(true);
+        removeListeners();
+        return;
+      }
+      if (audioRef.current) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
           setHasInteracted(true);
-        }).catch(() => {
-          // Si el navegador bloquea, espera un clic en el botón
-        });
+        }).catch(() => {});
       }
       removeListeners();
     };
@@ -39,11 +59,13 @@ export function FloatingMusicPlayer({
       window.removeEventListener('click', startAudioOnInteraction);
       window.removeEventListener('touchstart', startAudioOnInteraction);
       window.removeEventListener('scroll', startAudioOnInteraction);
+      window.removeEventListener('pointerdown', startAudioOnInteraction);
     };
 
-    window.addEventListener('click', startAudioOnInteraction, { once: true });
-    window.addEventListener('touchstart', startAudioOnInteraction, { once: true });
-    window.addEventListener('scroll', startAudioOnInteraction, { once: true });
+    window.addEventListener('click', startAudioOnInteraction, { once: true, passive: true });
+    window.addEventListener('touchstart', startAudioOnInteraction, { once: true, passive: true });
+    window.addEventListener('scroll', startAudioOnInteraction, { once: true, passive: true });
+    window.addEventListener('pointerdown', startAudioOnInteraction, { once: true, passive: true });
 
     return () => {
       removeListeners();
@@ -52,7 +74,7 @@ export function FloatingMusicPlayer({
         audioRef.current = null;
       }
     };
-  }, [audioSrc, defaultVolume, hasInteracted]);
+  }, [audioSrc, defaultVolume]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
