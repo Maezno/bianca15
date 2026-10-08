@@ -69,6 +69,7 @@ En Vercel (`Settings -> Environment Variables`), las siguientes variables deben 
 6. **Reproductor de Música Flotante y Botón de Inicio («Empezar»)**:
    - **Música de fondo en loop:** Canción *Alice's Theme* (Danny Elfman) alojada en `/public/audio/alices-theme.mp3`.
    - **Reproductor flotante (`FloatingMusicPlayer.tsx`):** Botón circular en la esquina inferior con efecto glassmorphism, animación giratoria cuando reproduce y silenciador con un tap.
+   - **Pausa automática inteligente:** Escucha `visibilitychange`, `pagehide` y `beforeunload` para pausar la música si el usuario minimiza, cambia de pestaña o cierra el navegador.
    - **Botón «Empezar» en la Portada (Hero):** Soluciona las políticas de autoplay estricto de navegadores móviles (iOS/Safari/Android). Al tocarlo, desbloquea y reproduce el audio de forma inmediata y hace *smooth scroll* automático hacia la segunda sección.
    - **Personalización total en el Editor de Diseño (`DesignTab.tsx`):**
      - Soporte para imagen de fondo PNG/WebP personalizada en el botón de la Portada.
