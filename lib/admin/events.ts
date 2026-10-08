@@ -12,6 +12,8 @@ import {
   updateDemoEvent,
   createDemoEvent,
 } from '@/lib/events/demo-store';
+import { loadDemoGuestGroups } from './demo-guests-store';
+import type { AdminGuestGroupItem } from './types';
 
 function safeRevalidatePath(path: string) {
   try {
@@ -27,7 +29,8 @@ export async function getAdminEvents(): Promise<AdminEventSummary[]> {
   if (!user) return [];
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return getDemoEventsList();
@@ -140,38 +143,88 @@ export async function getAdminEventById(
   };
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     const demoEvent = getDemoEventById(eventId) || getDemoEventById('11111111-1111-1111-1111-111111111111');
     if (!demoEvent) {
       return { event: null, stats: defaultStats };
     }
+
+    const demoGroups: AdminGuestGroupItem[] = loadDemoGuestGroups().filter(
+      (g: AdminGuestGroupItem) => !eventId || g.event_id === eventId || g.event_id === '11111111-1111-1111-1111-111111111111'
+    );
+
+    let confirmedGroups = 0;
+    let pendingGroups = 0;
+    let declinedGroups = 0;
+    let maxCapacity = 0;
+    let confirmedPersons = 0;
+
+    const dietaryCounts: Record<string, number> = {
+      none: 0,
+      vegetarian: 0,
+      vegan: 0,
+      celiac: 0,
+      other: 0,
+    };
+    const dietaryDetails: AdminEventStats['dietary']['details'] = [];
+
+    demoGroups.forEach((g: AdminGuestGroupItem) => {
+      maxCapacity += g.max_guests || 0;
+      const status = g.confirmation?.status || 'pending';
+      if (status === 'confirmed') {
+        confirmedGroups++;
+        confirmedPersons += g.confirmation?.guests_count || 0;
+        (g.attendees || []).forEach((att: { name: string; dietary_restriction?: string | null }) => {
+          const rawDietary = (att.dietary_restriction || 'none').toLowerCase();
+          if (rawDietary === 'vegetarian' || rawDietary.includes('vegetar')) {
+            dietaryCounts.vegetarian++;
+            dietaryDetails.push({ groupName: g.name, attendeeName: att.name, restriction: 'Vegetariano/a' });
+          } else if (rawDietary === 'vegan' || rawDietary.includes('vegan')) {
+            dietaryCounts.vegan++;
+            dietaryDetails.push({ groupName: g.name, attendeeName: att.name, restriction: 'Vegano/a' });
+          } else if (rawDietary === 'celiac' || rawDietary.includes('cel')) {
+            dietaryCounts.celiac++;
+            dietaryDetails.push({ groupName: g.name, attendeeName: att.name, restriction: 'Celíaco/a' });
+          } else if (rawDietary === 'none' || !rawDietary) {
+            dietaryCounts.none++;
+          } else {
+            dietaryCounts.other++;
+            dietaryDetails.push({ groupName: g.name, attendeeName: att.name, restriction: att.dietary_restriction || 'Otra' });
+          }
+        });
+      } else if (status === 'declined') {
+        declinedGroups++;
+      } else {
+        pendingGroups++;
+      }
+    });
+
     return {
       event: demoEvent,
       stats: {
         groups: {
-          total: 2,
-          confirmed: 1,
-          pending: 1,
-          declined: 0,
+          total: demoGroups.length,
+          confirmed: confirmedGroups,
+          pending: pendingGroups,
+          declined: declinedGroups,
         },
         persons: {
-          maxCapacity: 7,
-          confirmedPersons: 4,
-          remainingCapacity: 3,
+          maxCapacity,
+          confirmedPersons,
+          remainingCapacity: Math.max(0, maxCapacity - confirmedPersons),
         },
         dietary: {
           summary: [
-            { key: 'none', label: 'Ninguna', count: 3 },
-            { key: 'vegetarian', label: 'Vegetariano/a', count: 1 },
-            { key: 'vegan', label: 'Vegano/a', count: 0 },
-            { key: 'celiac', label: 'Celíaco/a', count: 0 },
-            { key: 'other', label: 'Otras', count: 0 },
+            { key: 'none', label: 'Ninguna', count: dietaryCounts.none },
+            { key: 'vegetarian', label: 'Vegetariano/a', count: dietaryCounts.vegetarian },
+            { key: 'vegan', label: 'Vegano/a', count: dietaryCounts.vegan },
+            { key: 'celiac', label: 'Celíaco/a', count: dietaryCounts.celiac },
+            { key: 'other', label: 'Otras', count: dietaryCounts.other },
           ],
-          details: [
-            { groupName: 'Familia Pérez', attendeeName: 'María Pérez', restriction: 'Vegetariano/a' },
-          ],
+          details: dietaryDetails,
         },
       },
     };
@@ -304,7 +357,8 @@ export async function createEvent(
   const cleanSlug = slugify(input.slug);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     const eventId = createDemoEvent(input);
@@ -374,7 +428,8 @@ export async function updateEvent(
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return { success: true };
@@ -438,7 +493,8 @@ export async function duplicateEvent(
   const newName = `${original.name} (Copia)`;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     const newId = createDemoEvent({

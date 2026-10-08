@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCurrentAdminUser } from '@/lib/admin/auth';
 import { getAdminEventById } from '@/lib/admin/events';
+import { getAdminGuestGroups } from '@/lib/admin/guests';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventStats } from '@/components/admin/EventStats';
 import { DietarySummary } from '@/components/admin/DietarySummary';
+import { DashboardGuestManager } from '@/components/admin/DashboardGuestManager';
 import { getTemplate } from '@/templates/registry';
 import { DuplicateEventButton } from '@/components/admin/DuplicateEventButton';
 import { GeneralQrButton } from '@/components/admin/GeneralQrButton';
@@ -24,6 +26,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   if (!event) {
     notFound();
   }
+
+  const groups = await getAdminGuestGroups(event.id, event.slug);
 
   const template = getTemplate(event.template_id);
 
@@ -219,6 +223,15 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
       {/* Dietary Restrictions Breakdown */}
       <DietarySummary stats={stats} />
+
+      {/* Guest List Directly on Dashboard */}
+      <DashboardGuestManager
+        eventId={event.id}
+        eventSlug={event.slug}
+        eventName={event.name}
+        whatsappTemplate={event.whatsapp_template}
+        initialGroups={groups}
+      />
     </AdminLayout>
   );
 }
