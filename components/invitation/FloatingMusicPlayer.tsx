@@ -11,7 +11,7 @@ interface FloatingMusicPlayerProps {
 export function FloatingMusicPlayer({
   audioSrc = '/audio/alices-theme.mp3',
   primaryColor = '#9333ea',
-  defaultVolume = 0.25,
+  defaultVolume = 0.70,
 }: FloatingMusicPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -20,6 +20,7 @@ export function FloatingMusicPlayer({
   useEffect(() => {
     const audio = new Audio(audioSrc);
     audio.loop = true;
+    audio.muted = false;
     audio.volume = defaultVolume;
     audioRef.current = audio;
 

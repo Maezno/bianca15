@@ -1045,7 +1045,7 @@ export function PublicInvitationRenderer({
       <FloatingMusicPlayer
         audioSrc="/audio/alices-theme.mp3"
         primaryColor={theme.colors.primary}
-        defaultVolume={0.25}
+        defaultVolume={0.70}
       />
     </div>
   );
