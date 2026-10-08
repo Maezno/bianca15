@@ -65,6 +65,7 @@ import {
   ShareSection,
   FooterSection,
 } from './sections';
+import { FloatingMusicPlayer } from './FloatingMusicPlayer';
 
 const DEFAULT_SECTIONS = [
   'hero',
@@ -1039,6 +1040,13 @@ export function PublicInvitationRenderer({
           );
         })}
       </main>
+
+      {/* Reproductor de música de fondo flotante */}
+      <FloatingMusicPlayer
+        audioSrc="/audio/alices-theme.mp3"
+        primaryColor={theme.colors.primary}
+        defaultVolume={0.25}
+      />
     </div>
   );
 }
