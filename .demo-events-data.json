@@ -95,10 +95,10 @@
             "noBorder": true,
             "verticalGap": 8,
             "wordSpacing": 2,
-            "bodyFontSize": 26,
+            "bodyFontSize": 32,
             "noBackground": true,
             "titleOffsetY": -6,
-            "titleFontSize": 28,
+            "titleFontSize": 37,
             "backgroundSize": "150% auto",
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/26332c3e-8f5b-4aea-b0b9-2d232a3d679b.webp",
             "sectionBodyFont": "'Alice in Wonderland', cursive",
@@ -122,7 +122,10 @@
             "sectionBodyFont": "'Alice in Wonderland', cursive",
             "showStartButton": true,
             "startButtonText": "Empezar",
-            "backgroundSizeMobile": "140% auto"
+            "backgroundSizeMobile": "140% auto",
+            "buttonBackgroundImage": "https://xdtmxcjbtwnutjhaxyek.supabase.co/storage/v1/object/public/event-assets/11111111-1111-1111-1111-111111111111/75c1f9b0-a563-4bcd-8d7b-96e8d51ce803.webp",
+            "hideButtonLabel": true,
+            "buttonBackgroundScale": 160
           },
           "gifts": {
             "cardGap": 0,
@@ -135,9 +138,9 @@
             "noBackground": true,
             "titleOffsetY": 0,
             "titleFontSize": 33,
-            "backgroundSize": "120% auto",
+            "backgroundSize": "145% auto",
             "buttonsOffsetY": 300,
-            "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/50bcda5b-455d-4000-a1b5-e20b2faf08bc.webp",
+            "backgroundImage": "https://xdtmxcjbtwnutjhaxyek.supabase.co/storage/v1/object/public/event-assets/11111111-1111-1111-1111-111111111111/eac44030-6256-4784-b246-0bef5c5d43af.webp",
             "hideButtonLabel": true,
             "sectionBodyFont": "Cinzel, serif",
             "backgroundSizeMobile": "165% auto",
@@ -251,8 +254,8 @@
             "hideSubtitle": true,
             "noBackground": true,
             "buttonsLayout": "row",
-            "backgroundSize": "75% auto",
-            "buttonsOffsetY": 92,
+            "backgroundSize": "120% auto",
+            "buttonsOffsetY": 100,
             "contentOffsetY": 78,
             "backgroundImage": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/b8165cd3-d7a0-4254-979f-cda21cc2d948.webp",
             "hideButtonLabel": true,
@@ -263,16 +266,16 @@
           }
         },
         "sectionHeights": {
-          "date": 651,
-          "hero": 709,
+          "date": 823,
+          "hero": 938,
           "gifts": 980,
           "share": 347,
           "footer": 250,
-          "photos": 819,
-          "welcome": 460,
-          "location": 594,
+          "photos": 933,
+          "welcome": 748,
+          "location": 833,
           "schedule": 595,
-          "countdown": 660,
+          "countdown": 949,
           "dress_code": 1063,
           "confirmation": 599
         },
@@ -295,7 +298,7 @@
           "location": 670,
           "countdown": 686,
           "dress_code": 791,
-          "confirmation": 419
+          "confirmation": 454
         },
         "continuousBackgroundUrl": "/api/uploads/event-assets/11111111-1111-1111-1111-111111111111/abfaa834-4ede-4ef2-98c8-9d07dbc633f6.webp"
       },
@@ -306,7 +309,7 @@
     },
     "whatsapp_template": null,
     "created_at": "2026-08-15T12:00:00Z",
-    "updated_at": "2026-10-08T03:22:53.513Z"
+    "updated_at": "2026-10-08T03:31:50.808Z"
   },
   {
     "id": "22222222-2222-2222-2222-222222222222",
