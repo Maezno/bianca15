@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createAdminGuestGroup, updateAdminGuestGroup } from '@/lib/admin/guests';
+import { deriveFamilyGroupName } from '@/lib/utils/names';
 import type { AdminGuestGroupItem } from '@/lib/admin/types';
 
 interface GuestGroupModalProps {
@@ -186,7 +187,7 @@ export function GuestGroupModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Familia Pérez o Juan García"
+              placeholder="Ej: Familia Pérez - Gómez o Juan García"
               style={{
                 width: '100%',
                 padding: '0.65rem 0.75rem',
@@ -197,6 +198,31 @@ export function GuestGroupModal({
               }}
               required
             />
+            {!isEditing && initialGuests.trim() && (() => {
+              const suggested = deriveFamilyGroupName(initialGuests.split('\n'));
+              return suggested && suggested !== 'Familia' && name !== suggested ? (
+                <button
+                  type="button"
+                  onClick={() => setName(suggested)}
+                  style={{
+                    marginTop: '0.35rem',
+                    padding: '0.25rem 0.6rem',
+                    fontSize: '0.78rem',
+                    color: '#9333ea',
+                    background: '#f3e8ff',
+                    border: '1px solid #d8b4fe',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                  }}
+                >
+                  ✨ Usar sugerencia: {suggested}
+                </button>
+              ) : null;
+            })()}
           </div>
 
           <div>
@@ -294,8 +320,17 @@ export function GuestGroupModal({
               <textarea
                 rows={3}
                 value={initialGuests}
-                onChange={(e) => setInitialGuests(e.target.value)}
-                placeholder={'Juan Pérez\nMaría Pérez\nPedro Pérez'}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setInitialGuests(val);
+                  if (!name.trim()) {
+                    const derived = deriveFamilyGroupName(val.split('\n'));
+                    if (derived && derived !== 'Familia') {
+                      setName(derived);
+                    }
+                  }
+                }}
+                placeholder={'Juan Pérez\nMaría Gómez\nLucas Pérez'}
                 style={{
                   width: '100%',
                   padding: '0.65rem 0.75rem',

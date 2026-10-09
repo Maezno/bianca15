@@ -12,7 +12,7 @@ const DEMO_GROUPS: Record<
     group: {
       id: "11111111-0001-0001-0001-000000000001",
       eventId: "11111111-1111-1111-1111-111111111111",
-      name: "Familia Pérez",
+      name: "Familia Pérez - Gómez",
       token: "perez-test1",
       maxGuests: 5,
       guests: [
@@ -73,7 +73,7 @@ const DEMO_GROUPS: Record<
     group: {
       id: "11111111-0002-0002-0002-000000000002",
       eventId: "11111111-1111-1111-1111-111111111111",
-      name: "Familia García",
+      name: "Familia García - Gómez",
       token: "garcia-test2",
       maxGuests: 2,
       guests: [
@@ -109,7 +109,7 @@ const DEMO_GROUPS: Record<
     group: {
       id: "22222222-0001-0001-0001-000000000001",
       eventId: "22222222-2222-2222-2222-222222222222",
-      name: "Familia Rodríguez",
+      name: "Familia Rodríguez - Díaz",
       token: "rodriguez-boda",
       maxGuests: 4,
       guests: [

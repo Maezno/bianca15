@@ -5,11 +5,11 @@ export const CSV_TEMPLATE_HEADER = 'grupo,cupo,nombre,apellido,telefono,email';
 export function generateCsvTemplate(): string {
   const sample = [
     CSV_TEMPLATE_HEADER,
-    'Familia Pérez,5,Juan,Pérez,1122334455,juan@email.com',
-    'Familia Pérez,5,María,Pérez,1122334455,maria@email.com',
-    'Familia Pérez,5,Pedro,Pérez,,',
+    'Familia Pérez - Gómez,5,Juan,Pérez,1122334455,juan@email.com',
+    'Familia Pérez - Gómez,5,María,Gómez,1122334455,maria@email.com',
+    'Familia Pérez - Gómez,5,Lucas,Pérez,,',
     'Juan García,1,Juan,García,1199887766,',
-    'Familia Rodríguez,4,Roberto,Rodríguez,1144556677,roberto@email.com',
+    'Familia Rodríguez - López,4,Roberto,Rodríguez,1144556677,roberto@email.com',
   ].join('\r\n');
 
   return '\uFEFF' + sample;

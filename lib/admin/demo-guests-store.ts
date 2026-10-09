@@ -9,7 +9,7 @@ const INITIAL_GROUPS: AdminGuestGroupItem[] = [
   {
     id: '11111111-0001-0001-0001-000000000001',
     event_id: '11111111-1111-1111-1111-111111111111',
-    name: 'Familia Pérez',
+    name: 'Familia Pérez - Gómez',
     token: 'perez-test1',
     max_guests: 5,
     phone: '1122334455',
@@ -45,7 +45,7 @@ const INITIAL_GROUPS: AdminGuestGroupItem[] = [
   {
     id: '11111111-0002-0002-0002-000000000002',
     event_id: '11111111-1111-1111-1111-111111111111',
-    name: 'Familia García',
+    name: 'Familia García - Gómez',
     token: 'garcia-test2',
     max_guests: 2,
     phone: '1199887766',

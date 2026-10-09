@@ -121,3 +121,8 @@ En Vercel (`Settings -> Environment Variables`), las siguientes variables deben 
    - Al iniciar sesión como admin local (`maezno`), se eliminan cookies residuales de Supabase (`sb-*`) para evitar conflictos de identidad entre sesiones previas en el mismo navegador.
    - Al cerrar sesión (`/api/auth/logout`), se purgan tanto `admin-session` como las cookies de Supabase.
 
+4. **Nombres de Grupos Familiares:**
+   - Para que los grupos familiares incluyan a ambas partes y no queden con un solo apellido, el sistema utiliza la convención combinada con guión: `Familia Apellido1 - Apellido2` (ej: *Familia Pérez - Gómez*).
+   - Implementado de forma automática mediante `deriveFamilyGroupName` (`lib/utils/names.ts`) en confirmaciones web (RSVP), sugerencias del modal administrativo (`GuestGroupModal.tsx`) y plantillas CSV.
+
+

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { generateToken } from '@/lib/utils/token';
+import { deriveFamilyGroupName } from '@/lib/utils/names';
 import { addDemoGuestGroupFromRsvp } from '@/lib/admin/demo-guests-store';
 
 export interface PublicRsvpPayload {
@@ -38,8 +39,8 @@ export async function submitPublicRsvp(payload: PublicRsvpPayload): Promise<Publ
   if (!groupName) {
     if (payload.type === 'individual' && cleanMembers[0]) {
       groupName = cleanMembers[0];
-    } else if (cleanMembers[0]) {
-      groupName = `Familia ${cleanMembers[0].split(' ').pop() || cleanMembers[0]}`;
+    } else if (cleanMembers.length > 0) {
+      groupName = deriveFamilyGroupName(cleanMembers);
     } else {
       groupName = 'Invitado';
     }

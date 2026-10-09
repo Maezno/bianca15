@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { submitPublicRsvp } from '@/lib/confirmations/public-rsvp';
+import { deriveFamilyGroupName } from '@/lib/utils/names';
 import type { TemplateTheme } from '@/templates/types';
 
 interface RsvpModalProps {
@@ -490,26 +491,34 @@ export function RsvpModal({
                     >
                       Nombre de la Familia o Grupo (opcional)
                     </label>
-                    <input
-                      id="rsvp-family-name"
-                      type="text"
-                      placeholder="Ej: Familia Gómez"
-                      value={familyName}
-                      onChange={(e) => setFamilyName(e.target.value)}
-                      style={{
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        padding: '0.65rem 0.85rem',
-                        borderRadius: '0.6rem',
-                        border: '2px solid #e2e8f0',
-                        fontSize: '0.9rem',
-                        color: '#0f172a',
-                        outline: 'none',
-                        transition: 'border-color 0.15s ease',
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = primaryColor)}
-                      onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
-                    />
+                    {(() => {
+                      const validMembers = members.filter((m) => m.trim().length > 0);
+                      const dynamicFamilyPlaceholder = validMembers.length > 0
+                        ? `Ej: ${deriveFamilyGroupName(validMembers)}`
+                        : 'Ej: Familia Gómez - Rossi';
+                      return (
+                        <input
+                          id="rsvp-family-name"
+                          type="text"
+                          placeholder={dynamicFamilyPlaceholder}
+                          value={familyName}
+                          onChange={(e) => setFamilyName(e.target.value)}
+                          style={{
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '0.6rem',
+                            border: '2px solid #e2e8f0',
+                            fontSize: '0.9rem',
+                            color: '#0f172a',
+                            outline: 'none',
+                            transition: 'border-color 0.15s ease',
+                          }}
+                          onFocus={(e) => (e.target.style.borderColor = primaryColor)}
+                          onBlur={(e) => (e.target.style.borderColor = '#e2e8f0')}
+                        />
+                      );
+                    })()}
                   </div>
 
                   <label
@@ -628,7 +637,7 @@ export function RsvpModal({
                 <input
                   id="decline-name"
                   type="text"
-                  placeholder="Ej: Laura Gómez / Familia Pérez"
+                  placeholder="Ej: Laura Gómez / Familia Pérez - Gómez"
                   value={members[0] || familyName}
                   onChange={(e) => {
                     handleMemberChange(0, e.target.value);
